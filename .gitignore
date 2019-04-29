@@ -1,0 +1,8 @@
+/.settings/
+/target/
+/bin/
+
+.project
+.classpath
+
+*dev*
