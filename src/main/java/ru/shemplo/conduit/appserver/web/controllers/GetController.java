@@ -4,36 +4,31 @@ import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.util.Collection;
 
-import javax.persistence.EntityNotFoundException;
-
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.*;
-import ru.shemplo.conduit.appserver.services.GroupsService;
-import ru.shemplo.conduit.appserver.services.PersonalitiesService;
+import ru.shemplo.conduit.appserver.entities.StudyPeriodEntity;
 import ru.shemplo.conduit.appserver.services.StudyPeriodsService;
-import ru.shemplo.conduit.appserver.services.WUserService;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
 
 @RestController
 @RequiredArgsConstructor
 public class GetController {
     
-    private final PersonalitiesService personalitiesService;
+    //private final PersonalitiesService personalitiesService;
     private final StudyPeriodsService periodsService;
-    private final GroupsService groupsService;
-    private final WUserService usersService;
+    //private final GroupsService groupsService;
+    //private final WUserService usersService;
     
     @GetMapping (API_GET_PERIODS) 
     public ResponseBox <Collection <StudyPeriodEntity>> handleGetPeriods () {
         return ResponseBox.ok (periodsService.getAllPeriods ());
     }
     
+    /*
     @GetMapping (API_GET_PERSONALITY) 
-    public ResponseBox <AbsPersonalityEntity> handleGetPersonality (
+    public ResponseBox <PersonalityEntity> handleGetPersonality (
         @RequestParam ("userID")   long userID,
         @RequestParam ("periodID") long studyPeriodID
     ) {
@@ -42,7 +37,7 @@ public class GetController {
             StudyPeriodEntity period = periodsService.getPeriod (studyPeriodID);
             UserEntity user = usersService.getUser (userID).getEntity ();
             
-            AbsPersonalityEntity entity = personalitiesService
+            PersonalityEntity entity = personalitiesService
                                         . getPersonality (user, period);
             String type = entity instanceof StudentPersonalityEntity
                         ? "student"
@@ -55,8 +50,11 @@ public class GetController {
         } catch (EntityNotFoundException enfe) {
             return ResponseBox.fail (enfe);
         }
+        return ResponseBox.fail ("Not implemented");
     }
+    */
     
+    /*
     @GetMapping (API_GET_GROUPS)
     public ResponseBox <Collection <GroupEntity>> handleGetGroups (
         @RequestParam ("periodID") Long periodID
@@ -68,5 +66,6 @@ public class GetController {
             return ResponseBox.fail (enfe);
         }
     }
+    */
     
 }

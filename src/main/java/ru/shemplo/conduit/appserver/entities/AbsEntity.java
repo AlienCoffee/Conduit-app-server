@@ -8,6 +8,7 @@ import lombok.*;
 @Getter @Setter
 @MappedSuperclass
 @NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
 public abstract class AbsEntity implements Identifiable {
     

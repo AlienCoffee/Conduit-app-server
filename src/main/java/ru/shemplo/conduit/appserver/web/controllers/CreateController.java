@@ -4,7 +4,6 @@ import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 
 import org.springframework.security.core.Authentication;
@@ -13,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.StudyPeriodEntity;
-import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
-import ru.shemplo.conduit.appserver.services.GroupsService;
 import ru.shemplo.conduit.appserver.services.StudyPeriodsService;
 import ru.shemplo.conduit.appserver.services.WUserService;
 import ru.shemplo.conduit.appserver.utils.PasswordValidator;
@@ -29,7 +25,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 public class CreateController {
     
     private final StudyPeriodsService periodsService;
-    private final GroupsService groupsService;
+    //private final GroupsService groupsService;
     private final WUserService usersService;
     
     @PostMapping (API_CREATE_USER)
@@ -77,6 +73,7 @@ public class CreateController {
         periodsService.createPeriod (name, description, sinceDT, untilDT, true, user);
     }
     
+    /*
     @PostMapping (API_CREATE_GROUP) 
     public ResponseBox <Void> handleCreateGroup (
         @IndentifiedUser WUser user,
@@ -94,5 +91,6 @@ public class CreateController {
         
         return ResponseBox.ok ();
     }
+    */
     
 }

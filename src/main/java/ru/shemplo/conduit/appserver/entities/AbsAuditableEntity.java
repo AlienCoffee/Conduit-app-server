@@ -18,6 +18,7 @@ import lombok.*;
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode (callSuper = true)
 public abstract class AbsAuditableEntity extends AbsEntity {
     
     @JsonIgnore

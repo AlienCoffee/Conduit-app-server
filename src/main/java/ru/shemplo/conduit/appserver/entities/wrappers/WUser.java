@@ -1,6 +1,7 @@
 package ru.shemplo.conduit.appserver.entities.wrappers;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,24 +9,26 @@ import org.springframework.security.core.userdetails.User;
 
 import lombok.Getter;
 import lombok.ToString;
-import ru.shemplo.conduit.appserver.entities.Identifiable;
-import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.UserEntity;
+import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.services.WUserService;
+import ru.shemplo.snowball.stuctures.Pair;
 
 @ToString
 public class WUser extends User implements Identifiable {
     
     private static final long serialVersionUID = -6022311839660659826L;
     
+    //private static final long FIVE_MINUTES = 5 * 60 * 1000;
+    
     @Getter private final UserEntity entity;
-    private final Set <RoleEntity> roles;
     private final WUserService service;
+    
+    private final Map <StudyPeriodEntity, List <RoleEntity>> roles = new HashMap <> ();
+    private final Set <GrantedAuthority> authorities = new LinkedHashSet <> ();
     
     public WUser (UserEntity entity, WUserService service) {
         super (entity.getLogin (), entity.getPassword (), 
-               new ArrayList <> ());
-        this.roles = new HashSet <> ();
+               new ArrayList <> () /* stub array */ );
         this.service = service;
         this.entity = entity;
     }
@@ -33,32 +36,44 @@ public class WUser extends User implements Identifiable {
     @Override
     public Long getId () { return entity.getId (); }
     
-    public Collection <RoleEntity> getRoles () {
-        return Collections.unmodifiableSet (roles);
-    }
-    
     @Override
-    public Collection <GrantedAuthority> getAuthorities () {
-        return super.getAuthorities ();
+    public Set <GrantedAuthority> getAuthorities () {
+        if (authorities.isEmpty ()) { 
+            reloadAuthorities (); 
+        }
+        
+        return authorities;
     }
     
-    public static Collection <GrantedAuthority> getAuthorities (UserEntity entity, 
-            WUserService service) {
-        final List <GrantedAuthority> result = new ArrayList <> ();
-        if (entity == null || service == null) { return result; }
+    public List <RoleEntity> getRoles (StudyPeriodEntity period) {
+        if (roles.isEmpty ()) { reloadAuthorities (); }
+        return roles.get (period);
+    }
+    
+    public synchronized Set <GrantedAuthority> reloadAuthorities () {
+        authorities.clear ();
+        roles.clear ();
         
-        service.getAllUsersRoles (entity).stream ().forEach (pair -> {
+        roles.putAll (service.getAllUserRoles (entity));
+        
+        roles.entrySet ().stream ()
+        . map (Pair::fromMapEntry)
+        . map (pair -> pair.applyS (
+            lst -> lst.stream ().map (RoleEntity::getOptions)
+                 . flatMap (Set::stream)
+                 . collect (Collectors.toSet ()))
+        )
+        . forEach (pair -> {
             final Long periodID = pair.F.getId ();
-            
-            pair.S.getOptions ().forEach (option -> {
-                final String optionName = option.getName ();
+            for (OptionEntity entity : pair.S) {
+                final Long optionID = entity.getId ();
                 
-                String auth = String.format ("%d/%s", periodID, optionName);
-                result.add (new SimpleGrantedAuthority (auth));
-            });
+                String authority = String.format ("%d/%d", periodID, optionID);
+                authorities.add (new SimpleGrantedAuthority (authority));
+            }
         });
         
-        return result;
+        return authorities;
     }
     
 }

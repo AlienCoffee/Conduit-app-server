@@ -18,6 +18,7 @@ import lombok.*;
 @Table (name = "users", indexes = {
     @Index (columnList = "phone")
 })
+@EqualsAndHashCode (callSuper = true)
 public class UserEntity extends AbsEntity {
     
     @Column (unique = true)

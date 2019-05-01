@@ -1,6 +1,7 @@
 package ru.shemplo.conduit.appserver.services;
 
-import java.util.Collection;
+import java.time.Clock;
+import java.util.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.RoleAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
@@ -21,15 +23,17 @@ import ru.shemplo.conduit.appserver.entities.repositories.RoleAssignmentEntityRe
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.utils.ExtendedLRUCache;
-import ru.shemplo.snowball.stuctures.Pair;
 
 @Service
 @RequiredArgsConstructor
 public class WUserService implements UserDetailsService {
 
-    private final RoleAssignmentEntityRepository roleAsmtsRepository;
+    private final RoleAssignmentEntityRepository rolesARepository;
     private final UserEntityRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    @Getter private final PersonalitiesService personalitiesService;
+    @Getter private final Clock clock;
     
     private static final int CACHE_SIZE = 64;
     
@@ -73,11 +77,20 @@ public class WUserService implements UserDetailsService {
     public WUser createUser (String login, String phone, String password) {
         final String encoded = passwordEncoder.encode (password);
         UserEntity entity = new UserEntity (login, phone, encoded, false);
-        return new WUser (usersRepository.save (entity), this);
+        WUser user = new WUser (usersRepository.save (entity), this);
+        CACHE_BY_PHONE.put (user); CACHE_BY_LOGIN.put (user);
+        
+        return user;
     }
     
-    public Collection <Pair <StudyPeriodEntity, RoleEntity>> getAllUsersRoles (UserEntity user) {
-        return null;
+    public Map <StudyPeriodEntity, List <RoleEntity>> getAllUserRoles (UserEntity user) {
+        Map <StudyPeriodEntity, List <RoleEntity>> result = new HashMap <> ();
+        rolesARepository.findByUser (user).forEach (entry -> {
+            result.putIfAbsent (entry.getPeriod (), new ArrayList <> ());
+            // TODO: ///
+        });
+        
+        return result;
     }
     
     public Collection <RoleEntity> getUsersRolesInStudyPeriod (
@@ -86,6 +99,7 @@ public class WUserService implements UserDetailsService {
     }
     
     @Transactional
+    @Deprecated
     public WUser chandeUserRole (UserEntity user, RoleEntity role, 
                           StudyPeriodEntity period, boolean add) {
         if (user.getId () == null) {
@@ -94,10 +108,10 @@ public class WUserService implements UserDetailsService {
         
         RoleAssignmentEntity entity = new RoleAssignmentEntity (user, period, role);
         
-        if (add && roleAsmtsRepository.getByAll (user, period, role) == null) {
-            roleAsmtsRepository.save (entity);
+        if (add && rolesARepository.getByAll (user, period, role) == null) {
+            rolesARepository.save (entity);
         } else if (!add) {
-            roleAsmtsRepository.delete (entity);
+            rolesARepository.delete (entity);
         }
         
         /*

@@ -17,6 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table (name = "study_periods")
+@EqualsAndHashCode (callSuper = true)
 public class StudyPeriodEntity extends AbsAuditableEntity {
     
     @Column (nullable = false)
