@@ -3,6 +3,7 @@ package ru.shemplo.conduit.appserver.services;
 import java.time.Clock;
 import java.util.*;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
@@ -11,19 +12,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.RoleAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
+import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.utils.ExtendedLRUCache;
 import ru.shemplo.conduit.appserver.utils.PhoneValidator;
+import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class WUserService implements UserDetailsService {
     private final RoleAssignmentEntityRepository rolesARepository;
     private final UserEntityRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccessGuard accessGuard;
     
     @Getter private final PersonalitiesService personalitiesService;
     @Getter private final Clock clock;
@@ -68,27 +71,38 @@ public class WUserService implements UserDetailsService {
             return tmp == null ? null : new WUser (tmp, this);
         });
         
-        if (user != null && !StringUtils.isEmpty (user.getPassword ())) {
-            return user;
-        }
+        if (user != null) { return user; }
         
-        throw new EntityNotFoundException ();
+        String message = "Unknown credits `" + id + "`";
+        throw new EntityNotFoundException (message);
     }
     
-    public WUser createUser (String login, String phone, String password) {
-        final String encoded = passwordEncoder.encode (password);
-        UserEntity entity = new UserEntity (login, phone, encoded, false);
-        WUser user = new WUser (usersRepository.save (entity), this);
-        CACHE_BY_PHONE.put (user); CACHE_BY_LOGIN.put (user);
-        
-        return user;
+    public Collection <UserEntity> getAllUsers () {
+        accessGuard.method (MiscUtils.getMethod ());
+        return usersRepository.findAll ();
+    }
+    
+    public WUser createUser (String login, String phone, String password)
+            throws EntityExistsException {
+        try {
+            // Check that login and phone is not used yet
+            loadUserByUsername (login);    loadUserByUsername (phone);
+            throw new EntityExistsException ("Login is already used");
+        } catch (UsernameNotFoundException unfe) {
+            final String encoded = passwordEncoder.encode (password);
+            UserEntity entity = new UserEntity (login, phone, encoded, false);
+            WUser user = new WUser (usersRepository.save (entity), this);
+            CACHE_BY_PHONE.put (user); CACHE_BY_LOGIN.put (user);
+            
+            return user;
+        }
     }
     
     public Map <PeriodEntity, List <RoleEntity>> getAllUserRoles (UserEntity user) {
         Map <PeriodEntity, List <RoleEntity>> result = new HashMap <> ();
         rolesARepository.findByUser (user).forEach (entry -> {
             result.putIfAbsent (entry.getPeriod (), new ArrayList <> ());
-            // TODO: ///
+            result.get (entry.getPeriod ()).add (entry.getRole ());
         });
         
         return result;

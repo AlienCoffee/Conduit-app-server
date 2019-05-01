@@ -26,6 +26,8 @@
     		<p><input type="password" id="password" /></p>
     		<p><input type="text" id="remember-me" /></p>
     		-->
+    		<p><input type="text" id="lLogin" value="admin" /></p>
+    		<p><input type="text" id="lPassword" value="admin" /></p>
     		<p><button id="login">Login</button></p>
     	</div>
     	

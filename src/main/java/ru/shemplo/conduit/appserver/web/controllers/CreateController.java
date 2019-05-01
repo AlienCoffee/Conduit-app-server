@@ -4,6 +4,7 @@ import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.EntityExistsException;
 import javax.validation.ValidationException;
 
 import org.springframework.security.core.Authentication;
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
-import ru.shemplo.conduit.appserver.services.StudyPeriodsService;
+import ru.shemplo.conduit.appserver.services.OptionsService;
+import ru.shemplo.conduit.appserver.services.PeriodsService;
 import ru.shemplo.conduit.appserver.services.WUserService;
 import ru.shemplo.conduit.appserver.utils.PasswordValidator;
 import ru.shemplo.conduit.appserver.utils.PhoneValidator;
@@ -24,7 +26,8 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @RequiredArgsConstructor
 public class CreateController {
     
-    private final StudyPeriodsService periodsService;
+    private final PeriodsService periodsService;
+    private final OptionsService optionsService;
     //private final GroupsService groupsService;
     private final WUserService usersService;
     
@@ -45,7 +48,26 @@ public class CreateController {
             return ResponseBox.fail (ve.getMessage ());
         }
         
-        usersService.createUser (login, phone, password);
+        try { 
+            phone = PhoneValidator.format (phone);
+            usersService.createUser (login, phone, password); 
+        } catch (EntityExistsException eee) {
+            return ResponseBox.fail (eee);
+        }
+        
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_OPTION)
+    public ResponseBox <Void> handleCreateOption (
+        @RequestParam ("name") String name
+    ) {
+        try { 
+            optionsService.createOption (name.trim ());
+        } catch (EntityExistsException eee) {
+            return ResponseBox.fail (eee);
+        }
+        
         return ResponseBox.ok ();
     }
     

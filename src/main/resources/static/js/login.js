@@ -21,8 +21,8 @@ window.onload = function (e) {
 			}
 			
 			var data = new FormData ();
-			data.append ("username", "admin");
-			data.append ("password", "admin");
+			data.append ("username", document.getElementById ("lLogin").value);
+			data.append ("password", document.getElementById ("lPassword").value);
 			data.append ("remember-me", "on");
 			console.log (data);
 			

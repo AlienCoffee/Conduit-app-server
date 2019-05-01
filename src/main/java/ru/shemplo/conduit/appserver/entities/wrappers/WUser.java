@@ -62,7 +62,8 @@ public class WUser extends User implements Identifiable {
     public Set <OptionEntity> getOptions (PeriodEntity period) {
         if (roles.isEmpty ()) { reloadAuthorities (); }
         
-        Set <OptionEntity> options = roles.get (period).stream ()
+        Set <OptionEntity> options = Optional.ofNullable (roles.get (period))
+                                   . orElse (Collections.emptyList ()).stream ()
                                    . map     (RoleEntity::getOptions)
                                    . flatMap (Set::stream)
                                    . collect (Collectors.toSet ());

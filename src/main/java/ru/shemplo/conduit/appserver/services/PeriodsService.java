@@ -19,8 +19,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
 @RequiredArgsConstructor
-//@PreAuthorize ("@accessGuard.type (authentication, this)")
-public class StudyPeriodsService {
+public class PeriodsService {
     
     private final StudyPeriodEntityRepository periodsRepository;
     private final AccessGuard accessGuard;
@@ -44,6 +43,8 @@ public class StudyPeriodsService {
     
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
             LocalDateTime until, boolean isActive, WUser user) {
+        accessGuard.method (MiscUtils.getMethod ());
+        
         PeriodEntity entity = new PeriodEntity ();
         entity.setIssued (LocalDateTime.now (clock));
         entity.setCommiter (user.getEntity ());
