@@ -18,7 +18,7 @@ public class RoleAssignmentEntity extends AbsAuditableEntity {
     private UserEntity user;
     
     @ManyToOne
-    private StudyPeriodEntity period;
+    private PeriodEntity period;
     
     @ManyToOne
     private RoleEntity role;

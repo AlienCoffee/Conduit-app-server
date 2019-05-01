@@ -8,4 +8,8 @@ public class PhoneValidator {
         return phone;
     }
     
+    public static String format (String phone) {
+        return phone.replaceAll ("[- \\(\\)\\+]", "");
+    }
+    
 }

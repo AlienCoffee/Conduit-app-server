@@ -23,7 +23,7 @@ public class WUser extends User implements Identifiable {
     @Getter private final UserEntity entity;
     private final WUserService service;
     
-    private final Map <StudyPeriodEntity, List <RoleEntity>> roles = new HashMap <> ();
+    private final Map <PeriodEntity, List <RoleEntity>> roles = new HashMap <> ();
     private final Set <GrantedAuthority> authorities = new LinkedHashSet <> ();
     
     public WUser (UserEntity entity, WUserService service) {
@@ -45,9 +45,28 @@ public class WUser extends User implements Identifiable {
         return authorities;
     }
     
-    public List <RoleEntity> getRoles (StudyPeriodEntity period) {
+    @Override
+    public String getPassword () {
+        // This is done for CACHE support purposes
+        // By default password is erased after authorization
+        // (it cause problems with re-login because no
+        // password in object to compare with request value)
+        return entity.getPassword ();
+    }
+    
+    public List <RoleEntity> getRoles (PeriodEntity period) {
         if (roles.isEmpty ()) { reloadAuthorities (); }
-        return roles.get (period);
+        return Collections.unmodifiableList (roles.get (period));
+    }
+    
+    public Set <OptionEntity> getOptions (PeriodEntity period) {
+        if (roles.isEmpty ()) { reloadAuthorities (); }
+        
+        Set <OptionEntity> options = roles.get (period).stream ()
+                                   . map     (RoleEntity::getOptions)
+                                   . flatMap (Set::stream)
+                                   . collect (Collectors.toSet ());
+        return Collections.unmodifiableSet (options);
     }
     
     public synchronized Set <GrantedAuthority> reloadAuthorities () {

@@ -17,12 +17,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.RoleAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.StudyPeriodEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.utils.ExtendedLRUCache;
+import ru.shemplo.conduit.appserver.utils.PhoneValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -47,18 +48,18 @@ public class WUserService implements UserDetailsService {
             UserEntity tmp = usersRepository.findByLogin (loginOrPhone);
             return tmp == null ? null : new WUser (tmp, this);
         });
-        if (user == null || StringUtils.isEmpty (user.getPassword ())) {
-            user = CACHE_BY_PHONE.getOrPut (loginOrPhone, () -> {
-                UserEntity tmp = usersRepository.findByPhone (loginOrPhone);
+        if (user == null) {
+            String formPhone = PhoneValidator.format (loginOrPhone);
+            user = CACHE_BY_PHONE.getOrPut (formPhone, () -> {
+                UserEntity tmp = usersRepository.findByPhone (formPhone);
                 return tmp == null ? null : new WUser (tmp, this);
             });
         }
         
-        if (user != null && !StringUtils.isEmpty (user.getPassword ())) {
-            return user;
-        }
+        if (user != null) { return user; }
         
-        throw new UsernameNotFoundException ("Unknown name");
+        String message = "Unknown credits `" + loginOrPhone + "`";
+        throw new UsernameNotFoundException (message);
     }
     
     public WUser getUser (long id) {
@@ -83,8 +84,8 @@ public class WUserService implements UserDetailsService {
         return user;
     }
     
-    public Map <StudyPeriodEntity, List <RoleEntity>> getAllUserRoles (UserEntity user) {
-        Map <StudyPeriodEntity, List <RoleEntity>> result = new HashMap <> ();
+    public Map <PeriodEntity, List <RoleEntity>> getAllUserRoles (UserEntity user) {
+        Map <PeriodEntity, List <RoleEntity>> result = new HashMap <> ();
         rolesARepository.findByUser (user).forEach (entry -> {
             result.putIfAbsent (entry.getPeriod (), new ArrayList <> ());
             // TODO: ///
@@ -94,14 +95,14 @@ public class WUserService implements UserDetailsService {
     }
     
     public Collection <RoleEntity> getUsersRolesInStudyPeriod (
-            UserEntity user, StudyPeriodEntity period) {
+            UserEntity user, PeriodEntity period) {
         return null;
     }
     
     @Transactional
     @Deprecated
     public WUser chandeUserRole (UserEntity user, RoleEntity role, 
-                          StudyPeriodEntity period, boolean add) {
+                          PeriodEntity period, boolean add) {
         if (user.getId () == null) {
             throw new IllegalArgumentException ("Given user is not saved");
         }

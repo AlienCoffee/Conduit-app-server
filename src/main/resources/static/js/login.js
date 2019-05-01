@@ -14,8 +14,10 @@ window.onload = function (e) {
 				if (req.readyState != 4) { return; }
 				
 				if (req.status != 200) {
-					alert (req.statusText);
-				} else { location.reload (); }
+					alert (req.responseText);
+				} else if (confirm (req.statusText)) { 
+					location.reload (); 
+				}
 			}
 			
 			var data = new FormData ();

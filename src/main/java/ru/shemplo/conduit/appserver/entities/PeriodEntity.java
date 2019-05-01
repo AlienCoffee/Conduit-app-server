@@ -16,11 +16,17 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table (name = "study_periods")
+@Table (name = "periods")
 @EqualsAndHashCode (callSuper = true)
-public class StudyPeriodEntity extends AbsAuditableEntity {
+public class PeriodEntity extends AbsAuditableEntity {
     
-    @Column (nullable = false)
+    @Getter private static PeriodEntity system;
+    
+    public static synchronized void setSystem (PeriodEntity period) {
+        if (system == null) { system = period; }
+    }
+    
+    @Column (nullable = false, unique = true)
     private String name;
     
     @Column (columnDefinition = "text")

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.StudyPeriodEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.services.StudyPeriodsService;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
 
@@ -22,7 +22,7 @@ public class GetController {
     //private final WUserService usersService;
     
     @GetMapping (API_GET_PERIODS) 
-    public ResponseBox <Collection <StudyPeriodEntity>> handleGetPeriods () {
+    public ResponseBox <Collection <PeriodEntity>> handleGetPeriods () {
         return ResponseBox.ok (periodsService.getAllPeriods ());
     }
     

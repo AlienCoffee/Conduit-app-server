@@ -35,16 +35,16 @@ public class ExtendedLRUCache <K, T extends Identifiable> extends LRUCache <T> {
             return null;
         }
         
-        return super.get (value.getId ());
+        return get (value.getId ());
     }
     
     public synchronized T getOrPut (K key, Supplier <T> source) {
-        final T value = map.get (key);
+        T value = map.get (key);
         if (value == null) {
-            put (source.get ());
+            value = put (source.get ());
         }
         
-        return get (key);
+        return value;
     }
     
     @Override

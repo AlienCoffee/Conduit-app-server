@@ -21,7 +21,13 @@ import lombok.*;
 @EqualsAndHashCode (callSuper = true)
 public class UserEntity extends AbsEntity {
     
-    @Column (unique = true)
+    @Getter private static UserEntity adminEntity;
+    
+    public static synchronized void setAdmin (UserEntity entity) {
+        if (adminEntity == null) { adminEntity = entity; }
+    }
+    
+    @Column (nullable = false, unique = true)
     private String login;
     
     @Column (nullable = false, unique = true)

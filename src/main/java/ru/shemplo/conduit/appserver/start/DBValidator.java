@@ -1,8 +1,10 @@
 package ru.shemplo.conduit.appserver.start;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -12,9 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.RoleEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
-import ru.shemplo.conduit.appserver.entities.repositories.RoleEntityRepository;
+import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.snowball.stuctures.Pair;
 
@@ -23,24 +25,16 @@ import ru.shemplo.snowball.stuctures.Pair;
 public class DBValidator {
     
     @Transactional public void validate () {
-        createAdminRoleIfNotExists ();
         createAdminUserIfNotExists ();
+        
+        createSystemStudyPeriodIfNotExists ();
     }
     
+    private final StudyPeriodEntityRepository studyPeriodsRepository;
     private final ConfigurableEnvironment configurableEnvironment;
-    private final RoleEntityRepository rolesRepository;
     private final UserEntityRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
-    
-    private void createAdminRoleIfNotExists () {
-        final String adminRole = RoleEntity.HEAD_ROLE;
-        
-        RoleEntity admin = rolesRepository.findByName (adminRole);
-        if (admin != null) { return; }
-        
-        admin = new RoleEntity (adminRole, new HashSet <> (), null);
-        rolesRepository.save (admin);
-    }
+    private final Clock clock;
     
     private void createAdminUserIfNotExists () {
         final String prefix = "server.admin.";
@@ -52,13 +46,38 @@ public class DBValidator {
             . map     (p -> p.applyS (configurableEnvironment::getProperty))
             . collect (Collectors.toMap (Pair::getF, Pair::getS));
         
-        UserEntity admin = usersRepository.findByPhone (data.get ("phone"));
-        if (admin != null) { return; }
+        if (data.get ("phone") != null) {
+            UserEntity admin = usersRepository.findByPhone (data.get ("phone"));
+            if (admin != null) { return; }            
+        }
         
-        String password = passwordEncoder.encode (data.get ("password"));
-        admin = new UserEntity (data.get ("login"), data.get ("phone"),
-                                password, true);
-        usersRepository.save (admin);
+        String login    = Optional.ofNullable (data.get ("login")).orElse    ("admin");
+        String phone    = Optional.ofNullable (data.get ("phone")).orElse    ("");
+        String password = Optional.ofNullable (data.get ("password")).orElse ("admin");
+        password = passwordEncoder.encode (password);
+        
+        UserEntity admin = new UserEntity (login, phone, password, true);
+        admin = usersRepository.save (admin);
+        UserEntity.setAdmin (admin);
+    }
+    
+    private void createSystemStudyPeriodIfNotExists () {
+        final String name = "$system";
+        
+        PeriodEntity period = studyPeriodsRepository
+                                 . findByName (name);
+        if (period == null) {
+            final UserEntity admin = UserEntity.getAdminEntity ();
+            final LocalDateTime from = LocalDateTime.now (clock);
+            
+            period = new PeriodEntity (name, "", from, null, true);
+            period.setCommiter (admin);
+            period.setIssued (from);
+            
+            period = studyPeriodsRepository.save (period);
+        }
+        
+        PeriodEntity.setSystem (period);
     }
     
 }
