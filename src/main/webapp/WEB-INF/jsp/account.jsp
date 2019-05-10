@@ -17,6 +17,8 @@
     	<h2>Account</h2>
     	<a href="/">index</a>
     	
+    	<h3>User</h3>
+    	
     	<p>
     		<span>Create user: </span>
     		<input id="cuLogin" type="text" placeholder="login" />
@@ -32,6 +34,8 @@
    				<div id="usersDiv"></div>
 			</div>
     	</p>
+    	
+    	<h3>Option</h3>
     	
     	<p>
     		<span>Create option: </span>
@@ -73,8 +77,73 @@
     		<div>
    				<span>Current methods guard rules:</span>
    				<button id="lrButton">load</button>
-   				<div id="rulessDiv"></div>
+   				<div id="rulesDiv"></div>
 			</div>
+    	</p>
+    	
+    	<h3>Role</h3>
+    	
+    	<p>
+    		<span>Create role: </span>
+    		<input id="crName" type="text" placeholder="role name" />
+    		<button id="crButton">create</button>
+    	</p>
+    	
+    	<p>
+    		<div>
+   				<span>Registered roles:</span>
+   				<button id="lroButton">load</button>
+   				<div id="rolesDiv"></div>
+			</div>
+    	</p>
+    	
+    	<p>
+    		<span>Add role option: </span>
+    		<input id="aroRole" type="text" placeholder="role id" />
+    		<input id="aroOption" type="text" placeholder="option id" />
+    		<button id="aroButton">add</button>
+    	</p>
+    	
+    	<p>
+    		<span>Remove role option: </span>
+    		<input id="rroRole" type="text" placeholder="role id" />
+    		<input id="rroOption" type="text" placeholder="option id" />
+    		<button id="rroButton">remove</button>
+    	</p>
+    	
+    	<h3>Period</h3>
+    	
+    	<p>
+    		<span>Create period: </span>
+    		<input id="cpName" type="text" placeholder="period name" />
+    		<input id="cpSince" type="date" />
+    		<button id="cpButton">create</button>
+    	</p>
+    	
+    	<p>
+    		<div>
+   				<span>Registered periods:</span>
+   				<button id="lpButton">load</button>
+   				<div id="periodsDiv"></div>
+			</div>
+    	</p>
+    	
+    	<h3>Role assignment</h3>
+    	
+    	<p>
+    		<span>Assign role to user: </span>
+    		<input id="artuUser" type="text" placeholder="user id" />
+    		<input id="artuPeriod" type="text" placeholder="period id" />
+    		<input id="artuRole" type="text" placeholder="role id" />
+    		<button id="artuButton">assign</button>
+    	</p>
+    	
+    	<p>
+    		<span>Remove role from user: </span>
+    		<input id="rrtuUser" type="text" placeholder="user id" />
+    		<input id="rrtuPeriod" type="text" placeholder="period id" />
+    		<input id="rrtuRole" type="text" placeholder="role id" />
+    		<button id="rrtuButton">remove</button>
     	</p>
     	
     	<script src="/resources/js/account.js"></script>

@@ -39,7 +39,6 @@ public class OptionsService {
         return optionsRepository.save (entity);
     }
     
-    @ProtectedMethod
     public OptionEntity getOption (long id) {
         OptionEntity option = CACHE.getOrPut (id, 
             () -> optionsRepository.findById (id).orElse (null)

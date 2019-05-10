@@ -1,5 +1,6 @@
 package ru.shemplo.conduit.appserver.web.controllers;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +18,11 @@ public class ExceptionController {
     
     @ExceptionHandler (EntityNotFoundException.class)
     public ResponseBox <Void> handleENFException (EntityNotFoundException exception) {
+        return ResponseBox.fail (exception);
+    }
+    
+    @ExceptionHandler (EntityExistsException.class)
+    public ResponseBox <Void> handleEEException (EntityExistsException exception) {
         return ResponseBox.fail (exception);
     }
     

@@ -43,6 +43,9 @@ public final class AccessGuard {
         }
         
         WUser user = MiscUtils.cast (authentication.getPrincipal ());
+        // Everything is allowed for administrator accounts
+        if (user.getEntity ().isAdmin ()) { return; }
+        
         if (options.isEmpty () && !user.getEntity ().isAdmin ()) {
             throw new SecurityException ("Not protected method");
         }

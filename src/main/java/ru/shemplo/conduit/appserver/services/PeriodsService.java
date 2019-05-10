@@ -1,7 +1,5 @@
 package ru.shemplo.conduit.appserver.services;
 
-import static ru.shemplo.conduit.appserver.ServerConstants.*;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -16,6 +14,7 @@ import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepos
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
+import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
@@ -26,6 +25,10 @@ public class PeriodsService {
     private final AccessGuard accessGuard;
     private final Clock clock;
     
+    private static final int CACHE_SIZE = 32;
+    
+    private final LRUCache <PeriodEntity> CACHE = new LRUCache <> (CACHE_SIZE);
+    
     @ProtectedMethod
     public Collection <PeriodEntity> getAllPeriods () {
         accessGuard.method (MiscUtils.getMethod ());
@@ -35,14 +38,14 @@ public class PeriodsService {
     @ProtectedMethod
     public PeriodEntity getPeriod (long id) throws EntityNotFoundException {
         accessGuard.method (MiscUtils.getMethod ());
-        return periodsRepository.findById (id).orElseThrow (
-            () -> new EntityNotFoundException (NO_ENTITY_MESSAGE + ": study period")
+        PeriodEntity period = CACHE.getOrPut (id, 
+            () -> periodsRepository.findById (id).orElse (null)
         );
-    }
-    
-    @ProtectedMethod
-    public PeriodEntity updatePeriod (PeriodEntity entity) {
-        return periodsRepository.save (entity);
+        
+        if (period != null) { return period; }
+        
+        String message = "Unknown period credits `" + id + "`";
+        throw new EntityNotFoundException (message);
     }
     
     @ProtectedMethod
@@ -50,9 +53,9 @@ public class PeriodsService {
             LocalDateTime until, boolean isActive, WUser user) {
         accessGuard.method (MiscUtils.getMethod ());
         
-        PeriodEntity entity = new PeriodEntity ();
+        final PeriodEntity entity = new PeriodEntity ();
         entity.setIssued (LocalDateTime.now (clock));
-        entity.setCommiter (user.getEntity ());
+        entity.setCommitter (user.getEntity ());
         entity.setDescription (description);
         entity.setActive (isActive);
         entity.setSince (since);

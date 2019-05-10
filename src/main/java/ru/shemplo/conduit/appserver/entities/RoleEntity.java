@@ -32,7 +32,4 @@ public class RoleEntity extends AbsEntity {
     @ManyToMany (fetch = FetchType.EAGER)
     private Set <OptionEntity> options = new HashSet <> ();
     
-    @Deprecated
-    private String personality;
-    
 }

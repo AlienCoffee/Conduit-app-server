@@ -71,7 +71,7 @@ public class DBValidator {
             final LocalDateTime from = LocalDateTime.now (clock);
             
             period = new PeriodEntity (name, "", from, null, true);
-            period.setCommiter (admin);
+            period.setCommitter (admin);
             period.setIssued (from);
             
             period = studyPeriodsRepository.save (period);

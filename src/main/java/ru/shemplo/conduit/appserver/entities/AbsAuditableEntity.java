@@ -26,7 +26,7 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     protected LocalDateTime issued;
     
     @ManyToOne (optional = false)
-    protected UserEntity commiter;
+    protected UserEntity committer;
     
     @JsonProperty ("issued")
     public String getJSONIssued () {

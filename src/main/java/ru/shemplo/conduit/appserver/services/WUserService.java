@@ -1,6 +1,7 @@
 package ru.shemplo.conduit.appserver.services;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import javax.persistence.EntityExistsException;
@@ -85,7 +86,6 @@ public class WUserService implements UserDetailsService {
         return usersRepository.findAll ();
     }
     
-    @ProtectedMethod
     public WUser createUser (String login, String phone, String password)
             throws EntityExistsException {
         try {
@@ -102,7 +102,6 @@ public class WUserService implements UserDetailsService {
         }
     }
     
-    @ProtectedMethod
     public Map <PeriodEntity, List <RoleEntity>> getAllUserRoles (UserEntity user) {
         Map <PeriodEntity, List <RoleEntity>> result = new HashMap <> ();
         rolesARepository.findByUser (user).forEach (entry -> {
@@ -114,9 +113,33 @@ public class WUserService implements UserDetailsService {
     }
     
     @ProtectedMethod
-    public Collection <RoleEntity> getUsersRolesInStudyPeriod (
-            UserEntity user, PeriodEntity period) {
-        return null;
+    public void addRole (WUser user, PeriodEntity period, RoleEntity role, WUser committer) {
+        accessGuard.method (MiscUtils.getMethod ());
+        UserEntity userEntity = user.getEntity ();
+        
+        RoleAssignmentEntity assignment = new RoleAssignmentEntity (userEntity, period, role);
+        if (rolesARepository.findByUserAndPeriodAndRole (userEntity, period, role) == null) {
+            CACHE_BY_PHONE.invalidate (user.getId ()); 
+            CACHE_BY_LOGIN.invalidate (user.getId ());
+        } else { return; } // user already have such assignment
+        
+        assignment.setIssued (LocalDateTime.now (clock));
+        assignment.setCommitter (committer.getEntity ());
+        rolesARepository.save (assignment);
+    }
+    
+    @ProtectedMethod
+    public void removeRole (WUser user, PeriodEntity period, RoleEntity role) {
+        accessGuard.method (MiscUtils.getMethod ());
+        UserEntity userEntity = user.getEntity ();
+        
+        RoleAssignmentEntity assignment = rolesARepository.findByUserAndPeriodAndRole (userEntity, period, role);
+        if (assignment != null) {
+            CACHE_BY_PHONE.invalidate (user.getId ()); 
+            CACHE_BY_LOGIN.invalidate (user.getId ());
+        } else { return; }
+        
+        rolesARepository.delete (assignment);
     }
     
     @Deprecated

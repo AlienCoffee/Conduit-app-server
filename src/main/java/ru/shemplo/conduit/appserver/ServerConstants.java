@@ -27,6 +27,7 @@ public class ServerConstants {
     
     public static final String API_GET_USERS = API_GET_ + "users";
     public static final String API_GET_OPTIONS = API_GET_ + "options";
+    public static final String API_GET_ROLES = API_GET_ + "roles";
     public static final String API_GET_PERIODS = API_GET_ + "periods";
     public static final String API_GET_PERSONALITY = API_GET_ + "personality";
     public static final String API_GET_GROUPS = API_GET_ + "groups";
@@ -38,13 +39,23 @@ public class ServerConstants {
     
     public static final String API_CREATE_USER = API_UNCHECKED_ + "create" + $ + "user";
     public static final String API_CREATE_OPTION = API_CREATE_ + "option";
+    public static final String API_CREATE_ROLE = API_CREATE_ + "role";
     public static final String API_CREATE_PERIOD = API_CREATE_ + "period";
     public static final String API_CREATE_GROUP = API_CREATE_ + "group";
     
     public static final String API_UPDATE = API_ + "update";
     public static final String API_UPDATE_ = API_UPDATE + $;
     
-    public static final String API_UPDATE_ADD_METHOD_RULE = API_UPDATE_ + "add-method-rule";
-    public static final String API_UPDATE_REMOVE_METHOD_RULE = API_UPDATE_ + "remove-method-rule";
+    public static final String API_UPDATE_ADD = API_UPDATE_ + "add";
+    public static final String API_UPDATE_ADD_ = API_UPDATE_ADD + $;
+    public static final String API_UPDATE_REMOVE = API_UPDATE_ + "remove";
+    public static final String API_UPDATE_REMOVE_ = API_UPDATE_REMOVE + $;
+    
+    public static final String API_UPDATE_ADD_METHOD_RULE = API_UPDATE_ADD_ + "method-rule";
+    public static final String API_UPDATE_REMOVE_METHOD_RULE = API_UPDATE_REMOVE_ + "method-rule";
+    public static final String API_UPDATE_ADD_ROLE_OPTION = API_UPDATE_ADD_ + "role-option";
+    public static final String API_UPDATE_REMOVE_ROLE_OPTION = API_UPDATE_REMOVE_ + "role-option";
+    public static final String API_UPDATE_ADD_ROLE_TO_USER = API_UPDATE_ADD_ + "role-to-user";
+    public static final String API_UPDATE_REMOVE_ROLE_FROM_USER = API_UPDATE_REMOVE_ + "role-from-user";
     
 }
