@@ -30,6 +30,8 @@ public class ServerConstants {
     public static final String API_GET_PERIODS = API_GET_ + "periods";
     public static final String API_GET_PERSONALITY = API_GET_ + "personality";
     public static final String API_GET_GROUPS = API_GET_ + "groups";
+    public static final String API_GET_METHODS = API_GET_ + "methods";
+    public static final String API_GET_GUARD_RULES = API_GET_ + "guard-rules";
     
     public static final String API_CREATE = API_ + "create";
     public static final String API_CREATE_ = API_CREATE + $;
@@ -40,6 +42,9 @@ public class ServerConstants {
     public static final String API_CREATE_GROUP = API_CREATE_ + "group";
     
     public static final String API_UPDATE = API_ + "update";
-    public static final String API_UPDATE_ = API_CREATE + $;
+    public static final String API_UPDATE_ = API_UPDATE + $;
+    
+    public static final String API_UPDATE_ADD_METHOD_RULE = API_UPDATE_ + "add-method-rule";
+    public static final String API_UPDATE_REMOVE_METHOD_RULE = API_UPDATE_ + "remove-method-rule";
     
 }

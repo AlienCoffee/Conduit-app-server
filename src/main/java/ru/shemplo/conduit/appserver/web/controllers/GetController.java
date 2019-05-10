@@ -3,17 +3,22 @@ package ru.shemplo.conduit.appserver.web.controllers;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.GuardRuleEntity;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
+import ru.shemplo.conduit.appserver.services.MethodsService;
 import ru.shemplo.conduit.appserver.services.OptionsService;
 import ru.shemplo.conduit.appserver.services.PeriodsService;
 import ru.shemplo.conduit.appserver.services.WUserService;
+import ru.shemplo.conduit.appserver.start.MethodsScanner;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
 
 @RestController
@@ -21,6 +26,8 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 public class GetController {
     
     //private final PersonalitiesService personalitiesService;
+    private final MethodsScanner methodsScanner;
+    private final MethodsService methodsService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
     //private final GroupsService groupsService;
@@ -39,6 +46,19 @@ public class GetController {
     @GetMapping (API_GET_OPTIONS) 
     public ResponseBox <Collection <OptionEntity>> handleGetOptions () {
         return ResponseBox.ok (optionsService.getAllOptions ());
+    }
+    
+    @GetMapping (API_GET_METHODS) 
+    public ResponseBox <Collection <String>> handleGetMethods () {
+        List <String> methods = methodsScanner.getProtectedMethods ().values ().stream ()
+                              . map     (method -> method.getName ())
+                              . collect (Collectors.toList ());
+        return ResponseBox.ok (methods);
+    }
+    
+    @GetMapping (API_GET_GUARD_RULES) 
+    public ResponseBox <Collection <GuardRuleEntity>> handleGetGuardRules () {
+        return ResponseBox.ok (methodsService.getGuardMethodsRules ());
     }
     
     /*

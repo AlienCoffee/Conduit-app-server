@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OptionEntityRepository;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
+import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.snowball.utils.MiscUtils;
 
@@ -26,6 +27,7 @@ public class OptionsService {
     
     private final LRUCache <OptionEntity> CACHE = new LRUCache <> (CACHE_SIZE);
     
+    @ProtectedMethod
     public OptionEntity createOption (String name) throws EntityExistsException {
         accessGuard.method (MiscUtils.getMethod ());
         
@@ -37,17 +39,19 @@ public class OptionsService {
         return optionsRepository.save (entity);
     }
     
+    @ProtectedMethod
     public OptionEntity getOption (long id) {
         OptionEntity option = CACHE.getOrPut (id, 
-            () -> optionsRepository.findById (id).get ()
+            () -> optionsRepository.findById (id).orElse (null)
         );
         
         if (option != null) { return option; }
         
-        String message = "Unknown credits `" + id + "`";
+        String message = "Unknown option credits `" + id + "`";
         throw new EntityNotFoundException (message);
     }
     
+    @ProtectedMethod
     public Collection <OptionEntity> getAllOptions () {
         accessGuard.method (MiscUtils.getMethod ());
         return optionsRepository.findAll ();

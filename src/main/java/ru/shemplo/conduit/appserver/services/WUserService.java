@@ -23,6 +23,7 @@ import ru.shemplo.conduit.appserver.entities.repositories.RoleAssignmentEntityRe
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
+import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.ExtendedLRUCache;
 import ru.shemplo.conduit.appserver.utils.PhoneValidator;
 import ru.shemplo.snowball.utils.MiscUtils;
@@ -45,7 +46,7 @@ public class WUserService implements UserDetailsService {
         CACHE_BY_LOGIN = new ExtendedLRUCache <> (CACHE_SIZE, u -> u.getEntity ().getLogin ()),
         CACHE_BY_PHONE = new ExtendedLRUCache <> (CACHE_SIZE, u -> u.getEntity ().getPhone ());
     
-    @Override
+    @Override @ProtectedMethod
     public UserDetails loadUserByUsername (String loginOrPhone) throws UsernameNotFoundException {
         WUser user = CACHE_BY_LOGIN.getOrPut (loginOrPhone, () -> {
             UserEntity tmp = usersRepository.findByLogin (loginOrPhone);
@@ -65,6 +66,7 @@ public class WUserService implements UserDetailsService {
         throw new UsernameNotFoundException (message);
     }
     
+    @ProtectedMethod
     public WUser getUser (long id) {
         WUser user = CACHE_BY_PHONE.getOrPut (id, () -> {
             UserEntity tmp = usersRepository.findById (id).get ();
@@ -77,11 +79,13 @@ public class WUserService implements UserDetailsService {
         throw new EntityNotFoundException (message);
     }
     
+    @ProtectedMethod
     public Collection <UserEntity> getAllUsers () {
         accessGuard.method (MiscUtils.getMethod ());
         return usersRepository.findAll ();
     }
     
+    @ProtectedMethod
     public WUser createUser (String login, String phone, String password)
             throws EntityExistsException {
         try {
@@ -98,6 +102,7 @@ public class WUserService implements UserDetailsService {
         }
     }
     
+    @ProtectedMethod
     public Map <PeriodEntity, List <RoleEntity>> getAllUserRoles (UserEntity user) {
         Map <PeriodEntity, List <RoleEntity>> result = new HashMap <> ();
         rolesARepository.findByUser (user).forEach (entry -> {
@@ -108,13 +113,15 @@ public class WUserService implements UserDetailsService {
         return result;
     }
     
+    @ProtectedMethod
     public Collection <RoleEntity> getUsersRolesInStudyPeriod (
             UserEntity user, PeriodEntity period) {
         return null;
     }
     
-    @Transactional
     @Deprecated
+    @Transactional
+    @ProtectedMethod
     public WUser chandeUserRole (UserEntity user, RoleEntity role, 
                           PeriodEntity period, boolean add) {
         if (user.getId () == null) {

@@ -47,6 +47,36 @@
 			</div>
     	</p>
     	
+    	<p>
+    		<div>
+   				<span>Protected methods:</span>
+   				<button id="lmButton">load</button>
+   				<div id="methodsDiv"></div>
+			</div>
+    	</p>
+    	
+    	<p>
+    		<span>Add method rule: </span>
+    		<input id="amrMethod" type="text" placeholder="method name" />
+    		<input id="amrOption" type="text" placeholder="option id" />
+    		<button id="amrButton">add</button>
+    	</p>
+    	
+    	<p>
+    		<span>Remove method rule: </span>
+    		<input id="rmrMethod" type="text" placeholder="method name" />
+    		<input id="rmrOption" type="text" placeholder="option id" />
+    		<button id="rmrButton">remove</button>
+    	</p>
+    	
+    	<p>
+    		<div>
+   				<span>Current methods guard rules:</span>
+   				<button id="lrButton">load</button>
+   				<div id="rulessDiv"></div>
+			</div>
+    	</p>
+    	
     	<script src="/resources/js/account.js"></script>
     </body>
 </html>

@@ -9,6 +9,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import ru.shemplo.conduit.appserver.start.DBValidator;
+import ru.shemplo.conduit.appserver.start.MethodsScanner;
 
 @SpringBootApplication (exclude = {SecurityAutoConfiguration.class})
 public class RunAppServer {
@@ -35,6 +36,7 @@ public class RunAppServer {
         final ConfigurableApplicationContext context 
             = SpringApplication.run (MAIN_CLASS, args);
         
+        context.getBean (MethodsScanner.class).scanMethods (context);
         context.getBean (DBValidator.class).validate ();
     }
     

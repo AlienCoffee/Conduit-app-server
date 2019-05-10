@@ -15,6 +15,7 @@ import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
+import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
@@ -25,11 +26,13 @@ public class PeriodsService {
     private final AccessGuard accessGuard;
     private final Clock clock;
     
+    @ProtectedMethod
     public Collection <PeriodEntity> getAllPeriods () {
         accessGuard.method (MiscUtils.getMethod ());
         return periodsRepository.findAll ();
     }
     
+    @ProtectedMethod
     public PeriodEntity getPeriod (long id) throws EntityNotFoundException {
         accessGuard.method (MiscUtils.getMethod ());
         return periodsRepository.findById (id).orElseThrow (
@@ -37,10 +40,12 @@ public class PeriodsService {
         );
     }
     
+    @ProtectedMethod
     public PeriodEntity updatePeriod (PeriodEntity entity) {
         return periodsRepository.save (entity);
     }
     
+    @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
             LocalDateTime until, boolean isActive, WUser user) {
         accessGuard.method (MiscUtils.getMethod ());
