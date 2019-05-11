@@ -75,6 +75,7 @@ public class CreateController {
         @IndentifiedUser        WUser user,
         @RequestParam ("name")  String name,
         @RequestParam ("since") String since,
+        @RequestParam ("status") String status,
         @RequestParam (value = "description", required = false)  
             String description,
         @RequestParam (value = "until", required = false)
@@ -82,8 +83,9 @@ public class CreateController {
     ) {
         final LocalDateTime untilDT = until != null ? LocalDateTime.parse (until) : null;
         final LocalDateTime sinceDT = LocalDateTime.parse (since);
+        periodsService.createPeriod (name, description, sinceDT, 
+                                   untilDT, status, true, user);
         
-        periodsService.createPeriod (name, description, sinceDT, untilDT, true, user);
         return ResponseBox.ok ();
     }
     

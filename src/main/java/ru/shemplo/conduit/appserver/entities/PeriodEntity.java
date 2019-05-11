@@ -39,6 +39,9 @@ public class PeriodEntity extends AbsAuditableEntity {
     @JsonIgnore
     private LocalDateTime until;
     
+    @Column (nullable = false)
+    private String status;
+    
     private boolean active;
     
     @JsonProperty ("since")

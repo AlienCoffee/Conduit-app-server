@@ -1,9 +1,12 @@
 package ru.shemplo.conduit.appserver.web.controllers;
 
-import static ru.shemplo.conduit.appserver.ServerConstants.*;
 import static javax.servlet.http.HttpServletResponse.*;
+import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.security.Principal;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,8 +14,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.services.PeriodsService;
+
 @Controller
+@RequiredArgsConstructor
 public class SiteController {
+    
+    private final PeriodsService periodsService;
     
     @GetMapping ($)
     public ModelAndView handleIndexPage (Principal principal,
@@ -41,6 +51,18 @@ public class SiteController {
         }
         
         return new ModelAndView ("login");
+    }
+    
+    @GetMapping (PAGE_PERIODS)
+    public ModelAndView handlePeriodsPage () {
+        ModelAndView mav = new ModelAndView ("periods");
+        
+        Collection <PeriodEntity> periodsC = periodsService.getAllPeriods ();
+        List <PeriodEntity> periods = periodsC.stream ()
+                                    . filter  (p -> !p.getName ().startsWith ("$"))
+                                    . collect (Collectors.toList ());
+        mav.addObject ("periods", periods);
+        return mav;
     }
     
 }

@@ -117,6 +117,7 @@
     		<span>Create period: </span>
     		<input id="cpName" type="text" placeholder="period name" />
     		<input id="cpSince" type="date" />
+    		<input id="cpStatus" type="text" placeholder="status" />
     		<button id="cpButton">create</button>
     	</p>
     	

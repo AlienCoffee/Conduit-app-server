@@ -373,6 +373,7 @@ window.onload = function (e) {
 			
 			var data = new FormData ();
 			data.append ("name",  document.getElementById ("cpName").value);
+			data.append ("status",  document.getElementById ("cpStatus").value);
 			
 			var date = new Date (document.getElementById ("cpSince").value).toISOString ();
 			data.append ("since", date.substring (0, date.length - 1));

@@ -10,7 +10,7 @@
 		<meta name="_csrf_header" content="${_csrf.headerName}"/>
     
         <meta charset="UTF-8" />
-        <title>Open company</title>
+        <title>Conduit</title>
         
         <!--<link rel="stylesheet" href="/resources/css/index.css" />-->
         <!--<link rel="shortcut icon" href="/resources/gfx/jiraf.png" type="image/x-icon">-->
@@ -24,6 +24,7 @@
 	    		
 	    		<button id="logout">logout</button>,
 	    		<a href="/account">account</a>,
+	    		<a href="/periods">periods</a>,
 	    		<a href="/api/get/personality?userID=2&periodID=0">api personality</a>,
 	    		<a href="/api/get/periods">api periods</a>,
 	    		<button id="createPeriod">create period</button>,

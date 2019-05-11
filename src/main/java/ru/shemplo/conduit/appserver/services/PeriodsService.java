@@ -50,7 +50,7 @@ public class PeriodsService {
     
     @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
-            LocalDateTime until, boolean isActive, WUser user) {
+            LocalDateTime until, String status, boolean isActive, WUser user) {
         accessGuard.method (MiscUtils.getMethod ());
         
         final PeriodEntity entity = new PeriodEntity ();
@@ -58,6 +58,7 @@ public class PeriodsService {
         entity.setCommitter (user.getEntity ());
         entity.setDescription (description);
         entity.setActive (isActive);
+        entity.setStatus (status);
         entity.setSince (since);
         entity.setUntil (until);
         entity.setName (name);
