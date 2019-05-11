@@ -373,7 +373,6 @@ window.onload = function (e) {
 			
 			var data = new FormData ();
 			data.append ("name",  document.getElementById ("cpName").value);
-			data.append ("status",  document.getElementById ("cpStatus").value);
 			
 			var date = new Date (document.getElementById ("cpSince").value).toISOString ();
 			data.append ("since", date.substring (0, date.length - 1));
@@ -468,6 +467,47 @@ window.onload = function (e) {
 			console.log (data);
 			
 			req.send (data);
+		}
+	}
+	
+	button = document.getElementById ("lprtButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("GET", "/api/get/period-register-roles", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var methods = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("templatesDiv");
+					container.innerHTML = "";
+					
+					if (methods.error) {
+						container.innerHTML = methods.message;
+					} else {
+						/*
+						methods.object.forEach (method => {
+							var elem = document.createElement ("div");
+							elem.innerHTML = JSON.stringify (method);
+							container.append (elem);
+						});
+						*/
+						Object.keys (methods.object).forEach (key => {
+							var elem = document.createElement ("div");
+							elem.innerHTML = key + " / " + JSON.stringify (methods.object [key]);
+							container.append (elem);
+						});
+					}
+				}
+			}
+			
+			req.send ();
 		}
 	}
 }

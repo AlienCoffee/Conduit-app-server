@@ -13,7 +13,7 @@ public class ServerConstants {
     
     public static final String PAGE_LOGIN = $ + "login";
     public static final String PAGE_PERIODS = $ + "periods";
-    public static final String PAGE_PERIOD = $ + "period" + $ + ":id";
+    public static final String PAGE_PERIOD = $ + "period" + $ + "{id}";
     public static final String PAGE_PERIOD_REGISTRATION = PAGE_PERIOD + $ + "registration";
     
     public static final String API = $ + "api";
@@ -36,6 +36,7 @@ public class ServerConstants {
     public static final String API_GET_GROUPS = API_GET_ + "groups";
     public static final String API_GET_METHODS = API_GET_ + "methods";
     public static final String API_GET_GUARD_RULES = API_GET_ + "guard-rules";
+    public static final String API_GET_PERIOD_REGISTER_ROLES = API_GET_ + "period-register-roles";
     
     public static final String API_CREATE = API_ + "create";
     public static final String API_CREATE_ = API_CREATE + $;

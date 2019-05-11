@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.OptionsService;
@@ -72,10 +73,9 @@ public class CreateController {
     
     @PostMapping (API_CREATE_PERIOD) 
     public ResponseBox <Void> handleCreatePeriod (
-        @IndentifiedUser        WUser user,
-        @RequestParam ("name")  String name,
-        @RequestParam ("since") String since,
-        @RequestParam ("status") String status,
+        @IndentifiedUser         WUser  user,
+        @RequestParam ("name")   String name,
+        @RequestParam ("since")  String since,
         @RequestParam (value = "description", required = false)  
             String description,
         @RequestParam (value = "until", required = false)
@@ -83,22 +83,12 @@ public class CreateController {
     ) {
         final LocalDateTime untilDT = until != null ? LocalDateTime.parse (until) : null;
         final LocalDateTime sinceDT = LocalDateTime.parse (since);
-        periodsService.createPeriod (name, description, sinceDT, 
-                                   untilDT, status, true, user);
+        final PeriodStatus status = PeriodStatus.CREATED;
+        periodsService.createPeriod (name, description, 
+                 sinceDT, untilDT, status, true, user);
         
         return ResponseBox.ok ();
     }
-    
-    /*
-    private void createPeriod (WUser user, String name, String description, 
-            final String since, final String until) {
-        final LocalDateTime sinceDT = LocalDateTime.parse (since, RU_DATETIME_FORMAT);
-        final LocalDateTime untilDT = until != null
-                                    ? LocalDateTime.parse (until, RU_DATETIME_FORMAT)
-                                    : null;
-        periodsService.createPeriod (name, description, sinceDT, untilDT, true, user);
-    }
-    */
     
     /*
     @PostMapping (API_CREATE_GROUP) 

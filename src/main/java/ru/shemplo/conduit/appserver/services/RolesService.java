@@ -1,7 +1,7 @@
 package ru.shemplo.conduit.appserver.services;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
@@ -11,10 +11,13 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
+import ru.shemplo.conduit.appserver.entities.data.PersonalDataField;
+import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleEntityRepository;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.LRUCache;
+import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
@@ -77,6 +80,21 @@ public class RolesService {
         }
         
         return rolesRepository.save (role);
+    }
+    
+    @ProtectedMethod
+    public Map <String, List <String>> getPeriodRegisterTemplates () {
+        accessGuard.method (MiscUtils.getMethod ());
+        
+        return Arrays.asList (PersonalDataTemplate.values ()).stream ()
+             . map (temp -> Pair.dup (temp))
+             . map (pair -> pair.applyF (PersonalDataTemplate::name))
+             . map (pair -> pair.applyS (PersonalDataTemplate::getFields))
+             . map (pair -> pair.applyS (
+                 lst -> lst.stream ().map (PersonalDataField::getKey)
+                      . collect (Collectors.toList ()))
+             )
+             . collect (Collectors.toMap (Pair::getF, Pair::getS));
     }
     
 }

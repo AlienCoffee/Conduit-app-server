@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -50,7 +51,7 @@ public class PeriodsService {
     
     @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
-            LocalDateTime until, String status, boolean isActive, WUser user) {
+            LocalDateTime until, PeriodStatus status, boolean isActive, WUser user) {
         accessGuard.method (MiscUtils.getMethod ());
         
         final PeriodEntity entity = new PeriodEntity ();

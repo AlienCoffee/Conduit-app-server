@@ -40,7 +40,8 @@ public class PeriodEntity extends AbsAuditableEntity {
     private LocalDateTime until;
     
     @Column (nullable = false)
-    private String status;
+    @Enumerated (EnumType.STRING)
+    private PeriodStatus status;
     
     private boolean active;
     

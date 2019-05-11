@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import lombok.RequiredArgsConstructor;
@@ -55,13 +56,31 @@ public class SiteController {
     
     @GetMapping (PAGE_PERIODS)
     public ModelAndView handlePeriodsPage () {
-        ModelAndView mav = new ModelAndView ("periods");
+        ModelAndView mav = new ModelAndView ("period/periods");
         
         Collection <PeriodEntity> periodsC = periodsService.getAllPeriods ();
         List <PeriodEntity> periods = periodsC.stream ()
                                     . filter  (p -> !p.getName ().startsWith ("$"))
                                     . collect (Collectors.toList ());
         mav.addObject ("periods", periods);
+        return mav;
+    }
+    
+    @GetMapping (PAGE_PERIOD)
+    public ModelAndView handlePeriodPage (
+        @PathVariable ("id") Long periodID
+    ) {
+        ModelAndView mav = new ModelAndView ("period/period");
+        
+        return mav;
+    }
+    
+    @GetMapping (PAGE_PERIOD_REGISTRATION)
+    public ModelAndView handlePeriodRegistrationPage (
+        @PathVariable ("id") Long periodID
+    ) {
+        ModelAndView mav = new ModelAndView ("period/registration");
+        
         return mav;
     }
     

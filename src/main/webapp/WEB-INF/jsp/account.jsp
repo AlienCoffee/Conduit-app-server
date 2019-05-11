@@ -117,7 +117,6 @@
     		<span>Create period: </span>
     		<input id="cpName" type="text" placeholder="period name" />
     		<input id="cpSince" type="date" />
-    		<input id="cpStatus" type="text" placeholder="status" />
     		<button id="cpButton">create</button>
     	</p>
     	
@@ -145,6 +144,16 @@
     		<input id="rrtuPeriod" type="text" placeholder="period id" />
     		<input id="rrtuRole" type="text" placeholder="role id" />
     		<button id="rrtuButton">remove</button>
+    	</p>
+    	
+    	<h3>Period register templates</h3>
+    	
+    	<p>
+    		<div>
+   				<span>Templates:</span>
+   				<button id="lprtButton">load</button>
+   				<div id="templatesDiv"></div>
+			</div>
     	</p>
     	
     	<script src="/resources/js/account.js"></script>

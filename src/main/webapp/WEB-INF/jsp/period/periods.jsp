@@ -26,6 +26,14 @@
     			<p>(${period.getId ()}) <b>${period.getName ()}</b></p>
     			<div><b>Status:</b> ${period.getStatus ()}</div>
     			<div><b>Since:</b> ${period.getSince ()}</div>
+   				<div>
+   					<b>Links:</b>
+   					<a href="/period/${period.getId ()}">info</a>
+   					
+   					<c:if test="${period.getStatus ().name () eq 'REGISTRATION'}">
+   						<a href="/period/${period.getId ()}/registration">register</a>
+	    			</c:if>
+   				</div>
     		</div>
     	</c:forEach>
     	

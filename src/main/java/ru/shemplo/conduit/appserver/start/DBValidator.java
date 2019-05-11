@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
@@ -69,8 +70,9 @@ public class DBValidator {
         if (period == null) {
             final UserEntity admin = UserEntity.getAdminEntity ();
             final LocalDateTime from = LocalDateTime.now (clock);
+            final PeriodStatus status = PeriodStatus.CREATED;
             
-            period = new PeriodEntity (name, "", from, null, "", true);
+            period = new PeriodEntity (name, "", from, null, status, true);
             period.setCommitter (admin);
             period.setIssued (from);
             
