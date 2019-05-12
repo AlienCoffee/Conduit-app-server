@@ -156,6 +156,18 @@
 			</div>
     	</p>
     	
+    	<h3>Personal data retrieving</h3>
+    	
+    	<p>
+    		<div>
+   				<span>Personal data:</span>
+   				<input id="lpdUser" type="text" placeholder="user id" />
+   				<input id="lpdPeriod" type="text" placeholder="period id" />
+   				<button id="lpdButton">load</button>
+   				<div id="personalDataDiv"></div>
+			</div>
+    	</p>
+    	
     	<script src="/resources/js/account.js"></script>
     </body>
 </html>

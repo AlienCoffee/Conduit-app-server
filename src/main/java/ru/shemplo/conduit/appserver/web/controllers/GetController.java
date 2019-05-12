@@ -8,24 +8,28 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
+import ru.shemplo.conduit.appserver.entities.data.PersonalDataCollector;
+import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
+import ru.shemplo.conduit.appserver.web.form.WebFormRow;
 
 @RestController
 @RequiredArgsConstructor
 public class GetController {
     
-    //private final PersonalitiesService personalitiesService;
+    private final PersonalDataService personalDataService;
     private final MethodsScanner methodsScanner;
     private final MethodsService methodsService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
-    //private final GroupsService groupsService;
     private final RolesService rolesService;
     private final WUserService usersService;
     
@@ -63,8 +67,19 @@ public class GetController {
     }
     
     @GetMapping (API_GET_PERIOD_REGISTER_ROLES) 
-    public ResponseBox <Map <String, List <String>>> handleGetPeriodRegisterRoles () {
+    public ResponseBox <Map <String, List <WebFormRow>>> handleGetPeriodRegisterRoles () {
         return ResponseBox.ok (rolesService.getPeriodRegisterTemplates ());
+    }
+    
+    @PostMapping (API_GET_PERSONAL_DATA) 
+    public ResponseBox <PersonalDataCollector> handleGetPersonalData (
+        @RequestParam ("period") Long periodID,
+        @RequestParam ("user")   Long userID
+    ) {
+        final PeriodEntity period = periodsService.getPeriod (periodID);
+        final WUser user = usersService.getUser (userID);
+        
+        return ResponseBox.ok (personalDataService.getPersonalData (user, period));
     }
     
 }

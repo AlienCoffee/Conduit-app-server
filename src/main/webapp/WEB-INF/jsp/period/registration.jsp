@@ -21,6 +21,14 @@
     	
     	<a href="/">index</a>
     	
+    	<p>
+    		<select id="regType"></select>
+    		<button id="loadTypes">load</button>
+    	</p>
+    	
+    	<div id="regDiv"></div>
+    	
+    	<input id="periodID" type="hidden" value="${period.getId ()}" />
     	<script src="/resources/js/period.js"></script>
     </body>
 </html>

@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.data.PersonalDataField;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleEntityRepository;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.LRUCache;
+import ru.shemplo.conduit.appserver.web.form.WebFormRow;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
@@ -83,17 +83,13 @@ public class RolesService {
     }
     
     @ProtectedMethod
-    public Map <String, List <String>> getPeriodRegisterTemplates () {
+    public Map <String, List <WebFormRow>> getPeriodRegisterTemplates () {
         accessGuard.method (MiscUtils.getMethod ());
         
         return Arrays.asList (PersonalDataTemplate.values ()).stream ()
              . map (temp -> Pair.dup (temp))
-             . map (pair -> pair.applyF (PersonalDataTemplate::name))
-             . map (pair -> pair.applyS (PersonalDataTemplate::getFields))
-             . map (pair -> pair.applyS (
-                 lst -> lst.stream ().map (PersonalDataField::getKey)
-                      . collect (Collectors.toList ()))
-             )
+             . map (pair -> pair.applyF (PersonalDataTemplate::getName))
+             . map (pair -> pair.applyS (PersonalDataTemplate::getRows))
              . collect (Collectors.toMap (Pair::getF, Pair::getS));
     }
     

@@ -5,9 +5,10 @@ import java.util.function.Function;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.Named;
 
 @RequiredArgsConstructor
-public enum PersonalDataField {
+public enum PersonalDataField implements Named {
     
     FIRST_NAME             ("firstName",            true,  Object::toString, __ -> __),
     SECOND_NAME            ("secondName",           true,  Object::toString, __ -> __),
@@ -43,7 +44,7 @@ public enum PersonalDataField {
     ACCOMODATION_WISHES    ("accomodationWishes",   true,  Object::toString, __ -> __),
     OTHER_WISHES           ("otherWishes",          true,  Object::toString, __ -> __);
     
-    @Getter private final String key;
+    @Getter private final String name;
     @Getter private final boolean empty;
     
     private final Function <Object, String> serializer;

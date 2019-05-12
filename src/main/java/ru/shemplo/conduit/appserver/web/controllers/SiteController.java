@@ -79,7 +79,9 @@ public class SiteController {
     public ModelAndView handlePeriodRegistrationPage (
         @PathVariable ("id") Long periodID
     ) {
+        final PeriodEntity period = periodsService.getPeriod (periodID);
         ModelAndView mav = new ModelAndView ("period/registration");
+        mav.addObject ("period", period);
         
         return mav;
     }

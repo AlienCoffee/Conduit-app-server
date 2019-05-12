@@ -176,7 +176,7 @@ window.onload = function (e) {
 			
 			var data = new FormData ();
 			data.append ("method",   document.getElementById ("amrMethod").value);
-			data.append ("optionID", document.getElementById ("amrOption").value);
+			data.append ("option", document.getElementById ("amrOption").value);
 			console.log (data);
 			
 			req.send (data);
@@ -202,7 +202,7 @@ window.onload = function (e) {
 			
 			var data = new FormData ();
 			data.append ("method",   document.getElementById ("rmrMethod").value);
-			data.append ("optionID", document.getElementById ("rmrOption").value);
+			data.append ("option", document.getElementById ("rmrOption").value);
 			console.log (data);
 			
 			req.send (data);
@@ -320,8 +320,8 @@ window.onload = function (e) {
 			}
 			
 			var data = new FormData ();
-			data.append ("roleID",   document.getElementById ("aroRole").value);
-			data.append ("optionID", document.getElementById ("aroOption").value);
+			data.append ("role",   document.getElementById ("aroRole").value);
+			data.append ("option", document.getElementById ("aroOption").value);
 			console.log (data);
 			
 			req.send (data);
@@ -346,8 +346,8 @@ window.onload = function (e) {
 			}
 			
 			var data = new FormData ();
-			data.append ("roleID",   document.getElementById ("rroRole").value);
-			data.append ("optionID", document.getElementById ("rroOption").value);
+			data.append ("role",   document.getElementById ("rroRole").value);
+			data.append ("option", document.getElementById ("rroOption").value);
 			console.log (data);
 			
 			req.send (data);
@@ -434,9 +434,9 @@ window.onload = function (e) {
 			}
 			
 			var data = new FormData ();
-			data.append ("userID",   document.getElementById ("artuUser").value);
-			data.append ("periodID", document.getElementById ("artuPeriod").value);
-			data.append ("roleID",   document.getElementById ("artuRole").value);
+			data.append ("user",   document.getElementById ("artuUser").value);
+			data.append ("period", document.getElementById ("artuPeriod").value);
+			data.append ("role",   document.getElementById ("artuRole").value);
 			console.log (data);
 			
 			req.send (data);
@@ -461,9 +461,9 @@ window.onload = function (e) {
 			}
 			
 			var data = new FormData ();
-			data.append ("userID",   document.getElementById ("rrtuUser").value);
-			data.append ("periodID", document.getElementById ("rrtuPeriod").value);
-			data.append ("roleID",   document.getElementById ("rrtuRole").value);
+			data.append ("user",   document.getElementById ("rrtuUser").value);
+			data.append ("period", document.getElementById ("rrtuPeriod").value);
+			data.append ("role",   document.getElementById ("rrtuRole").value);
 			console.log (data);
 			
 			req.send (data);
@@ -508,6 +508,40 @@ window.onload = function (e) {
 			}
 			
 			req.send ();
+		}
+	}
+	
+	button = document.getElementById ("lpdButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/get/personal-data", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var methods = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("personalDataDiv");
+					container.innerHTML = "";
+					
+					if (methods.error) {
+						container.innerHTML = methods.message;
+					} else {
+						container.innerHTML = JSON.stringify (methods.object.values);
+					}
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("user",   document.getElementById ("lpdUser").value);
+			data.append ("period", document.getElementById ("lpdPeriod").value);
+			
+			req.send (data);
 		}
 	}
 }

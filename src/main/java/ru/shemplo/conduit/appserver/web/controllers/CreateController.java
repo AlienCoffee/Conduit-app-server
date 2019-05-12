@@ -3,6 +3,7 @@ package ru.shemplo.conduit.appserver.web.controllers;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import javax.validation.ValidationException;
 
@@ -11,13 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
+import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
-import ru.shemplo.conduit.appserver.services.OptionsService;
-import ru.shemplo.conduit.appserver.services.PeriodsService;
-import ru.shemplo.conduit.appserver.services.RolesService;
-import ru.shemplo.conduit.appserver.services.WUserService;
+import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.utils.PasswordValidator;
 import ru.shemplo.conduit.appserver.utils.PhoneValidator;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
@@ -26,6 +26,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 @RequiredArgsConstructor
 public class CreateController {
     
+    private final PersonalDataService personalDataService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
     //private final GroupsService groupsService;
@@ -90,24 +91,23 @@ public class CreateController {
         return ResponseBox.ok ();
     }
     
-    /*
-    @PostMapping (API_CREATE_GROUP) 
-    public ResponseBox <Void> handleCreateGroup (
-        @IndentifiedUser WUser user,
-        @RequestParam ("name")  String name,
-        @RequestParam (value = "description", required = false)  
-            String description,
-        @RequestParam ("periodID") Long periodID
+    @PostMapping (API_CREATE_PERIOD_REGISTRATION)
+    public ResponseBox <Void> handleCreatePeriodRegistration (
+        @IndentifiedUser           WUser  user,
+        @RequestParam ("template") String template,
+        @RequestParam ("period")   Long periodID,
+        @RequestParam Map <String, String> data
     ) {
+        final PersonalDataTemplate temp = PersonalDataTemplate.forName (template);
+        final PeriodEntity period = periodsService.getPeriod (periodID);
+        
         try {
-            StudyPeriodEntity period = periodsService.getPeriod (periodID);   
-            groupsService.createGroup (name, description, period, user);
-        } catch (EntityNotFoundException enfe) {
-            return ResponseBox.fail (enfe);
+            personalDataService.savePersonalData (user, period, temp, data);
+        } catch (IllegalStateException ise) {
+            return ResponseBox.fail (ise);
         }
         
         return ResponseBox.ok ();
     }
-    */
     
 }

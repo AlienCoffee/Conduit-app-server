@@ -30,10 +30,10 @@ public final class AccessGuard {
           = new ConcurrentHashMap <> ();
     
     public void method (Method method) { 
-        method (method, PeriodEntity.getSystem ()); 
+        method (method, PeriodEntity.getSystem (), null); 
     }
     
-    public void method (Method method, PeriodEntity period) {
+    public void method (Method method, PeriodEntity period, WUser target) {
         final Set <OptionEntity> options = getRequirements (method.getName ());
         
         Authentication authentication = SecurityContextHolder.getContext ()
@@ -55,6 +55,12 @@ public final class AccessGuard {
                           . filter (options::contains)
                           . count  ();
         if (intersection != options.size ()) {
+            // User don't have enough rights for method but 
+            // he asked for data that also belongs to him
+            if (target != null && target.equals (user)) {
+                return;
+            }
+            
             throw new SecurityException ("Not enough rights");
         }
     }

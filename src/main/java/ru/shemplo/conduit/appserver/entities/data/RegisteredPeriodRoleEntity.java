@@ -13,10 +13,10 @@ import ru.shemplo.conduit.appserver.entities.UserEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode (callSuper = true)
-@Table (name = "personal_data", uniqueConstraints = {
-    @UniqueConstraint (columnNames = {"user_id", "period_id", "field"})
+@Table (name = "registered_period_roles", uniqueConstraints = {
+    @UniqueConstraint (columnNames = {"user_id", "period_id", "template"})
 })
-public class PersonalDataEntity extends AbsEntity {
+public class RegisteredPeriodRoleEntity extends AbsEntity {
     
     @ManyToOne (optional = false)
     private UserEntity user;
@@ -26,11 +26,6 @@ public class PersonalDataEntity extends AbsEntity {
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
-    private PersonalDataField field;
-    
-    @Column (nullable = false, columnDefinition = "text")
-    private String value;
-    
-    public <R> R deserialize () { return field.deserialize (value); }
+    private PersonalDataTemplate template;
     
 }

@@ -32,7 +32,7 @@ public class UpdateController {
     @PostMapping (API_UPDATE_ADD_METHOD_RULE)
     public ResponseBox <Void> handleAddMethodRule (
         @RequestParam ("method")   String methodName,
-        @RequestParam ("optionID") Long   optionID
+        @RequestParam ("option") Long   optionID
     ) {
         Method method = methodsScanner.getMethodByName (methodName);
         OptionEntity option = optionsService.getOption (optionID);
@@ -44,7 +44,7 @@ public class UpdateController {
     @PostMapping (API_UPDATE_REMOVE_METHOD_RULE)
     public ResponseBox <Void> handleRemoveMethodRule (
         @RequestParam ("method") String methodName,
-        @RequestParam ("optionID") Long optionID
+        @RequestParam ("option") Long optionID
     ) {
         final Method method = methodsScanner.getMethodByName (methodName);
         final OptionEntity option = optionsService.getOption (optionID);
@@ -55,8 +55,8 @@ public class UpdateController {
     
     @PostMapping (API_UPDATE_ADD_ROLE_OPTION)
     public ResponseBox <Void> handleAddRoleOption (
-        @RequestParam ("roleID")   Long roleID,
-        @RequestParam ("optionID") Long optionID
+        @RequestParam ("role")   Long roleID,
+        @RequestParam ("option") Long optionID
     ) {
         OptionEntity option = optionsService.getOption (optionID);
         RoleEntity role = rolesService.getRole (roleID);
@@ -66,8 +66,8 @@ public class UpdateController {
     
     @PostMapping (API_UPDATE_REMOVE_ROLE_OPTION)
     public ResponseBox <Void> handleRemoveRoleOption (
-        @RequestParam ("roleID")   Long roleID,
-        @RequestParam ("optionID") Long optionID
+        @RequestParam ("role")   Long roleID,
+        @RequestParam ("option") Long optionID
     ) {
         final OptionEntity option = optionsService.getOption (optionID);
         final RoleEntity role = rolesService.getRole (roleID);
@@ -78,9 +78,9 @@ public class UpdateController {
     @PostMapping (API_UPDATE_ADD_ROLE_TO_USER)
     public ResponseBox <Void> handleAddRoleToUser (
         @IndentifiedUser           WUser committer,
-        @RequestParam ("userID")   Long userID,
-        @RequestParam ("periodID") Long periodID,
-        @RequestParam ("roleID")   Long roleID
+        @RequestParam ("user")   Long userID,
+        @RequestParam ("period") Long periodID,
+        @RequestParam ("role")   Long roleID
     ) {
         PeriodEntity period = periodsService.getPeriod (periodID);
         RoleEntity role = rolesService.getRole (roleID);
@@ -92,9 +92,9 @@ public class UpdateController {
     
     @PostMapping (API_UPDATE_REMOVE_ROLE_FROM_USER)
     public ResponseBox <Void> handleRemoveRoleFromUser (
-        @RequestParam ("userID") Long userID,
-        @RequestParam ("periodID") Long periodID,
-        @RequestParam ("roleID") Long roleID
+        @RequestParam ("user") Long userID,
+        @RequestParam ("period") Long periodID,
+        @RequestParam ("role") Long roleID
     ) {
         PeriodEntity period = periodsService.getPeriod (periodID);
         RoleEntity role = rolesService.getRole (roleID);
