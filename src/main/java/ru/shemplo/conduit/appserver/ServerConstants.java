@@ -27,16 +27,25 @@ public class ServerConstants {
     
     public static final String API_GET = API_ + "get";
     public static final String API_GET_ = API_GET + $;
+
+    public static final String API_GET_PERIOD = API_GET_ + "period";
+    public static final String API_GET_PERIOD_ = API_GET_PERIOD + $;
+    public static final String API_GET_GROUP = API_GET_ + "group";
+    public static final String API_GET_GROUP_ = API_GET_GROUP + $;
     
     public static final String API_GET_USERS = API_GET_ + "users";
     public static final String API_GET_OPTIONS = API_GET_ + "options";
     public static final String API_GET_ROLES = API_GET_ + "roles";
-    public static final String API_GET_PERIODS = API_GET_ + "periods";
+    public static final String API_GET_PERIODS = API_GET_PERIOD + "s";
     public static final String API_GET_PERSONAL_DATA = API_GET_ + "personal-data";
-    public static final String API_GET_GROUPS = API_GET_ + "groups";
+    public static final String API_GET_GROUP_TYPES = API_GET_GROUP_ + "types";
+    public static final String API_GET_PERIOD_GROUPS = API_GET_PERIOD_ + "groups";
+    public static final String API_GET_GROUP_MEMBERS = API_GET_GROUP_ + "members";
+    public static final String API_GET_GROUP_POSITIONS = API_GET_GROUP_ + "positions";
     public static final String API_GET_METHODS = API_GET_ + "methods";
     public static final String API_GET_GUARD_RULES = API_GET_ + "guard-rules";
-    public static final String API_GET_PERIOD_REGISTER_ROLES = API_GET_ + "period-register-roles";
+    public static final String API_GET_PERIOD_REGISTER_ROLES = API_GET_PERIOD_ + "register-roles";
+    public static final String API_GET_PERIOD_REGISTERED = API_GET_PERIOD_ + "registered";
     
     public static final String API_CREATE = API_ + "create";
     public static final String API_CREATE_ = API_CREATE + $;
@@ -47,6 +56,7 @@ public class ServerConstants {
     public static final String API_CREATE_PERIOD = API_CREATE_ + "period";
     public static final String API_CREATE_GROUP = API_CREATE_ + "group";
     public static final String API_CREATE_PERIOD_REGISTRATION = API_CREATE_ + "period-registration";
+    public static final String API_CREATE_GROUP_ASSIGNMENT = API_CREATE_ + "group-assignment";
     
     public static final String API_UPDATE = API_ + "update";
     public static final String API_UPDATE_ = API_UPDATE + $;

@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 
 @Entity
 @Getter @Setter
@@ -31,5 +32,8 @@ public class RoleEntity extends AbsEntity {
     
     @ManyToMany (fetch = FetchType.EAGER)
     private Set <OptionEntity> options = new HashSet <> ();
+    
+    @Enumerated (EnumType.STRING)
+    private PersonalDataTemplate template;
     
 }

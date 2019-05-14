@@ -10,7 +10,7 @@ window.onload = function (e) {
 	if (button) {
 		button.onclick = function (e) {
 			var req = new XMLHttpRequest ();
-			req.open ("GET", "/api/get/period-register-roles", true);
+			req.open ("GET", "/api/get/period/register-roles", true);
 			req.setRequestHeader (header, token);
 			
 			req.onreadystatechange = function () {

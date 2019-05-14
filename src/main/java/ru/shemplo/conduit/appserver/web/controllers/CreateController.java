@@ -14,7 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
+import ru.shemplo.conduit.appserver.entities.RoleEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
+import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentStatus;
+import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -29,7 +33,7 @@ public class CreateController {
     private final PersonalDataService personalDataService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
-    //private final GroupsService groupsService;
+    private final GroupsService groupsService;
     private final RolesService rolesService;
     private final WUserService usersService;
     
@@ -66,9 +70,14 @@ public class CreateController {
     
     @PostMapping (API_CREATE_ROLE)
     public ResponseBox <Void> handleCreateRole (
+        @RequestParam (value = "template", required = false) 
+            String templateName,
         @RequestParam ("name") String name
     ) {
-        rolesService.createRole (name.trim ());
+        PersonalDataTemplate template = !(templateName == null || "".equals (templateName.trim ()))
+                                      ? PersonalDataTemplate.valueOf (templateName)
+                                      : null;
+        rolesService.createRole (name.trim (), template);
         return ResponseBox.ok ();
     }
     
@@ -107,6 +116,41 @@ public class CreateController {
             return ResponseBox.fail (ise);
         }
         
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_GROUP)
+    public ResponseBox <Void> handleCreateGroup (
+        @IndentifiedUser         WUser  user,
+        @RequestParam ("name")   String name,
+        @RequestParam ("period") Long periodID,
+        @RequestParam ("type")   String typeName,
+        @RequestParam (value = "description", required = false)  
+            String description
+    ) {
+        final PeriodEntity period = periodsService.getPeriod (periodID);
+        final GroupType type = GroupType.valueOf (typeName);
+        
+        groupsService.createGroup (name, description, period, type, user);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_GROUP_ASSIGNMENT)
+    public ResponseBox <Void> handleCreateGroupAssignment (
+        @IndentifiedUser           WUser user,
+        @RequestParam ("user")     Long userID,
+        @RequestParam ("group")    Long groupID,
+        @RequestParam ("status")   String statusName,
+        @RequestParam ("comment")  String comment,
+        @RequestParam (value = "role", required = false)     
+            Long roleID
+    ) {
+        final GroupAssignmentStatus status = GroupAssignmentStatus.valueOf (statusName);
+        final RoleEntity role = roleID == null ? null : rolesService.getRole (roleID);
+        final GroupEntity group = groupsService.getGroup (groupID);
+        final WUser target = usersService.getUser (userID);
+        
+        groupsService.createGroupAssignment (target, role, group, status, comment, user);
         return ResponseBox.ok ();
     }
     

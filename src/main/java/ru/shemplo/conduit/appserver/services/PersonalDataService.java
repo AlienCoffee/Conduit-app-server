@@ -97,4 +97,22 @@ public class PersonalDataService {
         }
     }
     
+    @ProtectedMethod
+    public boolean isUserRegisteredForPeriod (WUser user, PeriodEntity period) {
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        return isUserRegisteredForPeriodWithTemplate (user, period, null);
+    }
+    
+    @ProtectedMethod
+    public boolean isUserRegisteredForPeriodWithTemplate (WUser user, 
+            PeriodEntity period, PersonalDataTemplate template) {
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        
+        RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
+            user.getEntity (), period, template
+        );
+        
+        return registeredRoleRepository.exists (Example.of (role));
+    }
+    
 }

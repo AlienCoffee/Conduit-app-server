@@ -261,7 +261,8 @@ window.onload = function (e) {
 			}
 			
 			var data = new FormData ();
-			data.append ("name", document.getElementById ("crName").value);
+			data.append ("name",     document.getElementById ("crName").value);
+			data.append ("template", document.getElementById ("crTemplate").value.toUpperCase ());
 			console.log (data);
 			
 			req.send (data);
@@ -474,7 +475,7 @@ window.onload = function (e) {
 	if (button) {
 		button.onclick = function (e) {
 			var req = new XMLHttpRequest ();
-			req.open ("GET", "/api/get/period-register-roles", true);
+			req.open ("GET", "/api/get/period/register-roles", true);
 			req.setRequestHeader (header, token);
 			
 			req.onreadystatechange = function () {
@@ -511,6 +512,43 @@ window.onload = function (e) {
 		}
 	}
 	
+	button = document.getElementById ("lprButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/get/period/registered", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var methods = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("registeredDiv");
+					container.innerHTML = "";
+					
+					if (methods.error) {
+						container.innerHTML = methods.message;
+					} else {
+						Object.keys (methods.object).forEach (key => {
+							var elem = document.createElement ("div");
+							elem.innerHTML = key + " / " + JSON.stringify (methods.object [key]);
+							container.append (elem);
+						});
+					}
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("period", document.getElementById ("lprPeriod").value);
+			
+			req.send (data);
+		}
+	}
+	
 	button = document.getElementById ("lpdButton");
 	if (button) {
 		button.onclick = function (e) {
@@ -540,6 +578,166 @@ window.onload = function (e) {
 			var data = new FormData ();
 			data.append ("user",   document.getElementById ("lpdUser").value);
 			data.append ("period", document.getElementById ("lpdPeriod").value);
+			
+			req.send (data);
+		}
+	}
+	
+	button = document.getElementById ("lgtButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/get/group/types", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var methods = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("groupTypesDiv");
+					container.innerHTML = "";
+					
+					if (methods.error) {
+						container.innerHTML = methods.message;
+					} else {
+						container.innerHTML = JSON.stringify (methods.object);
+					}
+				}
+			}
+			
+			req.send ();
+		}
+	}
+	
+	button = document.getElementById ("cgButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/create/group", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					location.reload (); 
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("name",   document.getElementById ("cgName").value);
+			data.append ("period", document.getElementById ("cgPeriod").value);
+			data.append ("type",   document.getElementById ("cgType").value.toUpperCase ());
+			console.log (data);
+			
+			req.send (data);
+		}
+	}
+	
+	button = document.getElementById ("lpgButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/get/period/groups", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var groups = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("groupsDiv");
+					container.innerHTML = "";
+					
+					if (groups.error) {
+						container.innerHTML = groups.message;
+					} else {
+						groups.object.forEach (group => {
+							var elem = document.createElement ("div");
+							elem.innerHTML = JSON.stringify (group);
+							container.append (elem);
+						});
+					}
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("period", document.getElementById ("lpgPeriod").value);
+			
+			req.send (data);
+		}
+	}
+	
+	button = document.getElementById ("agButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/create/group-assignment", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					location.reload (); 
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("user",    document.getElementById ("agUser").value);
+			data.append ("group",   document.getElementById ("agGroup").value);
+			data.append ("status",  document.getElementById ("agStatus").value.toUpperCase ());
+			data.append ("role",    document.getElementById ("agRole").value.toUpperCase ());
+			data.append ("comment", document.getElementById ("agComment").value);
+			console.log (data);
+			
+			req.send (data);
+		}
+	}
+	
+	button = document.getElementById ("lgaButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/get/group/members", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var groups = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("groupMembersDiv");
+					container.innerHTML = "";
+					
+					if (groups.error) {
+						container.innerHTML = groups.message;
+					} else {
+						groups.object.forEach (group => {
+							var elem = document.createElement ("div");
+							elem.innerHTML = JSON.stringify (group);
+							container.append (elem);
+						});
+					}
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("group", document.getElementById ("lgaGroup").value);
 			
 			req.send (data);
 		}

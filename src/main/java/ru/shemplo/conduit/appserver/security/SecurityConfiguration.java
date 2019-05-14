@@ -31,7 +31,7 @@ import ru.shemplo.conduit.appserver.services.WUserService;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity (prePostEnabled = true, securedEnabled = true)
+@EnableGlobalMethodSecurity (prePostEnabled = false, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired private SuccessfulLogoutHandler successfulLogoutHandler;

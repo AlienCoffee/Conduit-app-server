@@ -86,6 +86,7 @@
     	<p>
     		<span>Create role: </span>
     		<input id="crName" type="text" placeholder="role name" />
+    		<input id="crTemplate" type="text" placeholder="template name" />
     		<button id="crButton">create</button>
     	</p>
     	
@@ -156,6 +157,15 @@
 			</div>
     	</p>
     	
+    	<p>
+    		<div>
+   				<span>Registered in period:</span>
+   				<input id="lprPeriod" type="text" placeholder="period id" />
+   				<button id="lprButton">load</button>
+   				<div id="registeredDiv"></div>
+			</div>
+    	</p>
+    	
     	<h3>Personal data retrieving</h3>
     	
     	<p>
@@ -165,6 +175,52 @@
    				<input id="lpdPeriod" type="text" placeholder="period id" />
    				<button id="lpdButton">load</button>
    				<div id="personalDataDiv"></div>
+			</div>
+    	</p>
+    	
+    	<h3>Group</h3>
+    	
+    	<p>
+    		<div>
+   				<span>Group types:</span>
+   				<button id="lgtButton">load</button>
+   				<div id="groupTypesDiv"></div>
+			</div>
+    	</p>
+    	
+    	<p>
+    		<span>Create group: </span>
+    		<input id="cgName" type="text" placeholder="group name" />
+    		<input id="cgPeriod" type="text" placeholder="period id" />
+    		<input id="cgType" type="text" placeholder="group type" />
+    		<button id="cgButton">create</button>
+    	</p>
+    	
+    	<p>
+    		<div>
+   				<span>Registered groups:</span>
+   				<input id="lpgPeriod" type="text" placeholder="period id" />
+   				<button id="lpgButton">load</button>
+   				<div id="groupsDiv"></div>
+			</div>
+    	</p>
+    	
+    	<p>
+    		<span>Assign group: </span>
+    		<input id="agUser" type="text" placeholder="user id" />
+    		<input id="agGroup" type="text" placeholder="group id" />
+    		<input id="agStatus" type="text" placeholder="status" />
+    		<input id="agRole" type="text" placeholder="role id" />
+    		<input id="agComment" type="text" placeholder="comment" />
+    		<button id="agButton">assign</button>
+    	</p>
+    	
+    	<p>
+    		<div>
+   				<span>Group assigned:</span>
+   				<input id="lgaGroup" type="text" placeholder="group id" />
+   				<button id="lgaButton">load</button>
+   				<div id="groupMembersDiv"></div>
 			</div>
     	</p>
     	

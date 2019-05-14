@@ -17,13 +17,13 @@ import lombok.*;
 })
 public class RoleAssignmentEntity extends AbsAuditableEntity {
     
-    @ManyToOne
+    @ManyToOne (optional = false)
     private UserEntity user;
     
-    @ManyToOne
+    @ManyToOne (optional = false)
     private PeriodEntity period;
     
-    @ManyToOne
+    @ManyToOne (optional = false)
     private RoleEntity role;
     
 }

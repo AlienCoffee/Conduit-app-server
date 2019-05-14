@@ -26,4 +26,19 @@ public class ExceptionController {
         return ResponseBox.fail (exception);
     }
     
+    @ExceptionHandler (IllegalStateException.class)
+    public ResponseBox <Void> handleISException (IllegalStateException exception) {
+        return ResponseBox.fail (exception);
+    }
+    
+    @ExceptionHandler (IllegalArgumentException.class)
+    public ResponseBox <Void> handleIAException (IllegalArgumentException exception) {
+        return ResponseBox.fail (exception);
+    }
+    
+    @ExceptionHandler (NullPointerException.class)
+    public ResponseBox <Void> handleNPException (NullPointerException exception) {
+        return ResponseBox.fail (exception);
+    }
+    
 }
