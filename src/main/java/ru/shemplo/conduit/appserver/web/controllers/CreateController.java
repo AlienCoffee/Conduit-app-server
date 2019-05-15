@@ -2,6 +2,7 @@ package ru.shemplo.conduit.appserver.web.controllers;
 
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -34,8 +35,10 @@ public class CreateController {
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
     private final GroupsService groupsService;
+    private final PostsService postsService;
     private final RolesService rolesService;
     private final WUserService usersService;
+    private final Clock clock;
     
     @PostMapping (API_CREATE_USER)
     public ResponseBox <Void> handleCreateUser (
@@ -151,6 +154,21 @@ public class CreateController {
         final WUser target = usersService.getUser (userID);
         
         groupsService.createGroupAssignment (target, role, group, status, comment, user);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_INFORMATION_POST)
+    public ResponseBox <Void> handleCreateInformationPost (
+        @IndentifiedUser          WUser user,
+        @RequestParam ("group")   Long groupID,
+        @RequestParam ("title")   String title,
+        @RequestParam ("content") String content
+    ) {
+        final LocalDateTime publishTime = LocalDateTime.now (clock);
+        final GroupEntity group = groupsService.getGroup (groupID);
+        postsService.createInforamtionPost (group, title, content, 
+                                            publishTime, user);
+        
         return ResponseBox.ok ();
     }
     

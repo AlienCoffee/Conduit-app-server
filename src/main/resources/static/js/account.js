@@ -742,4 +742,31 @@ window.onload = function (e) {
 			req.send (data);
 		}
 	}
+	
+	button = document.getElementById ("agpButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/create/information-post", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					location.reload (); 
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("title",   document.getElementById ("agpTitle").value);
+			data.append ("group",   document.getElementById ("agpGroup").value);
+			data.append ("content",   document.getElementById ("agpContent").value);
+			console.log (data);
+			
+			req.send (data);
+		}
+	}
 }

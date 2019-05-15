@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentStatus;
-import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupType;
+import ru.shemplo.conduit.appserver.entities.groups.*;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
@@ -165,7 +162,10 @@ public class GroupsService {
     public List <GroupEntity> getUserGroups (WUser user) {
         accessGuard.method (MiscUtils.getMethod ());
         
-        return null;
+        return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()
+             . filter  (row -> row.getStatus ().equals (GroupAssignmentStatus.IN_GROUP))
+             . map     (GroupAssignmentEntity::getGroup)
+             . collect (Collectors.toList ());
     }
     
 }

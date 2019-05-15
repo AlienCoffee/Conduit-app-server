@@ -46,6 +46,8 @@ public class ServerConstants {
     public static final String API_GET_GUARD_RULES = API_GET_ + "guard-rules";
     public static final String API_GET_PERIOD_REGISTER_ROLES = API_GET_PERIOD_ + "register-roles";
     public static final String API_GET_PERIOD_REGISTERED = API_GET_PERIOD_ + "registered";
+    public static final String API_GET_INFORMATION_POSTS = API_GET_ + "information-posts";
+    public static final String API_GET_INFORMATION_POST = API_GET_ + "information-post";
     
     public static final String API_CREATE = API_ + "create";
     public static final String API_CREATE_ = API_CREATE + $;
@@ -57,6 +59,7 @@ public class ServerConstants {
     public static final String API_CREATE_GROUP = API_CREATE_ + "group";
     public static final String API_CREATE_PERIOD_REGISTRATION = API_CREATE_ + "period-registration";
     public static final String API_CREATE_GROUP_ASSIGNMENT = API_CREATE_ + "group-assignment";
+    public static final String API_CREATE_INFORMATION_POST = API_CREATE_ + "information-post";
     
     public static final String API_UPDATE = API_ + "update";
     public static final String API_UPDATE_ = API_UPDATE + $;

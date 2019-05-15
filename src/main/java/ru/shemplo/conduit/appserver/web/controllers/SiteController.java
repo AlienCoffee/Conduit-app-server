@@ -6,6 +6,7 @@ import static ru.shemplo.conduit.appserver.ServerConstants.*;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupType;
+import ru.shemplo.conduit.appserver.services.GroupsService;
 import ru.shemplo.conduit.appserver.services.PeriodsService;
 
 @Controller
@@ -24,6 +28,7 @@ import ru.shemplo.conduit.appserver.services.PeriodsService;
 public class SiteController {
     
     private final PeriodsService periodsService;
+    private final GroupsService groupsService;
     
     @GetMapping ($)
     public ModelAndView handleIndexPage (Principal principal,
@@ -71,6 +76,19 @@ public class SiteController {
         @PathVariable ("id") Long periodID
     ) {
         ModelAndView mav = new ModelAndView ("period/period");
+        
+        final PeriodEntity period  = periodsService.getPeriod (periodID);
+        
+        mav.addObject ("period", period);
+        
+        final Map <GroupType, List <GroupEntity>> groups 
+            = groupsService.getPeriodGroups (period).stream ()
+            . collect (Collectors.groupingBy (GroupEntity::getType));
+        
+        mav.addObject ("ELIMINATION_groups", groups.get (GroupType.ELIMINATION));
+        mav.addObject ("STUDY_groups", groups.get (GroupType.STUDY));
+        mav.addObject ("INFO_groups", groups.get (GroupType.INFO));
+        mav.addObject ("POOL_groups", groups.get (GroupType.POOL));
         
         return mav;
     }

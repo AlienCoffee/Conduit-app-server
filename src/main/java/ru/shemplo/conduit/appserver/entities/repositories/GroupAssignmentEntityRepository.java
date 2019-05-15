@@ -12,4 +12,6 @@ public interface GroupAssignmentEntityRepository extends AbsEntityRepository <Gr
     
     public List <GroupAssignmentEntity> findByGroup (GroupEntity group);
     
+    public List <GroupAssignmentEntity> findByUser (UserEntity user);
+    
 }

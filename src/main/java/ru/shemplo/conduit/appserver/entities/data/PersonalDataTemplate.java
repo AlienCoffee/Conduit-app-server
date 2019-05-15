@@ -37,7 +37,7 @@ public enum PersonalDataTemplate {
             ));
             */
     
-    STUDENT ("Школьник", Arrays.asList (
+    STUDENT ("Школьник", true, Arrays.asList (
             new WebFormTitle ("Данные об школьнике"),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия школьника", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя школьника", null, true),
@@ -47,7 +47,7 @@ public enum PersonalDataTemplate {
             new WebFormField <> (STUDY_FORM, NUMBER, "Класс обучения", "Класс, который школьник закончил", true)
         )),
     
-    TEACHER ("Преподаватель", Arrays.asList (
+    TEACHER ("Преподаватель", true, Arrays.asList (
             new WebFormTitle ("Персональные данные"),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
@@ -56,7 +56,7 @@ public enum PersonalDataTemplate {
             new WebFormField <> (BIRTHDAY, DATE, "Дата рождения", null, true)
         )),
     
-    PARENT_MOTHER ("Родитель (мать)", Arrays.asList (
+    PARENT_MOTHER ("Родитель (мать)", true, Arrays.asList (
             new WebFormTitle ("Персональные данные"),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
@@ -65,7 +65,7 @@ public enum PersonalDataTemplate {
             new WebFormField <> (BIRTHDAY, DATE, "Дата рождения", null, true)
         )),
     
-    PARENT_FATHER ("Родитель (отец)", Arrays.asList (
+    PARENT_FATHER ("Родитель (отец)", true, Arrays.asList (
             new WebFormTitle ("Персональные данные"),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
@@ -75,6 +75,7 @@ public enum PersonalDataTemplate {
         ));
     
     @Getter private final String name;
+    @Getter private final boolean vivsble;
     @Getter private final List <WebFormRow> rows;
     
     public int getNumberOfRequired () {

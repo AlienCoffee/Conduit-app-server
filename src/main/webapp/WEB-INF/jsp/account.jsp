@@ -224,6 +224,16 @@
 			</div>
     	</p>
     	
+    	<h3>Information post</h3>
+    	
+    	<p>
+    		<span>Publish post: </span>
+    		<input id="agpTitle" type="text" placeholder="title" />
+    		<input id="agpGroup" type="text" placeholder="group id" />
+    		<button id="agpButton">post</button><br />
+    		<textarea cols="100" rows="50" id="agpContent"></textarea>
+    	</p>
+    	
     	<script src="/resources/js/account.js"></script>
     </body>
 </html>
