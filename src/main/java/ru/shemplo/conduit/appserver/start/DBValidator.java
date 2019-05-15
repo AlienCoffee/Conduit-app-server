@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
-import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepository;
+import ru.shemplo.conduit.appserver.entities.repositories.PeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.snowball.stuctures.Pair;
 
@@ -31,7 +31,7 @@ public class DBValidator {
         createSystemStudyPeriodIfNotExists ();
     }
     
-    private final StudyPeriodEntityRepository studyPeriodsRepository;
+    private final PeriodEntityRepository studyPeriodsRepository;
     private final ConfigurableEnvironment configurableEnvironment;
     private final UserEntityRepository usersRepository;
     private final PasswordEncoder passwordEncoder;

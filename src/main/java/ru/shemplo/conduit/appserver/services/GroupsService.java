@@ -43,7 +43,9 @@ public class GroupsService {
     public List <GroupEntity> getPeriodGroups (PeriodEntity period) {
         accessGuard.method (MiscUtils.getMethod ());
         
-        return groupsRepository.findByPeriod (period);
+        return groupsRepository.findIdsByPeriod (period).stream ()
+             . map     (this::getGroup)
+             . collect (Collectors.toList ());
     }
     
     @ProtectedMethod

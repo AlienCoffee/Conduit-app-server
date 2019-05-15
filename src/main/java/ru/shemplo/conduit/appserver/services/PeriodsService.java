@@ -3,6 +3,7 @@ package ru.shemplo.conduit.appserver.services;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
-import ru.shemplo.conduit.appserver.entities.repositories.StudyPeriodEntityRepository;
+import ru.shemplo.conduit.appserver.entities.repositories.PeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
@@ -22,7 +23,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @RequiredArgsConstructor
 public class PeriodsService {
     
-    private final StudyPeriodEntityRepository periodsRepository;
+    private final PeriodEntityRepository periodsRepository;
     private final AccessGuard accessGuard;
     private final Clock clock;
     
@@ -33,7 +34,11 @@ public class PeriodsService {
     @ProtectedMethod
     public Collection <PeriodEntity> getAllPeriods () {
         accessGuard.method (MiscUtils.getMethod ());
-        return periodsRepository.findAll ();
+        //return periodsRepository.findAll ();
+        
+        return periodsRepository.findAllIds ().stream ()
+             . map     (this::getPeriod)
+             . collect (Collectors.toList ());
     }
     
     @ProtectedMethod
