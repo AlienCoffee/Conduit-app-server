@@ -15,6 +15,7 @@ public class ServerConstants {
     public static final String PAGE_PERIODS = $ + "periods";
     public static final String PAGE_PERIOD = $ + "period" + $ + "{id}";
     public static final String PAGE_PERIOD_REGISTRATION = PAGE_PERIOD + $ + "registration";
+    public static final String PAGE_GROUP = $ + "group" + $ + "{id}";
     
     public static final String API = $ + "api";
     public static final String API_ = API + $;

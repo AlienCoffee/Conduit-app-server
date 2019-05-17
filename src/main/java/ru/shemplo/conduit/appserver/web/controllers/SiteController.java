@@ -20,16 +20,21 @@ import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
-import ru.shemplo.conduit.appserver.entities.repositories.PeriodEntityRepository;
+import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.services.GroupsService;
+import ru.shemplo.conduit.appserver.services.OlympiadsService;
 import ru.shemplo.conduit.appserver.services.PeriodsService;
+import ru.shemplo.conduit.appserver.services.PostsService;
 
 @Controller
 @RequiredArgsConstructor
 public class SiteController {
     
+    private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final GroupsService groupsService;
+    private final PostsService postsService;
     
     @GetMapping ($)
     public ModelAndView handleIndexPage (Principal principal,
@@ -101,6 +106,26 @@ public class SiteController {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         ModelAndView mav = new ModelAndView ("period/registration");
         mav.addObject ("period", period);
+        
+        return mav;
+    }
+    
+    @GetMapping (PAGE_GROUP)
+    public ModelAndView handleGroupPage (
+        @PathVariable ("id") Long groupID
+    ) {
+        ModelAndView mav = new ModelAndView ("period/group");
+        
+        final GroupEntity group = groupsService.getGroup (groupID);
+        
+        mav.addObject ("period", group.getPeriod ());
+        mav.addObject ("group", group);
+        
+        List <PostEntity> posts = postsService.getPostsByGroup (group);
+        mav.addObject ("posts", posts);
+        
+        List <OlympiadEntity> olympiads = olympiadsService.getOlympiadsByGroup (group);
+        mav.addObject ("olympiads", olympiads);
         
         return mav;
     }

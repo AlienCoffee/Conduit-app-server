@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OlympiadEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
@@ -58,6 +59,12 @@ public class OlympiadsService {
     public OlympiadEntity createOlympiad (GroupEntity group, String name, String description, 
             LocalDateTime publish, LocalDateTime finish, Integer attempts, WUser creator) {
         accessGuard.method (MiscUtils.getMethod ());
+        
+        final GroupType gType = group.getType ();
+        if (GroupType.POOL.equals (gType) || GroupType.INFO.equals (gType)) {
+            String message = "Olympiad can't be created in " + gType + " group";
+            throw new IllegalArgumentException (message);
+        }
         
         OlympiadEntity entity = new OlympiadEntity ();
         entity.setDescription (description);

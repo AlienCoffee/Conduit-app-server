@@ -30,7 +30,7 @@ public class PostEntity extends AbsAuditableEntity {
     @Column (nullable = false)
     private LocalDateTime published;
     
-    @ManyToMany
+    @ManyToMany (fetch = FetchType.EAGER)
     private List <FileEntity> attachments = new ArrayList <> ();
     
 }

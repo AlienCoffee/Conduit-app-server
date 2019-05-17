@@ -3,6 +3,8 @@ package ru.shemplo.conduit.appserver.services;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.PostEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
@@ -45,9 +48,24 @@ public class PostsService {
     }
     
     @ProtectedMethod
+    public List <PostEntity> getPostsByGroup (GroupEntity group) {
+        accessGuard.method (MiscUtils.getMethod ());
+        
+        return postsRepository.findIdsByGroup (group).stream ()
+             . map     (this::getPost)
+             . collect (Collectors.toList ());
+    }
+    
+    @ProtectedMethod
     public PostEntity createInforamtionPost (GroupEntity group, String title, 
             String content, LocalDateTime published, WUser author) {
         accessGuard.method (MiscUtils.getMethod ());
+        
+        final GroupType gType = group.getType ();
+        if (GroupType.POOL.equals (gType)) {
+            String message = "Post can't be created in " + gType + " group";
+            throw new IllegalArgumentException (message);
+        }
         
         PostEntity post = new PostEntity (group, title, content, 
                                 published, new ArrayList <> ());
