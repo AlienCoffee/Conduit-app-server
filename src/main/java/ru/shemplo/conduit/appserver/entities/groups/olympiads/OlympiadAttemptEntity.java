@@ -1,6 +1,5 @@
-package ru.shemplo.conduit.appserver.entities.groups;
+package ru.shemplo.conduit.appserver.entities.groups.olympiads;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,20 +14,21 @@ import ru.shemplo.conduit.appserver.entities.FileEntity;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table (name = "olympiad_attempts")
 @EqualsAndHashCode (callSuper = true)
-@Table (name = "posts", uniqueConstraints = {
-    @UniqueConstraint (columnNames = {"group_id", "title"})
-})
-public class PostEntity extends AbsAuditableEntity {
+public class OlympiadAttemptEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
-    private GroupEntity group;
+    private OlympiadProblemEntity problem;
     
-    @Column (nullable = false, columnDefinition = "text")
-    private String title, content;
+    @Column (columnDefinition = "text")
+    private String comment;
     
     @Column (nullable = false)
-    private LocalDateTime published;
+    @Enumerated (EnumType.STRING)
+    private OlympiadAttemptStatus status;
+    
+    private String reason;
     
     @ManyToMany
     private List <FileEntity> attachments = new ArrayList <> ();

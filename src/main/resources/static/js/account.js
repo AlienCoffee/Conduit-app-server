@@ -769,4 +769,71 @@ window.onload = function (e) {
 			req.send (data);
 		}
 	}
+	
+	button = document.getElementById ("colButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/create/olympiad", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					location.reload (); 
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("name",        document.getElementById ("colName").value);
+			data.append ("group",       document.getElementById ("colGroup").value);
+			data.append ("publish",     document.getElementById ("colPublish").value);
+			data.append ("finish",      document.getElementById ("colFinish").value);
+			data.append ("description", document.getElementById ("colDescription").value);
+			data.append ("attempts",    document.getElementById ("colAttempts").value);
+			console.log (data);
+			
+			req.send (data);
+		}
+	}
+	
+	button = document.getElementById ("lgoButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/get/olympiads", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					var olymps = JSON.parse (req.responseText);
+					
+					var container = document.getElementById ("olympiadsDiv");
+					container.innerHTML = "";
+					
+					if (olymps.error) {
+						container.innerHTML = olymps.message;
+					} else {
+						olymps.object.forEach (olymp => {
+							var elem = document.createElement ("div");
+							elem.innerHTML = JSON.stringify (olymp);
+							container.append (elem);
+						});
+					}
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("group", document.getElementById ("lgoGroup").value);
+			
+			req.send (data);
+		}
+	}
 }

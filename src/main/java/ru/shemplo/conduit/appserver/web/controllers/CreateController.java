@@ -32,6 +32,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 public class CreateController {
     
     private final PersonalDataService personalDataService;
+    private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
     private final GroupsService groupsService;
@@ -169,6 +170,26 @@ public class CreateController {
         postsService.createInforamtionPost (group, title, content, 
                                             publishTime, user);
         
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_OLYMPIAD)
+    public ResponseBox <Void> handleCreateOlympiad (
+        @IndentifiedUser          WUser user,
+        @RequestParam ("group")   Long groupID,
+        @RequestParam ("name")    String name,
+        @RequestParam ("publish") String pusblishDate,
+        @RequestParam ("finish")  String finishDate,
+        @RequestParam (value = "description", required = false) 
+            String description,
+        @RequestParam (value = "attempts", required = false) 
+            Integer attempts
+    ) {
+        final LocalDateTime publish = LocalDateTime.parse (pusblishDate);
+        final LocalDateTime finish = LocalDateTime.parse (finishDate);
+        final GroupEntity group = groupsService.getGroup (groupID);
+        
+        olympiadsService.createOlympiad (group, name, description, publish, finish, attempts, user);
         return ResponseBox.ok ();
     }
     

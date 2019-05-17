@@ -90,6 +90,7 @@ public class GroupsService {
     public GroupAssignmentEntity createGroupAssignment (WUser user, RoleEntity role, 
             GroupEntity group, GroupAssignmentStatus status, String comment, 
             WUser committer) {
+        Objects.requireNonNull (status, "Assignment status had to be defined");
         accessGuard.method (MiscUtils.getMethod ());
         
         if (GroupAssignmentStatus.IN_GROUP.equals (status)) {
@@ -101,7 +102,13 @@ public class GroupsService {
             return removeUserFromGroup (user, group, comment, committer);
         }
         
-        return null;
+        if (GroupAssignmentStatus.APPLICATION.equals (status)) {
+            Objects.requireNonNull (role, "User role in group must be specified");
+            return createAppForAssignment (user, role, group, comment, committer);
+        }
+        
+        final String message = "Unsupported assignment status";
+        throw new IllegalArgumentException (message);
     }
     
     private GroupAssignmentEntity addUserToGroup (WUser user, RoleEntity role,
@@ -143,6 +150,29 @@ public class GroupsService {
         }
         
         assignment.setStatus (GroupAssignmentStatus.EXCEPTED);
+        assignment.setCommitter (committer.getEntity ());
+        assignment.setIssued (LocalDateTime.now (clock));
+        assignment.setComment (comment);
+        
+        return gAssignmentsRepository.save (assignment);
+    }
+    
+    private GroupAssignmentEntity createAppForAssignment (WUser user, RoleEntity role,
+            GroupEntity group, String comment, WUser committer) {
+        GroupAssignmentEntity assignment = gAssignmentsRepository
+        . findByUserAndGroup (user.getEntity (), group);
+        
+        if (assignment != null) {
+            if (GroupAssignmentStatus.IN_GROUP.equals (assignment.getStatus ())) {
+                final String message = "User is already in the particular group";
+                throw new IllegalStateException (message);
+            }
+        } else {
+            assignment = new GroupAssignmentEntity (user.getEntity (), 
+                                          null, group, null, comment);
+        }
+        
+        assignment.setStatus (GroupAssignmentStatus.APPLICATION);
         assignment.setCommitter (committer.getEntity ());
         assignment.setIssued (LocalDateTime.now (clock));
         assignment.setComment (comment);

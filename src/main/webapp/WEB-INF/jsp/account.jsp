@@ -62,14 +62,14 @@
     	<p>
     		<span>Add method rule: </span>
     		<input id="amrMethod" type="text" placeholder="method name" />
-    		<input id="amrOption" type="text" placeholder="option id" />
+    		<input id="amrOption" type="number" placeholder="option id" />
     		<button id="amrButton">add</button>
     	</p>
     	
     	<p>
     		<span>Remove method rule: </span>
     		<input id="rmrMethod" type="text" placeholder="method name" />
-    		<input id="rmrOption" type="text" placeholder="option id" />
+    		<input id="rmrOption" type="number" placeholder="option id" />
     		<button id="rmrButton">remove</button>
     	</p>
     	
@@ -100,15 +100,15 @@
     	
     	<p>
     		<span>Add role option: </span>
-    		<input id="aroRole" type="text" placeholder="role id" />
-    		<input id="aroOption" type="text" placeholder="option id" />
+    		<input id="aroRole" type="number" placeholder="role id" />
+    		<input id="aroOption" type="number" placeholder="option id" />
     		<button id="aroButton">add</button>
     	</p>
     	
     	<p>
     		<span>Remove role option: </span>
-    		<input id="rroRole" type="text" placeholder="role id" />
-    		<input id="rroOption" type="text" placeholder="option id" />
+    		<input id="rroRole" type="number" placeholder="role id" />
+    		<input id="rroOption" type="number" placeholder="option id" />
     		<button id="rroButton">remove</button>
     	</p>
     	
@@ -133,17 +133,17 @@
     	
     	<p>
     		<span>Assign role to user: </span>
-    		<input id="artuUser" type="text" placeholder="user id" />
-    		<input id="artuPeriod" type="text" placeholder="period id" />
-    		<input id="artuRole" type="text" placeholder="role id" />
+    		<input id="artuUser" type="number" placeholder="user id" />
+    		<input id="artuPeriod" type="number" placeholder="period id" />
+    		<input id="artuRole" type="number" placeholder="role id" />
     		<button id="artuButton">assign</button>
     	</p>
     	
     	<p>
     		<span>Remove role from user: </span>
-    		<input id="rrtuUser" type="text" placeholder="user id" />
-    		<input id="rrtuPeriod" type="text" placeholder="period id" />
-    		<input id="rrtuRole" type="text" placeholder="role id" />
+    		<input id="rrtuUser" type="number" placeholder="user id" />
+    		<input id="rrtuPeriod" type="number" placeholder="period id" />
+    		<input id="rrtuRole" type="number" placeholder="role id" />
     		<button id="rrtuButton">remove</button>
     	</p>
     	
@@ -160,7 +160,7 @@
     	<p>
     		<div>
    				<span>Registered in period:</span>
-   				<input id="lprPeriod" type="text" placeholder="period id" />
+   				<input id="lprPeriod" type="number" placeholder="period id" />
    				<button id="lprButton">load</button>
    				<div id="registeredDiv"></div>
 			</div>
@@ -171,8 +171,8 @@
     	<p>
     		<div>
    				<span>Personal data:</span>
-   				<input id="lpdUser" type="text" placeholder="user id" />
-   				<input id="lpdPeriod" type="text" placeholder="period id" />
+   				<input id="lpdUser" type="number" placeholder="user id" />
+   				<input id="lpdPeriod" type="number" placeholder="period id" />
    				<button id="lpdButton">load</button>
    				<div id="personalDataDiv"></div>
 			</div>
@@ -191,7 +191,7 @@
     	<p>
     		<span>Create group: </span>
     		<input id="cgName" type="text" placeholder="group name" />
-    		<input id="cgPeriod" type="text" placeholder="period id" />
+    		<input id="cgPeriod" type="number" placeholder="period id" />
     		<input id="cgType" type="text" placeholder="group type" />
     		<button id="cgButton">create</button>
     	</p>
@@ -199,7 +199,7 @@
     	<p>
     		<div>
    				<span>Registered groups:</span>
-   				<input id="lpgPeriod" type="text" placeholder="period id" />
+   				<input id="lpgPeriod" type="number" placeholder="period id" />
    				<button id="lpgButton">load</button>
    				<div id="groupsDiv"></div>
 			</div>
@@ -207,10 +207,10 @@
     	
     	<p>
     		<span>Assign group: </span>
-    		<input id="agUser" type="text" placeholder="user id" />
-    		<input id="agGroup" type="text" placeholder="group id" />
+    		<input id="agUser" type="number" placeholder="user id" />
+    		<input id="agGroup" type="number" placeholder="group id" />
     		<input id="agStatus" type="text" placeholder="status" />
-    		<input id="agRole" type="text" placeholder="role id" />
+    		<input id="agRole" type="number" placeholder="role id" />
     		<input id="agComment" type="text" placeholder="comment" />
     		<button id="agButton">assign</button>
     	</p>
@@ -218,7 +218,7 @@
     	<p>
     		<div>
    				<span>Group assigned:</span>
-   				<input id="lgaGroup" type="text" placeholder="group id" />
+   				<input id="lgaGroup" type="number" placeholder="group id" />
    				<button id="lgaButton">load</button>
    				<div id="groupMembersDiv"></div>
 			</div>
@@ -229,9 +229,31 @@
     	<p>
     		<span>Publish post: </span>
     		<input id="agpTitle" type="text" placeholder="title" />
-    		<input id="agpGroup" type="text" placeholder="group id" />
+    		<input id="agpGroup" type="number" placeholder="group id" />
     		<button id="agpButton">post</button><br />
-    		<textarea cols="100" rows="50" id="agpContent"></textarea>
+    		<textarea cols="65" rows="5" id="agpContent"></textarea>
+    	</p>
+    	
+    	<h3>Olympiad</h3>
+    	
+    	<p>
+    		<span>Create olympiad: </span>
+    		<input id="colName" type="text" placeholder="olympiad name" />
+    		<input id="colGroup" type="number" placeholder="group id" />
+    		<input id="colPublish" type="datetime-local" placeholder="publish date" />
+    		<input id="colFinish" type="datetime-local" placeholder="finish date" />
+    		<input id="colAttempts" type="number" placeholder="attempts" />
+    		<button id="colButton">create</button><br />
+    		<textarea cols="65" rows="5" id="colDescription"></textarea>
+    	</p>
+    	
+    	<p>
+    		<div>
+   				<span>Olympiads:</span>
+   				<input id="lgoGroup" type="number" placeholder="group id" />
+   				<button id="lgoButton">load</button>
+   				<div id="olympiadsDiv"></div>
+			</div>
     	</p>
     	
     	<script src="/resources/js/account.js"></script>

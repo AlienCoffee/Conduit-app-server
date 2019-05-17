@@ -31,7 +31,7 @@ public class PostsService {
     private final LRUCache <PostEntity> CACHE = new LRUCache <> (CACHE_SIZE);
     
     @ProtectedMethod
-    public PostEntity getGroup (long id) throws EntityNotFoundException {
+    public PostEntity getPost (long id) throws EntityNotFoundException {
         accessGuard.method (MiscUtils.getMethod ());
         
         PostEntity period = CACHE.getOrPut (id, 

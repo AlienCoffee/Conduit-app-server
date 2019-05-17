@@ -1,13 +1,12 @@
-package ru.shemplo.conduit.appserver.entities.groups;
+package ru.shemplo.conduit.appserver.entities.groups.olympiads;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import javax.persistence.*;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
-import ru.shemplo.conduit.appserver.entities.FileEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 
 @Entity
 @ToString
@@ -15,7 +14,7 @@ import ru.shemplo.conduit.appserver.entities.FileEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode (callSuper = true)
-@Table (name = "group_posts", uniqueConstraints = {
+@Table (name = "olympiads", uniqueConstraints = {
     @UniqueConstraint (columnNames = {"group_id", "name"})
 })
 public class OlympiadEntity extends AbsAuditableEntity {
@@ -26,10 +25,13 @@ public class OlympiadEntity extends AbsAuditableEntity {
     @Column (nullable = false)
     private String name;
     
-    @Column (nullable = false)
-    private LocalDateTime published;
+    @Column (columnDefinition = "text")
+    private String description;
     
-    @ManyToMany
-    private List <FileEntity> conditions;
+    @Column (nullable = false)
+    private LocalDateTime published, finished;
+    
+    @Column (nullable = false, columnDefinition = "int(11) default 2")
+    private Integer attemptsLimit;
     
 }
