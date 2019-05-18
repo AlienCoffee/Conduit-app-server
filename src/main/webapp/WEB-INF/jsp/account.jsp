@@ -256,6 +256,16 @@
 			</div>
     	</p>
     	
+    	<p>
+    		<span>Create olympiad problem: </span>
+    		<input id="colpTitle" type="text" placeholder="problem title" />
+    		<input id="colpOlympiad" type="number" placeholder="olympiad id" />
+    		<input id="colpCost" type="number" placeholder="cost" />
+    		<input id="colpDifficulty" type="number" placeholder="difficulty" />
+    		<button id="colpButton">create</button><br />
+    		<textarea cols="65" rows="5" id="colpContent"></textarea>
+    	</p>
+    	
     	<script src="/resources/js/account.js"></script>
     </body>
 </html>

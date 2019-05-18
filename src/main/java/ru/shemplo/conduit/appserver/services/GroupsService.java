@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
 import ru.shemplo.conduit.appserver.entities.groups.*;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupAssignmentEntityRepository;
@@ -75,6 +76,11 @@ public class GroupsService {
     public GroupEntity createGroup (String name, String description, 
             PeriodEntity period, GroupType type, WUser head) {
         accessGuard.method (MiscUtils.getMethod ());
+        
+        if (PeriodStatus.FINISHED.equals (period.getStatus ())) {
+            String message = "Group can't be created in finished period";
+            throw new IllegalStateException (message);
+        }
         
         final GroupEntity entity = new GroupEntity ();
         entity.setDescription (description);

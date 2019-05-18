@@ -26,7 +26,7 @@ public class OlympiadProblemEntity extends AbsAuditableEntity {
     @Column (nullable = false, columnDefinition = "text")
     private String title, content;
     
-    @ManyToMany
+    @ManyToMany (fetch = FetchType.EAGER)
     private List <FileEntity> attachments = new ArrayList <> ();
     
     @Column (nullable = false)

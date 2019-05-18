@@ -32,6 +32,6 @@ public class OlympiadEntity extends AbsAuditableEntity {
     private LocalDateTime published, finished;
     
     @Column (nullable = false, columnDefinition = "int(11) default 2")
-    private Integer attemptsLimit;
+    private Integer attemptsLimit = 2;
     
 }

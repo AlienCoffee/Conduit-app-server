@@ -3,6 +3,7 @@ package ru.shemplo.conduit.appserver.services;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -60,22 +61,32 @@ public class OlympiadsService {
             LocalDateTime publish, LocalDateTime finish, Integer attempts, WUser creator) {
         accessGuard.method (MiscUtils.getMethod ());
         
+        Objects.requireNonNull (publish, "Publish time should be set up");
+        
         final GroupType gType = group.getType ();
         if (GroupType.POOL.equals (gType) || GroupType.INFO.equals (gType)) {
             String message = "Olympiad can't be created in " + gType + " group";
             throw new IllegalArgumentException (message);
         }
         
+        final LocalDateTime now = LocalDateTime.now (clock);
+        if (publish.isBefore (now)) {
+            String message = "Olympiad publish time can't be before current time";
+            throw new IllegalArgumentException (message);
+        }
+        
         OlympiadEntity entity = new OlympiadEntity ();
+        if (attempts != null) {
+            entity.setAttemptsLimit (attempts);            
+        }
         entity.setDescription (description);
-        entity.setAttemptsLimit (attempts);
         entity.setPublished (publish);
         entity.setFinished (finish);
         entity.setGroup (group);
         entity.setName (name);
         
-        entity.setIssued (LocalDateTime.now (clock));
         entity.setCommitter (creator.getEntity ());
+        entity.setIssued (now);
         
         return olympiadsRepository.save (entity);
     }

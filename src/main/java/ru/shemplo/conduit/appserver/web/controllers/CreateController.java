@@ -20,6 +20,7 @@ import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -31,6 +32,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 @RequiredArgsConstructor
 public class CreateController {
     
+    private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
@@ -190,6 +192,23 @@ public class CreateController {
         final GroupEntity group = groupsService.getGroup (groupID);
         
         olympiadsService.createOlympiad (group, name, description, publish, finish, attempts, user);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_OLYMPIAD_PROBLEM)
+    public ResponseBox <Void> handleCreateOlympiadProblem (
+        @IndentifiedUser           WUser user,
+        @RequestParam ("olympiad") Long olympiadID,
+        @RequestParam ("title")    String title,
+        @RequestParam ("content")  String content,
+        @RequestParam ("cost")     Integer cost,
+        @RequestParam (value = "difficulty", required = false) 
+            Integer description
+    ) {
+        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        olympiadProblemsService.createOlympiadProblem (olympiad, title, content, 
+                                                       cost, description, user);
+        
         return ResponseBox.ok ();
     }
     

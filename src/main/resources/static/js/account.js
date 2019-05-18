@@ -836,4 +836,33 @@ window.onload = function (e) {
 			req.send (data);
 		}
 	}
+	
+	button = document.getElementById ("colpButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/create/olympiad/problem", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					location.reload (); 
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("title",      document.getElementById ("colpTitle").value);
+			data.append ("olympiad",   document.getElementById ("colpOlympiad").value);
+			data.append ("cost",       document.getElementById ("colpCost").value);
+			data.append ("difficulty", document.getElementById ("colpDifficulty").value);
+			data.append ("content",    document.getElementById ("colpContent").value);
+			console.log (data);
+			
+			req.send (data);
+		}
+	}
 }

@@ -16,6 +16,7 @@ public class ServerConstants {
     public static final String PAGE_PERIOD = $ + "period" + $ + "{id}";
     public static final String PAGE_PERIOD_REGISTRATION = PAGE_PERIOD + $ + "registration";
     public static final String PAGE_GROUP = $ + "group" + $ + "{id}";
+    public static final String PAGE_OLYMPIAD = $ + "olympiad" + $ + "{id}";
     
     public static final String API = $ + "api";
     public static final String API_ = API + $;
@@ -63,6 +64,7 @@ public class ServerConstants {
     public static final String API_CREATE_GROUP_ASSIGNMENT = API_CREATE_ + "group-assignment";
     public static final String API_CREATE_INFORMATION_POST = API_CREATE_ + "information-post";
     public static final String API_CREATE_OLYMPIAD = API_CREATE_ + "olympiad";
+    public static final String API_CREATE_OLYMPIAD_PROBLEM = API_CREATE_OLYMPIAD + $ + "problem";
     
     public static final String API_UPDATE = API_ + "update";
     public static final String API_UPDATE_ = API_UPDATE + $;

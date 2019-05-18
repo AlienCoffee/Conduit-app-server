@@ -62,6 +62,10 @@
 			    			<div><b>Begin:</b> ${olympiad.getPublished ()}</div>
 			    			<div><b>Finish:</b> ${olympiad.getFinished ()}</div>
 			    			<div><b>Author:</b> ${olympiad.getCommitter ().getLogin ()}</div>
+			    			<div>
+			   					<b>Links:</b>
+			   					<a href="/olympiad/${olympiad.getId ()}">problems</a>
+			   				</div>
 			    		</div>
 	    			</c:forEach>
 	    		</c:when>

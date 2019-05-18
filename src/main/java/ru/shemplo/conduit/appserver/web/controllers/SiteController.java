@@ -22,15 +22,14 @@ import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
-import ru.shemplo.conduit.appserver.services.GroupsService;
-import ru.shemplo.conduit.appserver.services.OlympiadsService;
-import ru.shemplo.conduit.appserver.services.PeriodsService;
-import ru.shemplo.conduit.appserver.services.PostsService;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEntity;
+import ru.shemplo.conduit.appserver.services.*;
 
 @Controller
 @RequiredArgsConstructor
 public class SiteController {
     
+    private final OlympiadProblemsService olympiadProblemsService;
     private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final GroupsService groupsService;
@@ -126,6 +125,26 @@ public class SiteController {
         
         List <OlympiadEntity> olympiads = olympiadsService.getOlympiadsByGroup (group);
         mav.addObject ("olympiads", olympiads);
+        
+        return mav;
+    }
+    
+    @GetMapping (PAGE_OLYMPIAD)
+    public ModelAndView handleOlympiadPage (
+        @PathVariable ("id") Long olympiadID
+    ) {
+        ModelAndView mav = new ModelAndView ("period/olympiad");
+        
+        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        final GroupEntity group = olympiad.getGroup ();
+        
+        mav.addObject ("period", group.getPeriod ());
+        mav.addObject ("olympiad", olympiad);
+        mav.addObject ("group", group);
+        
+        List <OlympiadProblemEntity> problems = olympiadProblemsService
+           . getProblemsByOlympiad (olympiad);
+        mav.addObject ("problems", problems);
         
         return mav;
     }
