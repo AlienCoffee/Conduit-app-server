@@ -76,6 +76,26 @@
 	    	</c:choose>
     	</c:if>	
     	
+    	<h3>Members</h3>
+    	
+    	<c:choose>
+    		<c:when test="${members != null && not empty members}">
+    			<c:forEach var="member" items="${members}">
+    				<div>
+		    			<p>
+		    				(${member.getUser ().getId ()}) 
+		    				<b>${member.getUser ().getLogin ()}</b> --
+		    				${member.getRole ().getTemplate ()}
+	    				</p>
+		    		</div>
+    			</c:forEach>
+    		</c:when>
+    		
+    		<c:otherwise>
+    			<p>No members in group</p>
+    		</c:otherwise>
+    	</c:choose>
+    	
     	<script src="/resources/js/period.js"></script>
     </body>
 </html>

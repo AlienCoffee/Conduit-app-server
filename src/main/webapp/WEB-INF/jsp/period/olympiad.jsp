@@ -28,6 +28,10 @@
     	<p><b>Send attempts</b>   : ${olympiad.getAttemptsLimit ()}</p>
     	<p><b>Olympiad author</b> : ${olympiad.getCommitter ().getLogin ()}</p>
     	
+    	<h3>Make attempt</h3>
+    	
+    	<p>---</p>
+    	
     	<h3>Problems</h3>
     	
     	<c:choose>

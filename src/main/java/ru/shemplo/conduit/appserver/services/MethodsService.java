@@ -32,6 +32,8 @@ public class MethodsService {
         
         rule.getRequirements ().add (option);
         guardRulesRepository.save (rule);
+        
+        accessGuard.invalidateRequirements (method);
     }
     
     @ProtectedMethod
@@ -43,6 +45,8 @@ public class MethodsService {
         
         rule.getRequirements ().remove (option);
         guardRulesRepository.save (rule);
+        
+        accessGuard.invalidateRequirements (method);
     }
     
     @ProtectedMethod

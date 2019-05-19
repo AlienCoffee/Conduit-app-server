@@ -54,6 +54,8 @@ public class PeriodsService {
         throw new EntityNotFoundException (message);
     }
     
+    
+    
     @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
             LocalDateTime until, PeriodStatus status, boolean isActive, WUser user) {

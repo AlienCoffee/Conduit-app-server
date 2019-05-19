@@ -29,11 +29,20 @@ public final class AccessGuard {
     private final ConcurrentMap <String, Set <OptionEntity>> requirements 
           = new ConcurrentHashMap <> ();
     
+    public void page (Method controllerMethod, String handle) {
+        //method (controllerMethod, PeriodEntity.getSystem (), null);
+    }
+    
+    public void page (Method controllerMethod, String handle, PeriodEntity period) {
+        //method (controllerMethod, period, null);
+    }
+    
     public void method (Method method) { 
         method (method, PeriodEntity.getSystem (), null); 
     }
     
     public void method (Method method, PeriodEntity period, WUser target) {
+        long start = System.currentTimeMillis ();
         final Set <OptionEntity> options = getRequirements (method.getName ());
         
         Authentication authentication = SecurityContextHolder.getContext ()
@@ -47,6 +56,7 @@ public final class AccessGuard {
         if (user.getEntity ().isAdmin ()) { return; }
         
         if (options.isEmpty () && !user.getEntity ().isAdmin ()) {
+            System.out.println ("Unprotected: " + method.getName ());
             throw new SecurityException ("Not protected method");
         }
         
@@ -61,8 +71,16 @@ public final class AccessGuard {
                 return;
             }
             
+            System.out.println ("Not enough rights: " + method.getName ());
+            System.out.println ("Required: " + options);
+            System.out.println ("User: " + user.getOptions (period));
+            
             throw new SecurityException ("Not enough rights");
         }
+        
+        long end = System.currentTimeMillis ();
+        System.out.println (String.format ("Check access for %s to %s [time ~%dms]", 
+            user.getEntity ().getLogin (), method.getName (), end - start));
     }
     
     public void invalidateRequirements (Method method) {
