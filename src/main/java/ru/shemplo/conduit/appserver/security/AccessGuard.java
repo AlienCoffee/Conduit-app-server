@@ -4,47 +4,60 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.GuardRuleEntity;
-import ru.shemplo.conduit.appserver.entities.OptionEntity;
-import ru.shemplo.conduit.appserver.entities.PeriodEntity;
-import ru.shemplo.conduit.appserver.entities.repositories.GuardRuleEntityRepository;
+import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
+import ru.shemplo.conduit.appserver.security.AccessGuard.AccessEntity;
+import ru.shemplo.conduit.appserver.services.AbsCachedService;
+import ru.shemplo.conduit.appserver.services.PeriodsService;
+import ru.shemplo.conduit.appserver.services.UsersService;
+import ru.shemplo.conduit.appserver.utils.Utils;
+import ru.shemplo.snowball.stuctures.Pair;
+import ru.shemplo.snowball.stuctures.Trio;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @RequiredArgsConstructor
 @Component ("accessGuard")
-public final class AccessGuard {
+public final class AccessGuard extends AbsCachedService <AccessEntity> {
     
-    private final GuardRuleEntityRepository rulesRepository;
+    @Autowired private SecurityService securityService;
+    private final GuardRulesService guardRulesService;
+    @Autowired private PeriodsService periodsService;
+    @Autowired private UsersService usersService;
     
-    private final ConcurrentMap <String, Set <OptionEntity>> requirements 
-          = new ConcurrentHashMap <> ();
-    
-    public void page (Method controllerMethod, String handle) {
-        //method (controllerMethod, PeriodEntity.getSystem (), null);
-    }
-    
-    public void page (Method controllerMethod, String handle, PeriodEntity period) {
-        //method (controllerMethod, period, null);
-    }
-    
-    public void method (Method method) { 
-        method (method, PeriodEntity.getSystem (), null); 
-    }
-    
-    public void method (Method method, PeriodEntity period, WUser target) {
-        long start = System.currentTimeMillis ();
-        final Set <OptionEntity> options = getRequirements (method.getName ());
+    protected class AccessEntity extends Trio <PeriodEntity, UserEntity, Set <String>> implements Identifiable {
+
+        public AccessEntity (PeriodEntity F, UserEntity S, Set <String> T) { super (F, S, T); }
         
+        @Getter private final Long id = Utils.hash2 (F, S);
+        
+    }
+    
+    @Override
+    protected AccessEntity loadEntity (Long id) {
+        Pair <Long, Long> pair = Utils.dehash2 (id);
+        
+        final UserEntity user = usersService.getUser_ss (pair.S).getEntity ();
+        final PeriodEntity period = periodsService.getPeriod_ss (pair.F);
+        return new AccessEntity (period, user, new HashSet <> ());
+    }
+
+    @Override
+    protected int getCacheSize () { return 128; }
+    
+    public void invalidateAll () { 
+        guardRulesService.invalidate ();
+        CACHE.invalidate (); 
+    }
+    
+    public void object (String object, PeriodEntity period, WUser target) {
         Authentication authentication = SecurityContextHolder.getContext ()
                                       . getAuthentication ();
         if (!(authentication.getPrincipal () instanceof WUser)) {
@@ -55,47 +68,85 @@ public final class AccessGuard {
         // Everything is allowed for administrator accounts
         if (user.getEntity ().isAdmin ()) { return; }
         
-        if (options.isEmpty () && !user.getEntity ().isAdmin ()) {
-            System.out.println ("Unprotected: " + method.getName ());
-            throw new SecurityException ("Not protected method");
-        }
-        
-        // Intersecting sets with existing and needed options
-        long intersection = user.getOptions (period).stream ()
-                          . filter (options::contains)
-                          . count  ();
-        if (intersection != options.size ()) {
-            // User don't have enough rights for method but 
-            // he asked for data that also belongs to him
-            if (target != null && target.equals (user)) {
-                return;
+        AccessEntity access = getEntity (Utils.hash2 (period, user));
+        System.out.println ("Access: " + access);
+        synchronized (access) {
+            // Check if access is granted for this user and period
+            if (access.getT ().contains (object)) { return; }
+            
+            Optional <GuardRuleEntity> rule = guardRulesService.getRule (object);
+            if (!rule.isPresent ()) {
+                System.out.println ("Not protected object: " + object);
+                throw new SecurityException ("Not protected method");
             }
             
-            System.out.println ("Not enough rights: " + method.getName ());
-            System.out.println ("Required: " + options);
-            System.out.println ("User: " + user.getOptions (period));
+            final Set <OptionEntity> userRights = securityService
+            . getUserOptionsForPeriod (period, user.getEntity ());
             
-            throw new SecurityException ("Not enough rights");
+            System.out.println (Utils.toString ("Rights ", userRights));
+            Set <OptionEntity> required = rule.get ().getRequirements ();
+            System.out.println (Utils.toString ("Required ", required));
+            for (OptionEntity entity : required) {
+                if (userRights.contains (entity)) { continue; }
+                
+                // User don't have enough rights for method but he asked for data that also belongs to him
+                if   (!rule.get ().getSelfAllowed () && target != null && user.equals (target)) { break; } 
+                else { throw new SecurityException ("Not enough rights"); }
+            }
+            
+            access.getT ().add (object);
         }
+    }
+    
+    public void method (Method method, PeriodEntity period, WUser target) {
+        final long start = System.currentTimeMillis ();
+        object (method.getName (), period, target);
         
-        long end = System.currentTimeMillis ();
-        System.out.println (String.format ("Check access for %s to %s [time ~%dms]", 
-            user.getEntity ().getLogin (), method.getName (), end - start));
+        final long end = System.currentTimeMillis ();
+        System.out.println (String.format ("Method: %s, time: %dms", 
+                                   method.getName (), end - start));
     }
     
-    public void invalidateRequirements (Method method) {
-        requirements.remove (method.getName ());
+    public void method (Method method) { 
+        method (method, PeriodEntity.getSystem (), null); 
     }
     
-    private Set <OptionEntity> getRequirements (String object) {
-        return requirements.computeIfAbsent (object, name -> {
-            final GuardRuleEntity rule = rulesRepository.findByObject (object);
-            if (rule == null) { return new HashSet <> (); }
-            
-            return Optional.ofNullable (rule.getRequirements ())
-                 . orElse  (new HashSet <> ()).stream ()
-                 . collect (Collectors.toSet ());
-        });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public void page (Method controllerMethod, String handle) {
+        //method (controllerMethod, PeriodEntity.getSystem (), null);
+    }
+    
+    public void page (Method controllerMethod, String handle, PeriodEntity period) {
+        //method (controllerMethod, period, null);
     }
     
 }

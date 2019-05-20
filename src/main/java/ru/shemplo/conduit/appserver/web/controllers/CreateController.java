@@ -40,7 +40,7 @@ public class CreateController {
     private final GroupsService groupsService;
     private final PostsService postsService;
     private final RolesService rolesService;
-    private final WUserService usersService;
+    private final UsersService usersService;
     private final Clock clock;
     
     @PostMapping (API_CREATE_USER)

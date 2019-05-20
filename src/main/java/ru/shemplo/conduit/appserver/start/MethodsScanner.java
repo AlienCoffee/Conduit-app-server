@@ -9,7 +9,9 @@ import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -26,7 +28,10 @@ public class MethodsScanner {
     private final AccessGuard accessGuard;
     
     public final void scanMethods (ListableBeanFactory context) {
-        context.getBeansWithAnnotation (Service.class).values ().stream ()
+        Arrays.asList (Service.class, Controller.class, RestController.class).stream ()
+        . map     (context::getBeansWithAnnotation)
+        . map     (Map::values)
+        . flatMap (Collection::stream)
         . map     (this::fetchClass).map (this::fetchMethods)
         . forEach (methods::putAll);
         
@@ -36,8 +41,12 @@ public class MethodsScanner {
     
     private Class <?> fetchClass (Object object) {
         Class <?> type = object.getClass ();
-        while (!type.isAnnotationPresent (Service.class)
-                && !type.equals (Object.class)) {
+        while (   
+               !type.isAnnotationPresent (Service.class) 
+            && !type.isAnnotationPresent (Controller.class) 
+            && !type.isAnnotationPresent (RestController.class) 
+            && !type.equals (Object.class)
+        ) {
             type = type.getSuperclass ();
         }
         

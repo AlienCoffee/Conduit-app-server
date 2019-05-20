@@ -20,6 +20,9 @@ public class GuardRuleEntity extends AbsEntity {
     @Column (nullable = false, unique = true)
     private String object;
     
+    @Column (nullable = false)
+    private Boolean selfAllowed = false;
+    
     @ManyToMany (fetch = FetchType.EAGER)
     private Set <OptionEntity> requirements = new HashSet <> ();
     

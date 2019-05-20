@@ -27,20 +27,22 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Component;
 
-import ru.shemplo.conduit.appserver.services.WUserService;
+import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.services.UsersService;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 @EnableGlobalMethodSecurity (prePostEnabled = false, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
-    @Autowired private SuccessfulLogoutHandler successfulLogoutHandler;
-    @Autowired private SuccessfulLoginHandler successfulLoginHandler;
-    @Autowired private FailedLoginHandler failedLoginHandler;
-    @Autowired private WUserService userService;
+    private final SuccessfulLogoutHandler successfulLogoutHandler;
+    private final SuccessfulLoginHandler successfulLoginHandler;
+    private final FailedLoginHandler failedLoginHandler;
+    @Autowired private UsersService userService;
     
     @Bean
-    public BCryptPasswordEncoder passwordEncoder () {
+    public static BCryptPasswordEncoder passwordEncoder () {
         return new BCryptPasswordEncoder ();
     }
     
@@ -50,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
     
     @Component
-    public class FailedLoginHandler implements AuthenticationFailureHandler {
+    public static class FailedLoginHandler implements AuthenticationFailureHandler {
 
         @Override
         public void onAuthenticationFailure (HttpServletRequest request, 
@@ -63,7 +65,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
     
     @Component
-    public class SuccessfulLoginHandler implements AuthenticationSuccessHandler {
+    public static class SuccessfulLoginHandler implements AuthenticationSuccessHandler {
         
         @Override
         public void onAuthenticationSuccess (HttpServletRequest request, 
@@ -76,7 +78,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
     
     @Component
-    public class SuccessfulLogoutHandler implements LogoutSuccessHandler {
+    public static class SuccessfulLogoutHandler implements LogoutSuccessHandler {
 
         @Override
         public void onLogoutSuccess (HttpServletRequest request, HttpServletResponse response,

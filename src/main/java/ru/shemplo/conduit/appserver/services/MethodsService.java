@@ -22,18 +22,17 @@ public class MethodsService {
     private final AccessGuard accessGuard;
     
     @ProtectedMethod
-    public void addRequirementToMethod (Method method, OptionEntity option) {
+    public void addRequirementToMethod (Method method, boolean self, OptionEntity option) {
         accessGuard.method (MiscUtils.getMethod ());
         
         GuardRuleEntity rule = guardRulesRepository.findByObject (method.getName ());
         if (rule == null) {
-            rule = new GuardRuleEntity (method.getName (), new HashSet <> ());
+            rule = new GuardRuleEntity (method.getName (), self, new HashSet <> ());
         }
         
         rule.getRequirements ().add (option);
         guardRulesRepository.save (rule);
-        
-        accessGuard.invalidateRequirements (method);
+        accessGuard.invalidateAll ();
     }
     
     @ProtectedMethod
@@ -45,8 +44,7 @@ public class MethodsService {
         
         rule.getRequirements ().remove (option);
         guardRulesRepository.save (rule);
-        
-        accessGuard.invalidateRequirements (method);
+        accessGuard.invalidateAll ();
     }
     
     @ProtectedMethod

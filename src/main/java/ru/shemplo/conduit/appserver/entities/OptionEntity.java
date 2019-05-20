@@ -12,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Table (name = "options")
 @EqualsAndHashCode (callSuper = true)
-public class OptionEntity extends AbsEntity {
+public class OptionEntity extends AbsEntity implements Named {
     
     @Column (nullable = false, unique = true)
     private String name;

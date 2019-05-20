@@ -3,10 +3,10 @@ package ru.shemplo.conduit.appserver.services;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -16,45 +16,39 @@ import ru.shemplo.conduit.appserver.entities.repositories.PeriodEntityRepository
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
 @RequiredArgsConstructor
-public class PeriodsService {
+public class PeriodsService extends AbsCachedService <PeriodEntity> {
     
     private final PeriodEntityRepository periodsRepository;
-    private final AccessGuard accessGuard;
+    @Autowired private AccessGuard accessGuard;
     private final Clock clock;
     
-    private static final int CACHE_SIZE = 32;
+    @Override
+    protected PeriodEntity loadEntity (Long id) {
+        return periodsRepository.findById (id).orElse (null);
+    }
+
+    @Override
+    protected int getCacheSize () { return 32; }
     
-    private final LRUCache <PeriodEntity> CACHE = new LRUCache <> (CACHE_SIZE);
+    public PeriodEntity getPeriod_ss (Long id) throws EntityNotFoundException {
+        return getEntity (id);
+    }
+    
+    @ProtectedMethod
+    public PeriodEntity getPeriod (Long id) {
+        accessGuard.method (MiscUtils.getMethod ());
+        return getEntity (id);
+    }
     
     @ProtectedMethod
     public Collection <PeriodEntity> getAllPeriods () {
         accessGuard.method (MiscUtils.getMethod ());
-        //return periodsRepository.findAll ();
-        
-        return periodsRepository.findAllIds ().stream ()
-             . map     (this::getPeriod)
-             . collect (Collectors.toList ());
+        return getEntities (periodsRepository.findAllIds (), true);
     }
-    
-    @ProtectedMethod
-    public PeriodEntity getPeriod (long id) throws EntityNotFoundException {
-        accessGuard.method (MiscUtils.getMethod ());
-        PeriodEntity period = CACHE.getOrPut (id, 
-            () -> periodsRepository.findById (id).orElse (null)
-        );
-        
-        if (period != null) { return period; }
-        
-        String message = "Unknown period credits `" + id + "`";
-        throw new EntityNotFoundException (message);
-    }
-    
-    
     
     @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 

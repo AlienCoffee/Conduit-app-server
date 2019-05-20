@@ -1,39 +1,64 @@
 package ru.shemplo.conduit.appserver.services;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.OptionEntity;
-import ru.shemplo.conduit.appserver.entities.PeriodEntity;
-import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.UserEntity;
+import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.repositories.RegisteredPeriodRoleEntityRepository;
+import ru.shemplo.conduit.appserver.entities.repositories.RoleAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleEntityRepository;
+import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.utils.LRUCache;
+import ru.shemplo.conduit.appserver.security.SecurityService;
 import ru.shemplo.conduit.appserver.web.form.WebFormRow;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
 @RequiredArgsConstructor
-public class RolesService {
+public class RolesService extends AbsCachedService <RoleEntity> {
     
     private final RegisteredPeriodRoleEntityRepository registeredRoleRepository;
+    private final RoleAssignmentEntityRepository assignmentsRepository;
+    private final PersonalDataService personalDataService;
     private final RoleEntityRepository rolesRepository;
-    private final AccessGuard accessGuard;
+    @Autowired private SecurityService securityService;
+    @Autowired private AccessGuard accessGuard;
+    private final Clock clock;
     
-    private static final int CACHE_SIZE = 32;
+    @Override
+    protected RoleEntity loadEntity (Long id) {
+        return rolesRepository.findById (id).orElse (null);
+    }
+
+    @Override
+    protected int getCacheSize () { return 32; }
     
-    private final LRUCache <RoleEntity> CACHE = new LRUCache <> (CACHE_SIZE);
+    // unprotected // only for SecurityService //
+    public List <Long> getUserRolesIds_ss (PeriodEntity period, UserEntity user) {
+        return assignmentsRepository.findRolesIdsByPeriodAndUser (period, user);
+    }
+    
+    // unprotected // only for SecurityService //
+    public List <RoleEntity> getRoles_ss (Iterable <Long> ids) {
+        return getEntities (ids, false);
+    }
+    
+    @ProtectedMethod
+    public RoleEntity getRole (Long id) {
+        accessGuard.method (MiscUtils.getMethod ());
+        return getEntity (id);
+    }
     
     @ProtectedMethod
     public RoleEntity createRole (String name, PersonalDataTemplate template) {
@@ -45,17 +70,6 @@ public class RolesService {
         
         RoleEntity entity = new RoleEntity (name, new HashSet <> (), template);
         return rolesRepository.save (entity);
-    }
-    
-    public RoleEntity getRole (long id) {
-        RoleEntity role = CACHE.getOrPut (id, 
-            () -> rolesRepository.findById (id).orElse (null)
-        );
-        
-        if (role != null) { return role; }
-        
-        String message = "Unknown role credits `" + id + "`";
-        throw new EntityNotFoundException (message);
     }
     
     @ProtectedMethod
@@ -110,6 +124,47 @@ public class RolesService {
                           . map (entity -> entity.getUser ())
                           . collect (Collectors.toList ())))
              . collect (Collectors.toMap (Pair::getF, Pair::getS));
+    }
+    
+    @ProtectedMethod
+    public void changeUserRoleInPeriod (PeriodEntity period, WUser user, 
+            RoleEntity role, EntityAction action, WUser committer) {
+        accessGuard.method (MiscUtils.getMethod ());
+        
+        switch (action) {
+            case ADD:    addRole    (period, user, role, committer); break;
+            case REMOVE: removeRole (period, user, role, committer); break;
+            default:
+                throw new UnsupportedOperationException ();
+        }
+        
+        securityService.invalidateForUserInPeriod (user.getEntity (), period);
+    }
+    
+    private void addRole (PeriodEntity period, WUser user, RoleEntity role, WUser committer) {
+        if (role.getTemplate () != null) {
+            final PersonalDataTemplate template = role.getTemplate ();
+            if (!personalDataService.isUserRegisteredForPeriodWithTemplate (user, period, template)) {
+                throw new IllegalStateException ("User doesn't have required personal data");
+            }
+        }
+        
+        final RoleAssignmentEntity assignment = new RoleAssignmentEntity (user.getEntity (), period, role);
+        if (assignmentsRepository.findByUserAndPeriodAndRole (user.getEntity (), period, role) != null) {
+            return; // user already have such assignment
+        }
+        
+        assignment.setCommitter (committer.getEntity ());
+        assignment.setIssued (LocalDateTime.now (clock));
+        assignmentsRepository.save (assignment);
+    }
+    
+    private void removeRole (PeriodEntity period, WUser user, RoleEntity role, WUser committer) {
+        final RoleAssignmentEntity assignment = assignmentsRepository
+        . findByUserAndPeriodAndRole (user.getEntity (), period, role);
+        
+        if (assignment == null) { return; } // user don't have role
+        assignmentsRepository.delete (assignment);
     }
     
 }

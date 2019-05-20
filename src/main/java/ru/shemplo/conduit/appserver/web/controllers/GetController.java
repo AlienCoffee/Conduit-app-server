@@ -37,7 +37,7 @@ public class GetController {
     private final OptionsService optionsService;
     private final GroupsService groupsService;
     private final RolesService rolesService;
-    private final WUserService usersService;
+    private final UsersService usersService;
     
     
     @GetMapping (API_GET_PERIODS) 

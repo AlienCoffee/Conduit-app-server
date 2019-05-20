@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.EntityAction;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
@@ -27,7 +28,7 @@ public class UpdateController {
     private final OptionsService optionsService;
     private final PeriodsService periodsService;
     private final RolesService rolesService;
-    private final WUserService usersService;
+    private final UsersService usersService;
     
     @PostMapping (API_UPDATE_ADD_METHOD_RULE)
     public ResponseBox <Void> handleAddMethodRule (
@@ -36,7 +37,7 @@ public class UpdateController {
     ) {
         Method method = methodsScanner.getMethodByName (methodName);
         OptionEntity option = optionsService.getOption (optionID);
-        methodsService.addRequirementToMethod (method, option);
+        methodsService.addRequirementToMethod (method, true, option); // TODO: self allowed flag
         
         return ResponseBox.ok ();
     }
@@ -77,7 +78,7 @@ public class UpdateController {
     
     @PostMapping (API_UPDATE_ADD_ROLE_TO_USER)
     public ResponseBox <Void> handleAddRoleToUser (
-        @IndentifiedUser           WUser committer,
+        @IndentifiedUser         WUser committer,
         @RequestParam ("user")   Long userID,
         @RequestParam ("period") Long periodID,
         @RequestParam ("role")   Long roleID
@@ -86,21 +87,24 @@ public class UpdateController {
         RoleEntity role = rolesService.getRole (roleID);
         WUser user = usersService.getUser (userID);
         
-        usersService.addRole (user, period, role, committer);
+        rolesService.changeUserRoleInPeriod (period, user, 
+                       role, EntityAction.ADD, committer);
         return ResponseBox.ok ();
     }
     
     @PostMapping (API_UPDATE_REMOVE_ROLE_FROM_USER)
     public ResponseBox <Void> handleRemoveRoleFromUser (
-        @RequestParam ("user") Long userID,
+        @IndentifiedUser         WUser committer,
+        @RequestParam ("user")   Long userID,
         @RequestParam ("period") Long periodID,
-        @RequestParam ("role") Long roleID
+        @RequestParam ("role")   Long roleID
     ) {
         PeriodEntity period = periodsService.getPeriod (periodID);
         RoleEntity role = rolesService.getRole (roleID);
         WUser user = usersService.getUser (userID);
         
-        usersService.removeRole (user, period, role);
+        rolesService.changeUserRoleInPeriod (period, user, 
+                    role, EntityAction.REMOVE, committer);
         return ResponseBox.ok ();
     }
     

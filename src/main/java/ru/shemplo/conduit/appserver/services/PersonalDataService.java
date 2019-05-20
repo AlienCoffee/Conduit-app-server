@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class PersonalDataService {
     
     private final RegisteredPeriodRoleEntityRepository registeredRoleRepository;
     private final PersonalDataRepository dataRepository;
-    private final AccessGuard accessGuard;
+    @Autowired private AccessGuard accessGuard;
     
     private static final int CACHE_SIZE = 64;
     

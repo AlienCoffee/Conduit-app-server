@@ -15,30 +15,42 @@ import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
-import ru.shemplo.conduit.appserver.entities.groups.*;
+import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentStatus;
+import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
 @RequiredArgsConstructor
-public class GroupsService {
+public class GroupsService extends AbsCachedService <GroupEntity> {
     
     private final GroupAssignmentEntityRepository gAssignmentsRepository;
     private final GroupEntityRepository groupsRepository;
-    private final WUserService usersService;
+    private final UsersService usersService;
     private final AccessGuard accessGuard;
     private final Clock clock;
     
-    private static final int CACHE_SIZE = 64;
+    @Override
+    protected GroupEntity loadEntity (Long id) {
+        return groupsRepository.findById (id).orElse (null);
+    }
     
-    private final LRUCache <GroupEntity> CACHE = new LRUCache <> (CACHE_SIZE);
+    @Override
+    protected int getCacheSize () { return 64; }
+    
+    @ProtectedMethod
+    public GroupEntity getGroup (Long id) throws EntityNotFoundException {
+        accessGuard.method (MiscUtils.getMethod ());
+        return getEntity (id);
+    }
     
     @ProtectedMethod
     public List <GroupEntity> getPeriodGroups (PeriodEntity period) {
@@ -47,20 +59,6 @@ public class GroupsService {
         return groupsRepository.findIdsByPeriod (period).stream ()
              . map     (this::getGroup)
              . collect (Collectors.toList ());
-    }
-    
-    @ProtectedMethod
-    public GroupEntity getGroup (long id) throws EntityNotFoundException {
-        accessGuard.method (MiscUtils.getMethod ());
-        
-        GroupEntity period = CACHE.getOrPut (id, 
-            () -> groupsRepository.findById (id).orElse (null)
-        );
-        
-        if (period != null) { return period; }
-        
-        String message = "Unknown group credits `" + id + "`";
-        throw new EntityNotFoundException (message);
     }
     
     @ProtectedMethod
@@ -125,13 +123,13 @@ public class GroupsService {
         
         if (assignment != null) {
             final RoleEntity currentRole = assignment.getRole ();
-            usersService.removeRole (user, period, currentRole);
+            //usersService.removeRole (user, period, currentRole);
         } else {
             assignment = new GroupAssignmentEntity (user.getEntity (), 
                                           null, group, null, comment);
         }
         
-        usersService.addRole (user, group.getPeriod (), role, committer);
+        //usersService.addRole (user, group.getPeriod (), role, committer);
         assignment.setStatus (GroupAssignmentStatus.IN_GROUP);
         assignment.setCommitter (committer.getEntity ());
         assignment.setIssued (LocalDateTime.now (clock));
@@ -149,7 +147,7 @@ public class GroupsService {
         
         if (assignment != null) {
             final RoleEntity currentRole = assignment.getRole ();
-            usersService.removeRole (user, period, currentRole);
+            //usersService.removeRole (user, period, currentRole);
         } else {
             assignment = new GroupAssignmentEntity (user.getEntity (), 
                                           null, group, null, comment);
