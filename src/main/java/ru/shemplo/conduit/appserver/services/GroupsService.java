@@ -34,7 +34,6 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     private final GroupAssignmentEntityRepository gAssignmentsRepository;
     private final GroupEntityRepository groupsRepository;
-    private final UsersService usersService;
     private final AccessGuard accessGuard;
     private final Clock clock;
     
@@ -48,17 +47,18 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     @ProtectedMethod
     public GroupEntity getGroup (Long id) throws EntityNotFoundException {
-        accessGuard.method (MiscUtils.getMethod ());
+        final GroupEntity entity = getEntity (id);
+        
+        accessGuard.method (MiscUtils.getMethod (), entity.getPeriod ());
         return getEntity (id);
     }
     
     @ProtectedMethod
     public List <GroupEntity> getPeriodGroups (PeriodEntity period) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), period);
         
-        return groupsRepository.findIdsByPeriod (period).stream ()
-             . map     (this::getGroup)
-             . collect (Collectors.toList ());
+        List <Long> ids = groupsRepository.findIdsByPeriod (period);
+        return getEntities (ids, true);
     }
     
     @ProtectedMethod

@@ -3,6 +3,7 @@ package ru.shemplo.conduit.appserver.services;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -47,7 +48,9 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
     @ProtectedMethod
     public Collection <PeriodEntity> getAllPeriods () {
         accessGuard.method (MiscUtils.getMethod ());
-        return getEntities (periodsRepository.findAllIds (), true);
+        
+        List <Long> ids = periodsRepository.findAllIds ();
+        return getEntities (ids, true);
     }
     
     @ProtectedMethod

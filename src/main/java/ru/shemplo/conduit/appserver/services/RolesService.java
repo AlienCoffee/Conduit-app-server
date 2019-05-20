@@ -19,7 +19,6 @@ import ru.shemplo.conduit.appserver.entities.repositories.RoleEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.security.SecurityService;
 import ru.shemplo.conduit.appserver.web.form.WebFormRow;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
@@ -32,7 +31,6 @@ public class RolesService extends AbsCachedService <RoleEntity> {
     private final RoleAssignmentEntityRepository assignmentsRepository;
     private final PersonalDataService personalDataService;
     private final RoleEntityRepository rolesRepository;
-    @Autowired private SecurityService securityService;
     @Autowired private AccessGuard accessGuard;
     private final Clock clock;
     
@@ -86,6 +84,9 @@ public class RolesService extends AbsCachedService <RoleEntity> {
             CACHE.invalidate (role.getId ());
         }
         
+        //accessGuard.getSecurityService ().invalidateAll ();
+        accessGuard.invalidateAll ();
+        
         return rolesRepository.save (role);
     }
     
@@ -96,6 +97,9 @@ public class RolesService extends AbsCachedService <RoleEntity> {
         if (role.getOptions ().remove (option)) {            
             CACHE.invalidate (role.getId ());
         }
+        
+        //accessGuard.getSecurityService ().invalidateAll ();
+        accessGuard.invalidateAll ();
         
         return rolesRepository.save (role);
     }
@@ -138,7 +142,8 @@ public class RolesService extends AbsCachedService <RoleEntity> {
                 throw new UnsupportedOperationException ();
         }
         
-        securityService.invalidateForUserInPeriod (user.getEntity (), period);
+        //accessGuard.getSecurityService ().invalidateForUserInPeriod (user.getEntity (), period);
+        accessGuard.invalidateForUserInPeriod (user.getEntity (), period);
     }
     
     private void addRole (PeriodEntity period, WUser user, RoleEntity role, WUser committer) {

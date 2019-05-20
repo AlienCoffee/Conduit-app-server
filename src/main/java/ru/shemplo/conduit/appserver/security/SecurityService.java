@@ -40,12 +40,14 @@ public class SecurityService extends AbsCachedService <SecurityEntity> {
         Pair <Long, Long> periodNuserIds = Utils.dehash2 (id);
         final PeriodEntity period = periodsService.getPeriod_ss (periodNuserIds.F);
         final WUser user = usersService.getUser_ss (periodNuserIds.S);
+        //System.out.println ("Loading <" + period.getName () + ", " + user.getUsername () + ">");
         
         final List <Long> ids = rolesService.getUserRolesIds_ss (period, user.getEntity ());
         Set <OptionEntity> options = rolesService.getRoles_ss (ids).stream ()
                                    . map     (RoleEntity::getOptions)
                                    . flatMap (Set::stream)
                                    . collect (Collectors.toSet ());
+        //System.out.println (Utils.toString ("Rights", options));
         return new SecurityEntity (period, user.getEntity (), options);
     }
 
@@ -57,8 +59,13 @@ public class SecurityService extends AbsCachedService <SecurityEntity> {
     }
     
     public void invalidateForUserInPeriod (UserEntity user, PeriodEntity period) {
-        System.out.println ("Invalidation of " + user.getLogin () + " in " + period.getName ());
+        //System.out.println ("Invalidation of " + user.getLogin () + " in " + period.getName ());
         CACHE.invalidate (Utils.hash2 (period, user));
+    }
+    
+    public void invalidateAll () {
+        //System.out.println ("Invalidation of all");
+        CACHE.invalidate ();
     }
     
 }

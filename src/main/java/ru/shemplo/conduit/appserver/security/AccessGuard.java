@@ -27,7 +27,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @Component ("accessGuard")
 public final class AccessGuard extends AbsCachedService <AccessEntity> {
     
-    @Autowired private SecurityService securityService;
+    @Autowired @Getter private SecurityService securityService;
     private final GuardRulesService guardRulesService;
     @Autowired private PeriodsService periodsService;
     @Autowired private UsersService usersService;
@@ -52,8 +52,14 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
     @Override
     protected int getCacheSize () { return 128; }
     
+    public void invalidateForUserInPeriod (UserEntity user, PeriodEntity period) {
+        securityService.invalidateForUserInPeriod (user, period);
+        CACHE.invalidate (Utils.hash2 (period, user));
+    }
+    
     public void invalidateAll () { 
-        guardRulesService.invalidate ();
+        securityService.invalidateAll ();
+        guardRulesService.invalidate (); 
         CACHE.invalidate (); 
     }
     
@@ -69,7 +75,7 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
         if (user.getEntity ().isAdmin ()) { return; }
         
         AccessEntity access = getEntity (Utils.hash2 (period, user));
-        System.out.println ("Access: " + access);
+        //System.out.println ("Access: " + access);
         synchronized (access) {
             // Check if access is granted for this user and period
             if (access.getT ().contains (object)) { return; }
@@ -83,15 +89,15 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
             final Set <OptionEntity> userRights = securityService
             . getUserOptionsForPeriod (period, user.getEntity ());
             
-            System.out.println (Utils.toString ("Rights ", userRights));
+            //System.out.println (Utils.toString ("Rights ", userRights));
             Set <OptionEntity> required = rule.get ().getRequirements ();
-            System.out.println (Utils.toString ("Required ", required));
+            //System.out.println (Utils.toString ("Required ", required));
             for (OptionEntity entity : required) {
                 if (userRights.contains (entity)) { continue; }
                 
                 // User don't have enough rights for method but he asked for data that also belongs to him
                 if   (!rule.get ().getSelfAllowed () && target != null && user.equals (target)) { break; } 
-                else { throw new SecurityException ("Not enough rights"); }
+                else { System.out.println ("Object: " + object); throw new SecurityException ("Not enough rights"); }
             }
             
             access.getT ().add (object);
@@ -99,16 +105,21 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
     }
     
     public void method (Method method, PeriodEntity period, WUser target) {
-        final long start = System.currentTimeMillis ();
+        //final long start = System.currentTimeMillis ();
         object (method.getName (), period, target);
         
+        /*
         final long end = System.currentTimeMillis ();
         System.out.println (String.format ("Method: %s, time: %dms", 
-                                   method.getName (), end - start));
+                                   method.getName (), end - start));*/
+    }
+    
+    public void method (Method method, PeriodEntity period) { 
+        method (method, period, null); 
     }
     
     public void method (Method method) { 
-        method (method, PeriodEntity.getSystem (), null); 
+        method (method, PeriodEntity.getSystem ()); 
     }
     
     

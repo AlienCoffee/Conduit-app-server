@@ -12,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 public abstract class AbsEntity implements Identifiable {
     
-    @Access (AccessType.PROPERTY)
-    @GeneratedValue @Id protected Long id;
+    @Access (AccessType.PROPERTY) @Id 
+    @GeneratedValue (strategy = GenerationType.IDENTITY) protected Long id;
     
 }
