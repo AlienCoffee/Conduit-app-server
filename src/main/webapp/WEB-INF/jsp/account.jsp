@@ -129,6 +129,13 @@
 			</div>
     	</p>
     	
+    	<p>
+    		<span>Change period state: </span>
+    		<input id="cpsPeriod" type="text" placeholder="period id" />
+    		<input id="cpsStatus" type="text" placeholder="status" />
+    		<button id="cpsButton">change</button>
+    	</p>
+    	
     	<h3>Role assignment</h3>
     	
     	<p>

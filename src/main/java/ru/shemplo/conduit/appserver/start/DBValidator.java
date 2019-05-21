@@ -72,7 +72,7 @@ public class DBValidator {
             final LocalDateTime from = LocalDateTime.now (clock);
             final PeriodStatus status = PeriodStatus.CREATED;
             
-            period = new PeriodEntity (name, "", from, null, status, true);
+            period = new PeriodEntity (name, "", from, null, status);
             period.setCommitter (admin);
             period.setIssued (from);
             

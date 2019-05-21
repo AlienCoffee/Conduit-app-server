@@ -101,7 +101,7 @@ public class CreateController {
         final LocalDateTime sinceDT = LocalDateTime.parse (since);
         final PeriodStatus status = PeriodStatus.CREATED;
         periodsService.createPeriod (name, description, 
-                 sinceDT, untilDT, status, true, user);
+                       sinceDT, untilDT, status, user);
         
         return ResponseBox.ok ();
     }

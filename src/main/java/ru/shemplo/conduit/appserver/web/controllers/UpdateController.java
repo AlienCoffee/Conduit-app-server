@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.EntityAction;
-import ru.shemplo.conduit.appserver.entities.OptionEntity;
-import ru.shemplo.conduit.appserver.entities.PeriodEntity;
-import ru.shemplo.conduit.appserver.entities.RoleEntity;
+import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -105,6 +102,18 @@ public class UpdateController {
         
         rolesService.changeUserRoleInPeriod (period, user, 
                     role, EntityAction.REMOVE, committer);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_UPDATE_PERIOD_STATE)
+    public ResponseBox <Void> handleChagePeriodState (
+        @IndentifiedUser         WUser committer,
+        @RequestParam ("period") Long periodID,
+        @RequestParam ("status") String statusName
+    ) {
+        final PeriodEntity period = periodsService.getPeriod (periodID);
+        final PeriodStatus status = PeriodStatus.valueOf (statusName);
+        periodsService.changePeriodStatus (period, status, committer);
         return ResponseBox.ok ();
     }
     

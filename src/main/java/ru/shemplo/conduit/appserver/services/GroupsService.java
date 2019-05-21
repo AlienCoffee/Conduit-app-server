@@ -73,7 +73,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     @ProtectedMethod
     public GroupEntity createGroup (String name, String description, 
             PeriodEntity period, GroupType type, WUser head) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), period);
         
         if (PeriodStatus.FINISHED.equals (period.getStatus ())) {
             String message = "Group can't be created in finished period";
@@ -95,7 +95,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
             GroupEntity group, GroupAssignmentStatus status, String comment, 
             WUser committer) {
         Objects.requireNonNull (status, "Assignment status had to be defined");
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         if (GroupAssignmentStatus.IN_GROUP.equals (status)) {
             Objects.requireNonNull (role, "User role in group must be specified");
@@ -186,7 +186,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     @ProtectedMethod
     public List <GroupMember> getGroupMembers (GroupEntity group) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         return gAssignmentsRepository.findByGroup (group).stream ()
              . filter  (row -> row.getStatus ().equals (GroupAssignmentStatus.IN_GROUP))
@@ -196,7 +196,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     @ProtectedMethod
     public List <GroupEntity> getUserGroups (WUser user) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), user);
         
         return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()
              . filter  (row -> row.getStatus ().equals (GroupAssignmentStatus.IN_GROUP))

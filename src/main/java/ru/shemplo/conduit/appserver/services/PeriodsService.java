@@ -55,20 +55,37 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
     
     @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
-            LocalDateTime until, PeriodStatus status, boolean isActive, WUser user) {
+            LocalDateTime until, PeriodStatus status, WUser user) {
         accessGuard.method (MiscUtils.getMethod ());
         
         final PeriodEntity entity = new PeriodEntity ();
         entity.setIssued (LocalDateTime.now (clock));
         entity.setCommitter (user.getEntity ());
         entity.setDescription (description);
-        entity.setActive (isActive);
         entity.setStatus (status);
         entity.setSince (since);
         entity.setUntil (until);
         entity.setName (name);
         
         return periodsRepository.save (entity);
+    }
+    
+    @ProtectedMethod
+    public PeriodEntity changePeriodStatus (PeriodEntity period, 
+            PeriodStatus status, WUser committer) {
+        accessGuard.method (MiscUtils.getMethod (), period);
+        if (PeriodStatus.CREATED.equals (status)) {
+            String message = "Period status can't be switched to " 
+                           + PeriodStatus.CREATED;
+            throw new IllegalStateException (message);
+        }
+        
+        period.setCommitter (committer.getEntity ());
+        period.setIssued (LocalDateTime.now (clock));
+        
+        period.setStatus (status);
+        
+        return periodsRepository.save (period);
     }
     
 }

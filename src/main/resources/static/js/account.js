@@ -417,6 +417,31 @@ window.onload = function (e) {
 		}
 	}
 	
+	button = document.getElementById ("cpsButton");
+	if (button) {
+		button.onclick = function (e) {
+			var req = new XMLHttpRequest ();
+			req.open ("POST", "/api/update/period/state", true);
+			req.setRequestHeader (header, token);
+			
+			req.onreadystatechange = function () {
+				if (req.readyState != 4) { return; }
+				
+				if (req.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req.responseText)) { 
+					location.reload (); 
+				}
+			}
+			
+			var data = new FormData ();
+			data.append ("period", document.getElementById ("cpsPeriod").value);
+			data.append ("status", document.getElementById ("cpsStatus").value.toUpperCase ());
+			
+			req.send (data);
+		}
+	}
+	
 	button = document.getElementById ("artuButton");
 	if (button) {
 		button.onclick = function (e) {

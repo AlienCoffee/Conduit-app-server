@@ -69,6 +69,8 @@ public class ServerConstants {
     public static final String API_UPDATE = API_ + "update";
     public static final String API_UPDATE_ = API_UPDATE + $;
     
+    public static final String API_UPDATE_PERIOD_STATE = API_UPDATE_ + "period" + $ + "state";
+    
     public static final String API_UPDATE_ADD = API_UPDATE_ + "add";
     public static final String API_UPDATE_ADD_ = API_UPDATE_ADD + $;
     public static final String API_UPDATE_REMOVE = API_UPDATE_ + "remove";

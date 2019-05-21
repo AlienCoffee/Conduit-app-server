@@ -2,6 +2,7 @@ package ru.shemplo.conduit.appserver.web.controllers;
 
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class GetController {
     @GetMapping (API_GET_METHODS) 
     public ResponseBox <Collection <String>> handleGetMethods () {
         List <String> methods = methodsScanner.getProtectedMethods ().values ().stream ()
-                              . map     (method -> method.getName ())
+                              . map     (Method::getName).sorted  ()
                               . collect (Collectors.toList ());
         return ResponseBox.ok (methods);
     }

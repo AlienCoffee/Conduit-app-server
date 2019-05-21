@@ -91,16 +91,22 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
             
             //System.out.println (Utils.toString ("Rights ", userRights));
             Set <OptionEntity> required = rule.get ().getRequirements ();
+            boolean rememberAccess = true;
             //System.out.println (Utils.toString ("Required ", required));
             for (OptionEntity entity : required) {
                 if (userRights.contains (entity)) { continue; }
                 
                 // User don't have enough rights for method but he asked for data that also belongs to him
-                if   (!rule.get ().getSelfAllowed () && target != null && user.equals (target)) { break; } 
-                else { System.out.println ("Object: " + object); throw new SecurityException ("Not enough rights"); }
+                if   (!rule.get ().getSelfAllowed () && target != null && user.equals (target)) { 
+                    // Don't remember b/c it's weakening of rules but not access grant
+                    rememberAccess = false; break; 
+                } else { 
+                    System.out.println ("Object: " + object); 
+                    throw new SecurityException ("Not enough rights"); 
+                }
             }
             
-            access.getT ().add (object);
+            if (rememberAccess) { access.getT ().add (object); }
         }
     }
     
@@ -116,6 +122,10 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
     
     public void method (Method method, PeriodEntity period) { 
         method (method, period, null); 
+    }
+    
+    public void method (Method method, WUser target) { 
+        method (method, PeriodEntity.getSystem (), target); 
     }
     
     public void method (Method method) { 

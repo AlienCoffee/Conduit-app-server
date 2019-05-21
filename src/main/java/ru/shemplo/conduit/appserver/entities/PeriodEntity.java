@@ -43,8 +43,6 @@ public class PeriodEntity extends AbsAuditableEntity {
     @Enumerated (EnumType.STRING)
     private PeriodStatus status;
     
-    private boolean active;
-    
     @JsonProperty ("since")
     public String getJSONSince () {
         return since.format (RU_DATETIME_FORMAT);

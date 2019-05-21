@@ -20,15 +20,24 @@
     	<h2>Period registration</h2>
     	
     	<a href="/">index</a>
+    	<a href="/periods">periods</a>
     	
-    	<p>
-    		<select id="regType"></select>
-    		<button id="loadTypes">load</button>
-    	</p>
-    	
-    	<div id="regDiv"></div>
-    	
-    	<input id="periodID" type="hidden" value="${period.getId ()}" />
+    	<c:choose>
+    		<c:when test="${period.getStatus () eq 'REGISTRATION'}">
+    			<p>
+		    		<select id="regType"></select>
+		    		<button id="loadTypes">load</button>
+		    	</p>
+		    	
+		    	<div id="regDiv"></div>
+		    	
+		    	<input id="periodID" type="hidden" value="${period.getId ()}" />
+    		</c:when>
+    		
+    		<c:otherwise>
+    			<p>Registraction for this period is closed</p>
+    		</c:otherwise>
+    	</c:choose>
     	<script src="/resources/js/period.js"></script>
     </body>
 </html>
