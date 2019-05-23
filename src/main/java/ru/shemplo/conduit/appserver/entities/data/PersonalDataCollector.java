@@ -11,23 +11,20 @@ import lombok.Getter;
 import ru.shemplo.conduit.appserver.entities.Identifiable;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
+import ru.shemplo.conduit.appserver.utils.Utils;
 import ru.shemplo.snowball.stuctures.Pair;
 
 @EqualsAndHashCode (callSuper = true, exclude = "values")
 public class PersonalDataCollector extends Pair <Long, Long> implements Identifiable {
     
     private static final long serialVersionUID = -6305896996021039983L;
-
-    public static Long hash (Long userID, Long periodID) {
-        return (userID << 32) + periodID;
-    }
     
     public PersonalDataCollector (WUser user, PeriodEntity period) {
         super (user.getId (), period.getId ());
     }
 
     @Override
-    public Long getId () { return hash (F, S); }
+    public Long getId () { return Utils.hash2 (F, S); }
     
     @Getter private final Map <String, Object> values = new HashMap <> ();
     

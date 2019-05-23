@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
@@ -132,6 +133,8 @@ public class SiteController {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         ModelAndView mav = new ModelAndView ("period/registration");
         mav.addObject ("period", period);
+        
+        List <PersonalDataTemplate> templates;
         
         return mav;
     }

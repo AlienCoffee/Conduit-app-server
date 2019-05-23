@@ -97,10 +97,10 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
                 if (userRights.contains (entity)) { continue; }
                 
                 // User don't have enough rights for method but he asked for data that also belongs to him
-                if   (!rule.get ().getSelfAllowed () && target != null && user.equals (target)) { 
+                if   (rule.get ().getSelfAllowed () && target != null && user.equals (target)) { 
                     // Don't remember b/c it's weakening of rules but not access grant
                     rememberAccess = false; break; 
-                } else { 
+                } else {
                     System.out.println ("Object: " + object); 
                     throw new SecurityException ("Not enough rights"); 
                 }

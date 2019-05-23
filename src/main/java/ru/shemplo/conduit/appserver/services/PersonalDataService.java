@@ -21,30 +21,33 @@ import ru.shemplo.conduit.appserver.entities.repositories.RegisteredPeriodRoleEn
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.conduit.appserver.web.form.WebFormField;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Service
 @RequiredArgsConstructor
-public class PersonalDataService {
+public class PersonalDataService extends AbsCachedService <PersonalDataCollector> {
     
     private final RegisteredPeriodRoleEntityRepository registeredRoleRepository;
     private final PersonalDataRepository dataRepository;
     @Autowired private AccessGuard accessGuard;
     
-    private static final int CACHE_SIZE = 64;
-    
-    private final LRUCache <PersonalDataCollector> CACHE = new LRUCache <> (CACHE_SIZE);
+    @Override
+    protected PersonalDataCollector loadEntity (Long id) {
+        return null;
+    }
+
+    @Override
+    protected int getCacheSize () { return 64; }
     
     @ProtectedMethod
     public PersonalDataCollector getPersonalData (WUser user, PeriodEntity period) {
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
-        long id = PersonalDataCollector.hash (user.getId (), period.getId ());
+        //long id = PersonalDataCollector.hash2 (user.getId (), period.getId ());
         
-        PersonalDataCollector data = CACHE.getOrPut (id, () -> {
+        PersonalDataCollector data = CACHE.getOrPut (0L /*                */, () -> {
             final PersonalDataCollector collector = new PersonalDataCollector (user, period);
             dataRepository.findByUserAndPeriod (user.getEntity (), period).stream ()
                           .map (ent -> Pair.mp (ent.getField ().getName (), ent.deserialize ()))

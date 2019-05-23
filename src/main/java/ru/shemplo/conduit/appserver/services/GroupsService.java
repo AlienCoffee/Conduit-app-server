@@ -12,6 +12,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.EntityAction;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
@@ -34,6 +35,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     private final GroupAssignmentEntityRepository gAssignmentsRepository;
     private final GroupEntityRepository groupsRepository;
+    private final RolesService rolesService;
     private final AccessGuard accessGuard;
     private final Clock clock;
     
@@ -123,13 +125,15 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         
         if (assignment != null) {
             final RoleEntity currentRole = assignment.getRole ();
-            //usersService.removeRole (user, period, currentRole);
+            rolesService.changeUserRoleInPeriod (period, user, currentRole, 
+                                           EntityAction.REMOVE, committer);
         } else {
             assignment = new GroupAssignmentEntity (user.getEntity (), 
                                           null, group, null, comment);
         }
         
-        //usersService.addRole (user, group.getPeriod (), role, committer);
+        rolesService.changeUserRoleInPeriod (period, user, role, 
+                                   EntityAction.ADD, committer);
         assignment.setStatus (GroupAssignmentStatus.IN_GROUP);
         assignment.setCommitter (committer.getEntity ());
         assignment.setIssued (LocalDateTime.now (clock));
@@ -147,7 +151,8 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         
         if (assignment != null) {
             final RoleEntity currentRole = assignment.getRole ();
-            //usersService.removeRole (user, period, currentRole);
+            rolesService.changeUserRoleInPeriod (period, user, currentRole, 
+                                           EntityAction.REMOVE, committer);
         } else {
             assignment = new GroupAssignmentEntity (user.getEntity (), 
                                           null, group, null, comment);
