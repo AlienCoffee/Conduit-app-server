@@ -10,11 +10,11 @@
 		<meta name="_csrf_header" content="${_csrf.headerName}"/>
 		
         <meta charset="UTF-8" />
-        <title>Account</title>
+        <title>Admin</title>
     </head>
     
     <body>
-    	<h2>Account</h2>
+    	<h2>Admin</h2>
     	<a href="/">index</a>
     	
     	<h3>User</h3>
@@ -273,6 +273,6 @@
     		<textarea cols="65" rows="5" id="colpContent"></textarea>
     	</p>
     	
-    	<script src="/resources/js/account.js"></script>
+    	<script src="/resources/js/admin.js"></script>
     </body>
 </html>

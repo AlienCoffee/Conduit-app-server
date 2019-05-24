@@ -22,6 +22,15 @@
     	<a href="/">index</a>
     	<a href="/periods">periods</a>
     	
+    	<c:if test="${templates != null && not empty templates}">
+    		<p>
+    			<span><b>Registered templates:</b></span>
+    			<c:forEach var="temp" items="${templates}">
+    				<span>${temp.getName ()}</span>
+    			</c:forEach>
+    		</p>
+    	</c:if>
+    	
     	<c:choose>
     		<c:when test="${period.getStatus () eq 'REGISTRATION'}">
     			<p>

@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import ru.shemplo.conduit.appserver.entities.repositories.RegisteredPeriodRoleEn
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
+import ru.shemplo.conduit.appserver.utils.Utils;
 import ru.shemplo.conduit.appserver.web.form.WebFormField;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
@@ -31,11 +31,22 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
     
     private final RegisteredPeriodRoleEntityRepository registeredRoleRepository;
     private final PersonalDataRepository dataRepository;
+    private final PeriodsService periodsService;
     @Autowired private AccessGuard accessGuard;
+    private final UsersService usersService;
     
     @Override
     protected PersonalDataCollector loadEntity (Long id) {
-        return null;
+        Pair <Long, Long> periodNuserIds = Utils.dehash2 (id);
+        final PeriodEntity period = periodsService.getPeriod (periodNuserIds.F);
+        final WUser user = usersService.getUser (periodNuserIds.S);
+        
+        final PersonalDataCollector collector = new PersonalDataCollector (user, period);
+        dataRepository.findByUserAndPeriod (user.getEntity (), period).stream ()
+        . map (ent -> Pair.mp (ent.getField ().getName (), ent.deserialize ()))
+        . forEach (pair -> collector.put (pair.getF (), pair.getS ()));
+        
+        return collector;
     }
 
     @Override
@@ -44,22 +55,7 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
     @ProtectedMethod
     public PersonalDataCollector getPersonalData (WUser user, PeriodEntity period) {
         accessGuard.method (MiscUtils.getMethod (), period, user);
-        
-        //long id = PersonalDataCollector.hash2 (user.getId (), period.getId ());
-        
-        PersonalDataCollector data = CACHE.getOrPut (0L /*                */, () -> {
-            final PersonalDataCollector collector = new PersonalDataCollector (user, period);
-            dataRepository.findByUserAndPeriod (user.getEntity (), period).stream ()
-                          .map (ent -> Pair.mp (ent.getField ().getName (), ent.deserialize ()))
-                          .forEach (pair -> collector.put (pair.getF (), pair.getS ()));
-            return collector;
-        });
-        
-        if (data != null) { return data; }
-        
-        String message = "Unknown personal data credits `" + user.getId () 
-                       + "," + period.getId () + "`";
-        throw new EntityNotFoundException (message);
+        return getEntity (Utils.hash2 (period, user));
     }
     
     @ProtectedMethod
@@ -91,6 +87,7 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         }
         
         rows.forEach (dataRepository::save);
+        CACHE.invalidate (Utils.hash2 (period, user));
         
         RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
             user.getEntity (), period, template
@@ -117,6 +114,13 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         );
         
         return registeredRoleRepository.exists (Example.of (role));
+    }
+    
+    @ProtectedMethod
+    public List <PersonalDataTemplate> getUserRegisteredTemplates (WUser user, PeriodEntity period) {
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        
+        return registeredRoleRepository.findTempltesByPeriodAndUser (period, user.getEntity ());
     }
     
 }

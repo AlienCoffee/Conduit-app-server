@@ -20,16 +20,13 @@
     	<h2>Index</h2>
     	<c:choose>
 	    	<c:when test="${user != null}">
-	    		<p>Hello: ${user.getName ()}</p>
+	    		<p>Hello: ${user.getLogin ()}</p>
 	    		
 	    		<button id="logout">logout</button>,
-	    		<a href="/account">account</a>,
-	    		<a href="/periods">periods</a>,
-	    		<a href="/api/get/personality?userID=2&periodID=0">api personality</a>,
-	    		<a href="/api/get/periods">api periods</a>,
-	    		<button id="createPeriod">create period</button>,
-	    		<a href="/api/get/groups?periodID=0">api groups</a>,
-	    		<button id="createGroup">create group</button>
+	    		<c:if test="${user.isAdmin ()}">
+	    			<a href="/admin">admin</a>,
+	    		</c:if>
+	    		<a href="/periods">periods</a>
 	    	</c:when>
 	    	
 	    	<c:otherwise>

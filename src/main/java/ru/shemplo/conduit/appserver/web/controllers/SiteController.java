@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
@@ -28,6 +29,7 @@ import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEnt
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
+import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.snowball.utils.MiscUtils;
@@ -37,6 +39,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 public class SiteController {
     
     private final OlympiadProblemsService olympiadProblemsService;
+    private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final GroupsService groupsService;
@@ -44,19 +47,34 @@ public class SiteController {
     private final AccessGuard accessGuard;
     
     @GetMapping ($)
-    public ModelAndView handleIndexPage (Principal principal,
-            HttpServletResponse response) {
-        ModelAndView view = new ModelAndView ("index");
-        view.addObject ("user", principal);
-        return view;
+    public ModelAndView handleIndexPage (
+        @IndentifiedUser WUser user,
+        HttpServletResponse response
+    ) {
+        UserEntity ent = user != null ? user.getEntity () : null;
+        ModelAndView mav = new ModelAndView ("index");
+        mav.addObject ("user", ent);
+        return mav;
     }
     
-    @GetMapping ("/account")
-    public ModelAndView handleAccountPage (Principal principal,
-            HttpServletResponse response) {
-        ModelAndView view = new ModelAndView ("account");
-        view.addObject ("user", principal);
-        return view;
+    @ProtectedMethod
+    @GetMapping ("/admin")
+    public ModelAndView handleAccountPage (
+        @IndentifiedUser WUser user,
+        HttpServletResponse response
+    ) {
+        try {
+            accessGuard.method (MiscUtils.getMethod ());
+            
+            UserEntity ent = user != null ? user.getEntity () : null;
+            ModelAndView view = new ModelAndView ("admin");
+            view.addObject ("user", ent);
+            
+            return view;
+        } catch (SecurityException se) {
+            response.setStatus (SC_FORBIDDEN);
+            return null;
+        }
     }
     
     @GetMapping (PAGE_LOGIN)
@@ -128,13 +146,16 @@ public class SiteController {
     
     @GetMapping (PAGE_PERIOD_REGISTRATION)
     public ModelAndView handlePeriodRegistrationPage (
+        @IndentifiedUser     WUser user,
         @PathVariable ("id") Long periodID
     ) {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         ModelAndView mav = new ModelAndView ("period/registration");
         mav.addObject ("period", period);
         
-        List <PersonalDataTemplate> templates;
+        final List <PersonalDataTemplate> templates = personalDataService
+            . getUserRegisteredTemplates (user, period);
+        mav.addObject ("templates", templates);
         
         return mav;
     }

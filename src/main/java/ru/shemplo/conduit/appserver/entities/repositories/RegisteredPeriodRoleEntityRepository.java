@@ -20,4 +20,7 @@ public interface RegisteredPeriodRoleEntityRepository extends AbsEntityRepositor
     public List <RegisteredPeriodRoleEntity> findByPeriodAndTemplate (PeriodEntity period, 
             PersonalDataTemplate template);
     
+    @Query ("SELECT item.template FROM RegisteredPeriodRoleEntity item WHERE item.period = :period AND item.user = :user")
+    public List <PersonalDataTemplate> findTempltesByPeriodAndUser (PeriodEntity period, UserEntity user);
+    
 }
