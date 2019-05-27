@@ -1,10 +1,8 @@
 package ru.shemplo.conduit.appserver.services;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -12,12 +10,10 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.EntityAction;
+import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
-import ru.shemplo.conduit.appserver.entities.RoleEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupAssignmentEntityRepository;
@@ -92,6 +88,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         return groupsRepository.save (entity);
     }
     
+    /*
     @ProtectedMethod
     public GroupAssignmentEntity createGroupAssignment (WUser user, RoleEntity role, 
             GroupEntity group, GroupAssignmentStatus status, String comment, 
@@ -188,13 +185,14 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         
         return gAssignmentsRepository.save (assignment);
     }
+    */
     
     @ProtectedMethod
     public List <GroupMember> getGroupMembers (GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         return gAssignmentsRepository.findByGroup (group).stream ()
-             . filter  (row -> row.getStatus ().equals (GroupAssignmentStatus.IN_GROUP))
+             . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
              . map     (row -> new GroupMember (row.getUser (), row.getRole ()))
              . collect (Collectors.toList ());
     }
@@ -204,7 +202,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         accessGuard.method (MiscUtils.getMethod (), user);
         
         return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()
-             . filter  (row -> row.getStatus ().equals (GroupAssignmentStatus.IN_GROUP))
+             . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
              . map     (GroupAssignmentEntity::getGroup)
              . collect (Collectors.toList ());
     }

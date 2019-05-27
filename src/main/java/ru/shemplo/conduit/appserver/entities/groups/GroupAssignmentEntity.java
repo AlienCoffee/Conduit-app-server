@@ -4,6 +4,7 @@ import javax.persistence.*;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
+import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.RoleEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 
@@ -29,8 +30,6 @@ public class GroupAssignmentEntity extends AbsAuditableEntity {
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
-    private GroupAssignmentStatus status;
-    
-    private String comment;
+    private AssignmentStatus status;
     
 }

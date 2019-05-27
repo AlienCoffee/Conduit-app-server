@@ -21,9 +21,6 @@ public class OlympiadAttemptEntity extends AbsAuditableEntity {
     @ManyToOne (optional = false)
     private OlympiadProblemEntity problem;
     
-    @Column (columnDefinition = "text")
-    private String comment;
-    
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
     private OlympiadAttemptStatus status;

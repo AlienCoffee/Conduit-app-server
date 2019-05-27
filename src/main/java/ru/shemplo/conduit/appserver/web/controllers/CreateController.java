@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
-import ru.shemplo.conduit.appserver.entities.RoleEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
-import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
@@ -141,6 +139,7 @@ public class CreateController {
         return ResponseBox.ok ();
     }
     
+    /*
     @PostMapping (API_CREATE_GROUP_ASSIGNMENT)
     public ResponseBox <Void> handleCreateGroupAssignment (
         @IndentifiedUser           WUser user,
@@ -159,6 +158,7 @@ public class CreateController {
         groupsService.createGroupAssignment (target, role, group, status, comment, user);
         return ResponseBox.ok ();
     }
+    */
     
     @PostMapping (API_CREATE_INFORMATION_POST)
     public ResponseBox <Void> handleCreateInformationPost (

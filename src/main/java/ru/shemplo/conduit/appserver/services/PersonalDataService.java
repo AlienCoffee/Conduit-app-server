@@ -1,5 +1,7 @@
 package ru.shemplo.conduit.appserver.services;
 
+import static ru.shemplo.conduit.appserver.entities.AssignmentStatus.*;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +92,7 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         CACHE.invalidate (Utils.hash2 (period, user));
         
         RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
-            user.getEntity (), period, template
+            user.getEntity (), period, template, APPLICATION
         );
         
         if (!registeredRoleRepository.exists (Example.of (role))) {
@@ -110,7 +112,7 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
         RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
-            user.getEntity (), period, template
+            user.getEntity (), period, template, null
         );
         
         return registeredRoleRepository.exists (Example.of (role));

@@ -31,6 +31,9 @@ public class GroupEntity extends AbsEntity {
     @Column (columnDefinition = "text")
     private String description;
     
+    @Column (nullable = false)
+    private Boolean selfAssignment = false;
+    
     @ManyToOne (optional = false)
     private UserEntity head;
     

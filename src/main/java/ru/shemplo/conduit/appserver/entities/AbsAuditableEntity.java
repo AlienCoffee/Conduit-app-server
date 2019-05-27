@@ -28,6 +28,9 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     @ManyToOne (optional = false)
     protected UserEntity committer;
     
+    @Column (nullable = false, columnDefinition = "text default ''")
+    protected String comment = "";
+    
     @JsonProperty ("issued")
     public String getJSONIssued () {
         return issued.format (RU_DATETIME_FORMAT);
