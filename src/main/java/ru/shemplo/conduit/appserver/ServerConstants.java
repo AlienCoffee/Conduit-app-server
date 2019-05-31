@@ -7,6 +7,8 @@ public class ServerConstants {
     public static final DateTimeFormatter RU_DATETIME_FORMAT 
          = DateTimeFormatter.ofPattern ("dd.MM.yyyy HH:mm:ss");
     
+    public static final String DB_TEMPLATE_PROPERTY = "server.database.template";
+    
     public static final String NO_ENTITY_MESSAGE = "No such entity found";
     
     public static final String $ = "/";
