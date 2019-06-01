@@ -72,7 +72,7 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
         
         WUser user = MiscUtils.cast (authentication.getPrincipal ());
         // Everything is allowed for administrator accounts
-        if (user.getEntity ().isAdmin ()) { return; }
+        if (user.getEntity ().getIsAdmin ()) { return; }
         
         AccessEntity access = getEntity (Utils.hash2 (period, user));
         //System.out.println ("Access: " + access);

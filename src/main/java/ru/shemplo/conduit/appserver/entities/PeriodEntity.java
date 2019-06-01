@@ -12,11 +12,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Entity
-@ToString
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table (name = "periods")
+@ToString (callSuper = true)
 @EqualsAndHashCode (callSuper = true)
 public class PeriodEntity extends AbsAuditableEntity {
     
