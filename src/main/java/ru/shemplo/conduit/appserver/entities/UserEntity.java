@@ -36,7 +36,8 @@ public class UserEntity extends AbsEntity {
     @JsonIgnore
     private String password;
     
-    private boolean admin;
+    @Column (nullable = false)
+    private Boolean isAdmin = false;
     
     /*
     @JsonIgnore

@@ -28,7 +28,7 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     @ManyToOne (optional = false)
     protected UserEntity committer;
     
-    @Column (nullable = false, columnDefinition = "text default ''")
+    @Column (nullable = false, columnDefinition = "text")
     protected String comment = "";
     
     @JsonProperty ("issued")
