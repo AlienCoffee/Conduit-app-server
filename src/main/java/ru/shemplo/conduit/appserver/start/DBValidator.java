@@ -21,6 +21,7 @@ import javax.transaction.Transactional;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.domain.Example;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class DBValidator {
     
     private final ConfigurableEnvironment configurableEnvironment;
     private final ApplicationContext applicationContext;
+    private final PasswordEncoder passwordEncoder;
     private final Clock clock;
     
     @Transactional public void validate () throws IOException {
@@ -230,7 +232,10 @@ public class DBValidator {
                 throw new IllegalStateException (e);
             }
         } else if (String.class.isAssignableFrom (required)) {
-            if (value == null || value.length () == 0) {
+            final boolean encrypt = value.startsWith ("!!");
+            if (encrypt) { value = value.substring (2); }
+            
+            if (value.length () == 0) {
                 return MiscUtils.cast ("");
             }
             
@@ -243,7 +248,8 @@ public class DBValidator {
                 right = right - 1;
             }
             
-            return MiscUtils.cast (value.substring (left, right));
+            value = value.substring (left, right);
+            return MiscUtils.cast (encrypt ? passwordEncoder.encode (value) : value);
         } else if (value.startsWith ("#")) {
             value = value.replace ('"', '\0').substring (1).trim ();
             if (!context.containsKey (value)) {
@@ -264,7 +270,7 @@ public class DBValidator {
         final String key = "^([\\w]+)(#\"?([\\w\\s]+)\"?)?:";
         DB_TEMPLATE_KEY_PATTERN = Pattern.compile (key, Pattern.UNICODE_CASE);
         
-        final String param = "([\\w]+)=(#?\".*?\"|\\$[\\w]+|\\{[\\w]*\\}|#?[\\w]+|)";
+        final String param = "([\\w]+)=((#|!!)?\".*?\"|\\$[\\w]+|\\{[\\w]*\\}|(#|!!)?[\\w]+|)";
         DB_TEMPLATE_PARAM_PATTERN = Pattern.compile (param, Pattern.UNICODE_CASE);
     }
     
