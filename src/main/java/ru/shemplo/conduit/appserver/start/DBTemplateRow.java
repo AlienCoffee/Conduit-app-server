@@ -15,6 +15,7 @@ public class DBTemplateRow {
     
     private String objectType, keyId;
     private final int numberId;
+    private int row;
     
     private final Map <String, String> params = new HashMap <> ();
     

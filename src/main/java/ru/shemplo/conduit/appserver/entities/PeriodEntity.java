@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
+import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 
 @Entity
 @Getter @Setter
@@ -26,6 +27,7 @@ public class PeriodEntity extends AbsAuditableEntity {
         if (system == null) { system = period; }
     }
     
+    @DBTemplateAnchor
     @Column (nullable = false, unique = true)
     private String name;
     

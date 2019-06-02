@@ -41,7 +41,11 @@ public class DBValidator {
     private final Clock clock;
     
     @Transactional public void validate () throws IOException {
-        for (AbsEntity entity : readTemplateFile ()) {
+        final Map <String, AbsEntity> context = new HashMap <> ();
+        
+        for (DBTemplateRow template : readTemplateFile ()) {
+            AbsEntity entity = buildEntity (template, context, false);
+            
             String repositoryName = entity.getClass ().getSimpleName () + "Repository";
             String packageName = AbsEntityRepository.class.getPackage ().getName ();
             Class <?> repositoryType = null;
@@ -55,8 +59,20 @@ public class DBValidator {
             
             final Object tmp  = applicationContext.getBean (repositoryType);
             final AbsEntityRepository <?> repository = MiscUtils.cast (tmp);
-            if (!repository.exists (MiscUtils.cast (Example.of (entity)))) {
-                repository.save (MiscUtils.cast (entity));
+            Example <AbsEntity> example = Example.of (entity);
+            
+            if (repository.exists (MiscUtils.cast (example))) {
+                entity = repository.findOne (MiscUtils.cast (example)).get ();
+                System.out.println ("Entity exists");
+            }
+            
+            defineInstanceFields (entity, template, context, true);
+            entity = repository.save (MiscUtils.cast (entity));
+            context.put ("" + template.getRow (), entity);
+            
+            if (template.getKeyId () != null && template.getKeyId ().trim ().length () > 0) {
+                String key = template.getKeyId ().replace ('"', '\0').trim ();
+                context.put (key, entity);
             }
             
             if (entity instanceof UserEntity) {
@@ -75,7 +91,7 @@ public class DBValidator {
         }
     }
     
-    private List <AbsEntity> readTemplateFile () throws IOException {
+    private List <DBTemplateRow> readTemplateFile () throws IOException {
         final String configFilePathValue = configurableEnvironment
         . getProperty (ServerConstants.DB_TEMPLATE_PROPERTY);
         if (configFilePathValue == null || configFilePathValue.length () == 0) {
@@ -83,8 +99,7 @@ public class DBValidator {
             return new ArrayList <> ();
         }
         
-        final Map <String, AbsEntity> context = new HashMap <> ();
-        final List <AbsEntity> sequence = new ArrayList <> ();
+        final List <DBTemplateRow> sequence = new ArrayList <> ();
         
         final Path configFilePath = Paths.get (configFilePathValue);
         try (
@@ -92,7 +107,7 @@ public class DBValidator {
         ) {
             String line = null; int number = 0;
             while ((line = StringManip.fetchNonEmptyLine (br)) != null) {
-                sequence.add (buildEntity (number + 1, line, context));
+                sequence.add (splitInputString (number, line));
                 number += 1;
             }
         }
@@ -100,9 +115,8 @@ public class DBValidator {
         return sequence;
     }
     
-    private AbsEntity buildEntity (int rowNumber, String row, Map <String, AbsEntity> context) {
+    private AbsEntity buildEntity (DBTemplateRow template, Map <String, AbsEntity> context, boolean full) {
         final String packageName = AbsEntity.class.getPackage ().getName ();
-        final DBTemplateRow template = splitInputString (rowNumber, row);
         
         Class <?> type = null;
         try   { type = Class.forName (packageName + "." + template.getObjectType ()); } 
@@ -120,7 +134,9 @@ public class DBValidator {
             throw new IllegalStateException (e);
         }
         
-        defineInstanceFields (instance, template, context);
+        instance = defineInstanceFields (instance, template, context, full);
+        context.put ("" + template.getRow (), instance);
+                
         if (template.getKeyId () != null && template.getKeyId ().trim ().length () > 0) {
             String key = template.getKeyId ().replace ('"', '\0').trim ();
             context.put (key, instance);
@@ -130,7 +146,7 @@ public class DBValidator {
     }
     
     private AbsEntity defineInstanceFields (AbsEntity entity, DBTemplateRow row, 
-            Map <String, AbsEntity> context) {
+            Map <String, AbsEntity> context, boolean full) {
         final List <Field> fields = new ArrayList <> ();
         
         fields.addAll (Arrays.asList  (entity.getClass ().getDeclaredFields ()));
@@ -143,15 +159,24 @@ public class DBValidator {
         fields.stream ()
         . filter  (f -> !Modifier.isStatic (f.getModifiers ()))
         . filter  (f -> !Modifier.isFinal (f.getModifiers ()))
-        . filter  (f -> row.getParams ().containsKey (f.getName ()))
         . peek    (f -> f.setAccessible (true))
-        . filter  (f -> {
+        . peek    (f -> {
+            if (!full) {
+                try   { f.set (entity, null); } 
+                catch (IllegalArgumentException | IllegalAccessException e) {
+                    throw new IllegalStateException (e);
+                }
+            }
+        })
+        . filter  (f -> row.getParams ().containsKey (f.getName ()))
+        . filter  (f -> full || f.isAnnotationPresent (DBTemplateAnchor.class))
+        /*. filter  (f -> {
             try   { return f.get (entity) == null; } 
             catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace ();
                 return false; // no access to this field
             }
-        })
+        })*/
         . forEach (f -> {
             final String value = row.getParams ().get (f.getName ());
             final Class <?> type = f.getType ();
@@ -236,10 +261,10 @@ public class DBValidator {
     private static final Pattern DB_TEMPLATE_KEY_PATTERN;
     
     static {
-        final String key = "^([\\w\\d]+)(#\"?([\\w\\d\\s]+)\"?)?:";
+        final String key = "^([\\w]+)(#\"?([\\w\\s]+)\"?)?:";
         DB_TEMPLATE_KEY_PATTERN = Pattern.compile (key, Pattern.UNICODE_CASE);
         
-        final String param = "([\\w\\d]+)=(#?\".*?\"|\\$[\\w\\d]+|\\{[\\w\\d]*\\}|#?[\\w\\d]+|)";
+        final String param = "([\\w]+)=(#?\".*?\"|\\$[\\w]+|\\{[\\w]*\\}|#?[\\w]+|)";
         DB_TEMPLATE_PARAM_PATTERN = Pattern.compile (param, Pattern.UNICODE_CASE);
     }
     
@@ -252,6 +277,7 @@ public class DBValidator {
         DBTemplateRow row = new DBTemplateRow (rowNumber);
         row.setObjectType (matcher.group (1));
         row.setKeyId (matcher.group (3));
+        row.setRow (rowNumber + 1);
         
         matcher = DB_TEMPLATE_PARAM_PATTERN.matcher (collapsedInput);
         while (matcher.find ()) {
