@@ -4,9 +4,7 @@ import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

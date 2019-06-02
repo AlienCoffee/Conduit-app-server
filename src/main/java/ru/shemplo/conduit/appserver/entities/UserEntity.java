@@ -8,17 +8,18 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.*;
+import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 //@ToString (exclude = {"roles", "password"})
-@ToString (exclude = {"password"})
 @Table (name = "users", indexes = {
     @Index (columnList = "phone")
 })
 @EqualsAndHashCode (callSuper = true)
+@ToString (exclude = {"password"}, callSuper = true)
 public class UserEntity extends AbsEntity {
     
     @Getter private static UserEntity adminEntity;
@@ -27,6 +28,7 @@ public class UserEntity extends AbsEntity {
         if (adminEntity == null) { adminEntity = entity; }
     }
     
+    @DBTemplateAnchor
     @Column (nullable = false, unique = true)
     private String login;
     
