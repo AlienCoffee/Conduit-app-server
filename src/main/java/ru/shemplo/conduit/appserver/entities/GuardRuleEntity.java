@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 
 @Entity
 @Getter @Setter
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Table (name = "guard_rules")
 public class GuardRuleEntity extends AbsEntity {
     
+    @DBTemplateAnchor
     @Column (nullable = false, unique = true)
     private String object;
     

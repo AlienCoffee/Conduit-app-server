@@ -41,10 +41,4 @@ public class UserEntity extends AbsEntity {
     @Column (nullable = false)
     private Boolean isAdmin = false;
     
-    /*
-    @JsonIgnore
-    @ManyToMany (fetch = FetchType.EAGER)
-    private Set <RoleEntity> roles = new HashSet <> ();
-    */
-    
 }

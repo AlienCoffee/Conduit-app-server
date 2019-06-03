@@ -6,9 +6,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.*;
+import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 
 @Entity
-@ToString
+@ToString (callSuper = true)
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,12 +18,15 @@ import lombok.*;
 })
 public class RoleAssignmentEntity extends AbsAuditableEntity {
     
+    @DBTemplateAnchor
     @ManyToOne (optional = false)
     private UserEntity user;
     
+    @DBTemplateAnchor
     @ManyToOne (optional = false)
     private PeriodEntity period;
     
+    @DBTemplateAnchor
     @ManyToOne (optional = false)
     private RoleEntity role;
     

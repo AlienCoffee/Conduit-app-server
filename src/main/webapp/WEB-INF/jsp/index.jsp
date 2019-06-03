@@ -23,7 +23,7 @@
 	    		<p>Hello: ${user.getLogin ()}</p>
 	    		
 	    		<button id="logout">logout</button>,
-	    		<c:if test="${user.isAdmin ()}">
+	    		<c:if test="${user.getIsAdmin ()}">
 	    			<a href="/admin">admin</a>,
 	    		</c:if>
 	    		<a href="/periods">periods</a>

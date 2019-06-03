@@ -2,10 +2,7 @@ package ru.shemplo.conduit.appserver.start;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.ServerConstants;
 import ru.shemplo.conduit.appserver.entities.AbsEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
@@ -33,6 +31,7 @@ import ru.shemplo.conduit.appserver.entities.repositories.AbsEntityRepository;
 import ru.shemplo.snowball.utils.MiscUtils;
 import ru.shemplo.snowball.utils.StringManip;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DBValidator {
@@ -43,7 +42,10 @@ public class DBValidator {
     private final Clock clock;
     
     @Transactional public void validate () throws IOException {
+        final long start = System.currentTimeMillis ();
+        
         final Map <String, AbsEntity> context = new HashMap <> ();
+        int rows = 0;
         
         for (DBTemplateRow template : readTemplateFile ()) {
             AbsEntity entity = buildEntity (template, context, false);
@@ -65,7 +67,6 @@ public class DBValidator {
             
             if (repository.exists (MiscUtils.cast (example))) {
                 entity = repository.findOne (MiscUtils.cast (example)).get ();
-                System.out.println ("Entity exists");
             }
             
             defineInstanceFields (entity, template, context, true);
@@ -90,7 +91,12 @@ public class DBValidator {
                     PeriodEntity.setSystem (period);
                 }
             }
+            
+            rows += 1;
         }
+        
+        long end = System.currentTimeMillis ();
+        log.info (String.format ("Database validation done (rows: %d, time: %dms)", rows, end - start));
     }
     
     private List <DBTemplateRow> readTemplateFile () throws IOException {
@@ -109,6 +115,7 @@ public class DBValidator {
         ) {
             String line = null; int number = 0;
             while ((line = StringManip.fetchNonEmptyLine (br)) != null) {
+                if (line.startsWith ("//")) { continue; } // it's comment
                 sequence.add (splitInputString (number, line));
                 number += 1;
             }
@@ -155,7 +162,7 @@ public class DBValidator {
         if (!Object.class.equals (entity.getClass ().getSuperclass ())) {
             Class <?> superType = entity.getClass ().getSuperclass ();
             List <Field> additional = Arrays.asList (superType.getDeclaredFields ());
-            fields.addAll  (additional);
+            fields.addAll (additional);
         }
         
         fields.stream ()
@@ -164,61 +171,92 @@ public class DBValidator {
         . peek    (f -> f.setAccessible (true))
         . peek    (f -> {
             if (!full) {
-                try   { f.set (entity, null); } 
+                try   { 
+                    Object value = f.get (entity);
+                    if (value != null) {
+                        row.getParams ().put ("@" + f.getName (), value);
+                    }
+                    f.set (entity, null);
+                } 
                 catch (IllegalArgumentException | IllegalAccessException e) {
+                    throw new IllegalStateException (e);
+                }
+            } else if (full && row.getParams ().containsKey ("@" + f.getName ())) {
+                try { // restore field value
+                    f.set (entity, row.getParams ().get ("@" + f.getName ()));
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new IllegalStateException (e);
                 }
             }
         })
         . filter  (f -> row.getParams ().containsKey (f.getName ()))
         . filter  (f -> full || f.isAnnotationPresent (DBTemplateAnchor.class))
-        /*. filter  (f -> {
-            try   { return f.get (entity) == null; } 
-            catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace ();
-                return false; // no access to this field
-            }
-        })*/
         . forEach (f -> {
-            final String value = row.getParams ().get (f.getName ());
             final Class <?> type = f.getType ();
             
-            try   { f.set (entity, convertParameterValue (entity, type, value, context)); } 
-            catch (IllegalArgumentException | IllegalAccessException e) {
-                throw new IllegalStateException (e);
+            if (!Collection.class.isAssignableFrom (type)) {
+                final String value = (String) row.getParams ().get (f.getName ());
+                
+                
+                try { 
+                    if (f.get (entity) == null || !f.isAnnotationPresent (DBTemplateConstant.class)) {
+                        f.set (entity, convertParameterValue (type, value, context)); 
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    throw new IllegalStateException (e);
+                }
+            } else {
+                final Object tmpValue = row.getParams ().get (f.getName ());
+                Collection <String> values = MiscUtils.cast (tmpValue);
+                try {
+                    @SuppressWarnings ("unchecked")
+                    Collection <Object> field = (Collection <Object>) f.get (entity);
+                    
+                    ParameterizedType generic = MiscUtils.cast (f.getGenericType ());
+                    if (generic.getRawType () instanceof Class) {
+                        Class <?> gtype = MiscUtils.cast (generic.getRawType ());
+                        values.stream ().map     (value -> convertParameterValue (gtype, value, context))
+                                        .forEach (field::add);
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    throw new IllegalStateException (e);
+                }
             }
         });
         
-        System.out.println (entity);
+        //System.out.println (entity);
         return entity;
     }
     
-    private <R> R convertParameterValue (AbsEntity entity, Class <?> required, 
+    private <R> R convertParameterValue (Class <?> required, 
             String value, Map <String, AbsEntity> context) {
-        System.out.println ("Converter of `" + required + "` for '" + value + "'");
+        //System.out.println ("Converter of `" + required + "` for '" + value + "'");
         
         if (required.isEnum ()) {
-            System.out.println ("`" + required + "` is enum type");
-            Object result = Enum.valueOf (MiscUtils.cast (required), value);
-            return MiscUtils.cast (result);
+            //System.out.println ("`" + required + "` is enum type");
+            try {
+                Object result = Enum.valueOf (MiscUtils.cast (required), value);
+                return MiscUtils.cast (result);
+            } catch (IllegalArgumentException iae) { return null; }
         } else if (LocalDateTime.class.isAssignableFrom (required)) {
-            System.out.println ("`" + required + "` is local date time type");
+            //System.out.println ("`" + required + "` is local date time type");
             if ("{now}".equals (value)) {
                 return MiscUtils.cast (LocalDateTime.now (clock));
             } else {
                 return MiscUtils.cast (LocalDateTime.parse (value));
             }
         } else if (LocalDate.class.isAssignableFrom (required)) {
-            System.out.println ("`" + required + "` is local date type");
+            //System.out.println ("`" + required + "` is local date type");
             if ("{now}".equals (value)) {
                 return MiscUtils.cast (LocalDate.now (clock));
             } else {
                 return MiscUtils.cast (LocalDate.parse (value));
             }
         } else if (Boolean.class.isAssignableFrom (required)) {
-            System.out.println ("`" + required + "` is boolean type");
+            //System.out.println ("`" + required + "` is boolean type");
             return MiscUtils.cast (Boolean.parseBoolean (value));
         } else if (Number.class.isAssignableFrom (required)) {
+            System.out.println ("`" + required + "` is number type");
             String typeName = required.getSimpleName ();
             if ("Integer".equals (typeName)) {
                 typeName = "Int";
@@ -226,12 +264,13 @@ public class DBValidator {
             
             try {
                 Method method = required.getDeclaredMethod ("parse" + typeName, String.class);
-                return MiscUtils.cast (method.invoke (entity, value));
+                return MiscUtils.cast (method.invoke (null, value));
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException 
                      | IllegalArgumentException | InvocationTargetException e) {
                 throw new IllegalStateException (e);
             }
         } else if (String.class.isAssignableFrom (required)) {
+            //System.out.println ("`" + required + "` is string type");
             final boolean encrypt = value.startsWith ("!!");
             if (encrypt) { value = value.substring (2); }
             
@@ -251,6 +290,7 @@ public class DBValidator {
             value = value.substring (left, right);
             return MiscUtils.cast (encrypt ? passwordEncoder.encode (value) : value);
         } else if (value.startsWith ("#")) {
+            //System.out.println ("`" + required + "` is reference type");
             value = value.replace ('"', '\0').substring (1).trim ();
             if (!context.containsKey (value)) {
                 String message = "Undefined reference `#" + value + "`";
@@ -263,6 +303,7 @@ public class DBValidator {
         return null;
     }
     
+    private static final Pattern DB_TEMPLATE_COLLECTION_PATTERN;
     private static final Pattern DB_TEMPLATE_PARAM_PATTERN;
     private static final Pattern DB_TEMPLATE_KEY_PATTERN;
     
@@ -270,7 +311,9 @@ public class DBValidator {
         final String key = "^([\\w]+)(#\"?([\\w\\s]+)\"?)?:";
         DB_TEMPLATE_KEY_PATTERN = Pattern.compile (key, Pattern.UNICODE_CASE);
         
-        final String param = "([\\w]+)=((#|!!)?\".*?\"|\\$[\\w]+|\\{[\\w]*\\}|(#|!!)?[\\w]+|)";
+        final String value = "((#|!!)?\".*?\"|\\$[\\w]+|\\{[\\w]*\\}|(#|!!)?[\\w]+)";
+        DB_TEMPLATE_COLLECTION_PATTERN = Pattern.compile (value, Pattern.UNICODE_CASE);
+        final String param = "([\\w]+)=(\\[.*?\\]|" + value + "|)";
         DB_TEMPLATE_PARAM_PATTERN = Pattern.compile (param, Pattern.UNICODE_CASE);
     }
     
@@ -287,10 +330,23 @@ public class DBValidator {
         
         matcher = DB_TEMPLATE_PARAM_PATTERN.matcher (collapsedInput);
         while (matcher.find ()) {
-            row.getParams ().put (matcher.group (1), matcher.group (2));
+            if (!matcher.group (2).startsWith ("[")) { // it's is not collection
+                String value = Optional.ofNullable (matcher.group (3)).orElse ("");
+                row.getParams ().put (matcher.group (1), value);
+            } else {
+                final String valuesString = matcher.group (2).substring (1);
+                Matcher valuesMatcher = DB_TEMPLATE_COLLECTION_PATTERN
+                                      . matcher (valuesString);
+                List <String> values = new ArrayList <> ();
+                while (valuesMatcher.find ()) {
+                    values.add (valuesMatcher.group ());
+                }
+                
+                row.getParams ().put (matcher.group (1), values);
+            }
         }
         
-        System.out.println (row);
+        //System.out.println (row);
         return row;
     }
     

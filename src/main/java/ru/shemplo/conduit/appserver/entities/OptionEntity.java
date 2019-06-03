@@ -5,15 +5,18 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import lombok.*;
+import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table (name = "options")
+@ToString (callSuper = true)
 @EqualsAndHashCode (callSuper = true)
 public class OptionEntity extends AbsEntity implements Named {
     
+    @DBTemplateAnchor
     @Column (nullable = false, unique = true)
     private String name;
     
