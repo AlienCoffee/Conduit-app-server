@@ -5,16 +5,15 @@ import java.util.Set;
 
 import javax.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
+import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString (callSuper = true)
 @Table (name = "roles", indexes = {
     @Index (columnList = "name", unique = true)
 })
@@ -23,6 +22,7 @@ public class RoleEntity extends AbsEntity {
     public  static final String HEAD_ROLE = "HEAD";
     private static final String ROLE_ = "ROLE_";
     
+    @DBTemplateAnchor
     @Column (nullable = false, unique = true)
     private String name;
     

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
+import ru.shemplo.conduit.appserver.start.DBTemplateConstant;
 
 @Entity
 @Getter @Setter
@@ -35,6 +36,7 @@ public class PeriodEntity extends AbsAuditableEntity {
     private String description;
     
     @JsonIgnore
+    @DBTemplateConstant
     @Column (nullable = false)
     private LocalDateTime since;
     
