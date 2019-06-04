@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
+import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.RegisteredPeriodRoleEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.RoleEntityRepository;
@@ -82,11 +83,9 @@ public class RolesService extends AbsCachedService <RoleEntity> {
         
         if (role.getOptions ().add (option)) {            
             CACHE.invalidate (role.getId ());
+            accessGuard.invalidateAll ();
         }
-        
-        //accessGuard.getSecurityService ().invalidateAll ();
-        accessGuard.invalidateAll ();
-        
+                
         return rolesRepository.save (role);
     }
     
@@ -96,11 +95,9 @@ public class RolesService extends AbsCachedService <RoleEntity> {
         
         if (role.getOptions ().remove (option)) {            
             CACHE.invalidate (role.getId ());
+            accessGuard.invalidateAll ();
         }
-        
-        //accessGuard.getSecurityService ().invalidateAll ();
-        accessGuard.invalidateAll ();
-        
+         
         return rolesRepository.save (role);
     }
     
@@ -132,7 +129,8 @@ public class RolesService extends AbsCachedService <RoleEntity> {
     
     @ProtectedMethod
     public void changeUserRoleInPeriod (PeriodEntity period, WUser user, 
-            RoleEntity role, EntityAction action, WUser committer) {
+            RoleEntity role, EntityAction action, String comment, 
+            WUser committer) {
         accessGuard.method (MiscUtils.getMethod ());
         
         switch (action) {
@@ -142,7 +140,6 @@ public class RolesService extends AbsCachedService <RoleEntity> {
                 throw new UnsupportedOperationException ();
         }
         
-        //accessGuard.getSecurityService ().invalidateForUserInPeriod (user.getEntity (), period);
         accessGuard.invalidateForUserInPeriod (user.getEntity (), period);
     }
     
@@ -162,6 +159,16 @@ public class RolesService extends AbsCachedService <RoleEntity> {
         assignment.setCommitter (committer.getEntity ());
         assignment.setIssued (LocalDateTime.now (clock));
         assignmentsRepository.save (assignment);
+        
+        if (role.getTemplate () != null) {
+            final PersonalDataTemplate template = role.getTemplate ();
+            final RegisteredPeriodRoleEntity roleAssignment = registeredRoleRepository
+                . findByUserAndPeriodAndTemplate (user.getEntity (), period, template);
+            roleAssignment.setStatus (AssignmentStatus.ASSIGNED);
+            roleAssignment.setCommitter (committer.getEntity ());
+            roleAssignment.setIssued (LocalDateTime.now (clock));
+            registeredRoleRepository.save (roleAssignment);
+        }
     }
     
     private void removeRole (PeriodEntity period, WUser user, RoleEntity role, WUser committer) {
@@ -170,6 +177,23 @@ public class RolesService extends AbsCachedService <RoleEntity> {
         
         if (assignment == null) { return; } // user don't have role
         assignmentsRepository.delete (assignment);
+        
+        if (role.getTemplate () != null) {
+            final PersonalDataTemplate template = role.getTemplate ();
+            final RegisteredPeriodRoleEntity roleAssignment = registeredRoleRepository
+                . findByUserAndPeriodAndTemplate (user.getEntity (), period, template);
+            roleAssignment.setStatus (AssignmentStatus.REJECTED);
+            roleAssignment.setCommitter (committer.getEntity ());
+            roleAssignment.setIssued (LocalDateTime.now (clock));
+            registeredRoleRepository.save (roleAssignment);
+        }
+    }
+    
+    @ProtectedMethod
+    public void getAssignedUserRoleForPeriod (WUser user, PeriodEntity period) {
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        
+        
     }
     
 }

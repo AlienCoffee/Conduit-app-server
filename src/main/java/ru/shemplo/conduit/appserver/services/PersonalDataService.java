@@ -2,6 +2,8 @@ package ru.shemplo.conduit.appserver.services;
 
 import static ru.shemplo.conduit.appserver.entities.AssignmentStatus.*;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
     private final PeriodsService periodsService;
     @Autowired private AccessGuard accessGuard;
     private final UsersService usersService;
+    private final Clock clock;
     
     @Override
     protected PersonalDataCollector loadEntity (Long id) {
@@ -62,7 +65,8 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
     
     @ProtectedMethod
     @Transactional public void savePersonalData (WUser user, PeriodEntity period, 
-            PersonalDataTemplate template, Map <String, String> data) {
+            PersonalDataTemplate template, Map <String, String> data, 
+            WUser committer) {
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
         final Set <String> present = new HashSet <> ();
@@ -91,12 +95,15 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         rows.forEach (dataRepository::save);
         CACHE.invalidate (Utils.hash2 (period, user));
         
-        RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
-            user.getEntity (), period, template, APPLICATION
-        );
-        
-        if (!registeredRoleRepository.exists (Example.of (role))) {
-            registeredRoleRepository.save (role);            
+        if (!isUserRegisteredForPeriod (user, period)) {
+            RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
+                user.getEntity (), period, template, APPLICATION
+            );
+            
+            role.setCommitter (committer.getEntity ());
+            role.setIssued (LocalDateTime.now (clock));
+                
+            registeredRoleRepository.save (role);
         }
     }
     

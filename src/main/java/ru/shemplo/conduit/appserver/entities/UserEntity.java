@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
+import ru.shemplo.conduit.appserver.start.DBTemplateConstant;
 
 @Entity
 @Getter @Setter
@@ -36,6 +37,7 @@ public class UserEntity extends AbsEntity {
     private String phone;
     
     @JsonIgnore
+    @DBTemplateConstant
     private String password;
     
     @Column (nullable = false)

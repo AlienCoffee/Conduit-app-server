@@ -115,7 +115,8 @@ public class CreateController {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         
         try {
-            personalDataService.savePersonalData (user, period, temp, data);
+            // TODO: The first argument (editable user) must be provided as argument from client
+            personalDataService.savePersonalData (user, period, temp, data, user);
         } catch (IllegalStateException ise) {
             return ResponseBox.fail (ise);
         }

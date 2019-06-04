@@ -85,7 +85,7 @@ public class UpdateController {
         WUser user = usersService.getUser (userID);
         
         rolesService.changeUserRoleInPeriod (period, user, 
-                       role, EntityAction.ADD, committer);
+                   role, EntityAction.ADD, "", committer);
         return ResponseBox.ok ();
     }
     
@@ -101,7 +101,7 @@ public class UpdateController {
         WUser user = usersService.getUser (userID);
         
         rolesService.changeUserRoleInPeriod (period, user, 
-                    role, EntityAction.REMOVE, committer);
+                role, EntityAction.REMOVE, "", committer);
         return ResponseBox.ok ();
     }
     

@@ -113,33 +113,35 @@ public class SiteController {
         final PeriodEntity period  = periodsService.getPeriod (periodID);
         mav.addObject ("period", period);
         
-        final Map <GroupType, List <GroupEntity>> groups 
-            = groupsService.getPeriodGroups (period).stream ()
-            . collect (Collectors.groupingBy (GroupEntity::getType));
-        
-        List <GroupEntity> list = groups.get (GroupType.ELIMINATION);
-        if (list != null) {
-            list.sort (Comparator.comparing (GroupEntity::getName));
-            mav.addObject ("ELIMINATION_groups", list);
-        }
-        
-        list = groups.get (GroupType.STUDY);
-        if (list != null) {
-            list.sort (Comparator.comparing (GroupEntity::getName));
-            mav.addObject ("STUDY_groups", list);            
-        }
-        
-        list = groups.get (GroupType.INFO);
-        if (list != null) {
-            list.sort (Comparator.comparing (GroupEntity::getName));
-            mav.addObject ("INFO_groups", list);            
-        }
-        
-        list = groups.get (GroupType.POOL);
-        if (list != null) {
-            list.sort (Comparator.comparing (GroupEntity::getName));
-            mav.addObject ("POOL_groups", list);            
-        }
+        try {            
+            final Map <GroupType, List <GroupEntity>> groups 
+                = groupsService.getPeriodGroups (period).stream ()
+                . collect (Collectors.groupingBy (GroupEntity::getType));
+            
+            List <GroupEntity> list = groups.get (GroupType.ELIMINATION);
+            if (list != null) {
+                list.sort (Comparator.comparing (GroupEntity::getName));
+                mav.addObject ("ELIMINATION_groups", list);
+            }
+            
+            list = groups.get (GroupType.STUDY);
+            if (list != null) {
+                list.sort (Comparator.comparing (GroupEntity::getName));
+                mav.addObject ("STUDY_groups", list);            
+            }
+            
+            list = groups.get (GroupType.INFO);
+            if (list != null) {
+                list.sort (Comparator.comparing (GroupEntity::getName));
+                mav.addObject ("INFO_groups", list);            
+            }
+            
+            list = groups.get (GroupType.POOL);
+            if (list != null) {
+                list.sort (Comparator.comparing (GroupEntity::getName));
+                mav.addObject ("POOL_groups", list);            
+            }
+        } catch (SecurityException se) {}
         
         return mav;
     }
