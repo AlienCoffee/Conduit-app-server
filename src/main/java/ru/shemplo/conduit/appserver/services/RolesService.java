@@ -190,10 +190,12 @@ public class RolesService extends AbsCachedService <RoleEntity> {
     }
     
     @ProtectedMethod
-    public void getAssignedUserRoleForPeriod (WUser user, PeriodEntity period) {
+    public List <RegisteredPeriodRoleEntity> getAssignedUserRolesForPeriod (WUser user, PeriodEntity period) {
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
-        
+        return registeredRoleRepository.findByUserAndPeriod (user.getEntity (), period).stream ()
+             . filter (item -> AssignmentStatus.ASSIGNED.equals (item.getStatus ()))
+             . collect (Collectors.toList ());
     }
     
 }
