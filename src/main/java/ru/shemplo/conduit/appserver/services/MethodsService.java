@@ -7,6 +7,7 @@ import java.util.HashSet;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.GuardRuleEntity;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.GuardRuleEntityRepository;
@@ -14,6 +15,7 @@ import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MethodsService {
@@ -33,6 +35,8 @@ public class MethodsService {
         rule.getRequirements ().add (option);
         guardRulesRepository.save (rule);
         accessGuard.invalidateAll ();
+        
+        log.info (rule.toTemplateString ());
     }
     
     @ProtectedMethod

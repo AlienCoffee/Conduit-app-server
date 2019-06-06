@@ -10,6 +10,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
@@ -25,6 +26,7 @@ import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GroupsService extends AbsCachedService <GroupEntity> {
@@ -85,6 +87,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         entity.setName (name);
         entity.setType (type);
         
+        log.info (entity.toTemplateString ());
         return groupsRepository.save (entity);
     }
     

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
@@ -24,6 +25,7 @@ import ru.shemplo.conduit.appserver.web.form.WebFormRow;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RolesService extends AbsCachedService <RoleEntity> {
@@ -68,6 +70,7 @@ public class RolesService extends AbsCachedService <RoleEntity> {
         }
         
         RoleEntity entity = new RoleEntity (name, new HashSet <> (), template);
+        log.info (entity.toTemplateString ());
         return rolesRepository.save (entity);
     }
     
@@ -85,7 +88,8 @@ public class RolesService extends AbsCachedService <RoleEntity> {
             CACHE.invalidate (role.getId ());
             accessGuard.invalidateAll ();
         }
-                
+        
+        log.info (role.toTemplateString ());
         return rolesRepository.save (role);
     }
     
@@ -168,7 +172,10 @@ public class RolesService extends AbsCachedService <RoleEntity> {
             roleAssignment.setCommitter (committer.getEntity ());
             roleAssignment.setIssued (LocalDateTime.now (clock));
             registeredRoleRepository.save (roleAssignment);
+            log.info (roleAssignment.toTemplateString ());
         }
+        
+        log.info (assignment.toTemplateString ());
     }
     
     private void removeRole (PeriodEntity period, WUser user, RoleEntity role, WUser committer) {

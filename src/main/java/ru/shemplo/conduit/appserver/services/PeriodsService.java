@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.repositories.PeriodEntityRepository;
@@ -19,6 +20,7 @@ import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PeriodsService extends AbsCachedService <PeriodEntity> {
@@ -67,6 +69,7 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
         entity.setUntil (until);
         entity.setName (name);
         
+        log.info (entity.toTemplateString ());
         return periodsRepository.save (entity);
     }
     
@@ -85,6 +88,7 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
         
         period.setStatus (status);
         
+        log.info (period.toTemplateString ());
         return periodsRepository.save (period);
     }
     

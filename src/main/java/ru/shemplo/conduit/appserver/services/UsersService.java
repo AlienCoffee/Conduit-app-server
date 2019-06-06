@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
@@ -22,6 +23,7 @@ import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.PhoneValidator;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsersService extends AbsCachedService <WUser> implements UserDetailsService {
@@ -78,6 +80,7 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
         } catch (UsernameNotFoundException unfe) {
             final String encoded = passwordEncoder.encode (password);
             UserEntity entity = new UserEntity (login, phone, encoded, false);
+            log.info (entity.toTemplateString ());
             return new WUser (usersRepository.save (entity));
         }
     }

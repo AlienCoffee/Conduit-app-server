@@ -27,4 +27,14 @@ public class Utils {
         . collect (Collectors.joining (", ", prefix + " [", "]"));
     }
     
+    public static String clearWhitespaces (String input) {
+        StringBuilder sb = new StringBuilder ();
+        for (char c : input.toCharArray ()) {
+            if (!Character.isWhitespace (c)) {
+                sb.append (c);
+            }
+        }
+        return sb.toString ();
+    }
+    
 }

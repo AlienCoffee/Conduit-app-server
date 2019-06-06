@@ -8,6 +8,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.OptionEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OptionEntityRepository;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -15,6 +16,7 @@ import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OptionsService {
@@ -36,6 +38,7 @@ public class OptionsService {
         }
         
         OptionEntity entity = new OptionEntity (name);
+        log.info (entity.toTemplateString ());
         return optionsRepository.save (entity);
     }
     
