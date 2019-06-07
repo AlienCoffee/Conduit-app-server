@@ -197,9 +197,8 @@ public class DBValidator {
             if (!Collection.class.isAssignableFrom (type)) {
                 final String value = (String) row.getParams ().get (f.getName ());
                 
-                
                 try { 
-                    if (f.get (entity) == null || !f.isAnnotationPresent (DBTemplateConstant.class)) {
+                    if (!f.isAnnotationPresent (DBTemplateConstant.class)) {
                         f.set (entity, convertParameterValue (type, value, context)); 
                     }
                 } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -254,9 +253,10 @@ public class DBValidator {
             }
         } else if (Boolean.class.isAssignableFrom (required)) {
             //System.out.println ("`" + required + "` is boolean type");
+            value = value.replace ("\"", "");
             return MiscUtils.cast (Boolean.parseBoolean (value));
         } else if (Number.class.isAssignableFrom (required)) {
-            System.out.println ("`" + required + "` is number type");
+            //System.out.println ("`" + required + "` is number type");
             String typeName = required.getSimpleName ();
             if ("Integer".equals (typeName)) {
                 typeName = "Int";
@@ -264,7 +264,7 @@ public class DBValidator {
             
             try {
                 Method method = required.getDeclaredMethod ("parse" + typeName, String.class);
-                return MiscUtils.cast (method.invoke (null, value));
+                return MiscUtils.cast (method.invoke (null, value.replace ("\"", "")));
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException 
                      | IllegalArgumentException | InvocationTargetException e) {
                 throw new IllegalStateException (e);

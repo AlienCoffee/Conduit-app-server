@@ -1,6 +1,7 @@
 package ru.shemplo.conduit.appserver.services;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,6 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     private final GroupAssignmentEntityRepository gAssignmentsRepository;
     private final GroupEntityRepository groupsRepository;
-    private final RolesService rolesService;
     private final AccessGuard accessGuard;
     private final Clock clock;
     
@@ -89,6 +89,36 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         
         log.info (entity.toTemplateString ());
         return groupsRepository.save (entity);
+    }
+    
+    @ProtectedMethod
+    public void joinGroup (WUser user, GroupEntity group) {
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod (), user);
+        if (gAssignmentsRepository.findByUserAndGroup (user.getEntity (), group) != null) {
+            throw new IllegalStateException ("User already sent joined the group");
+        }
+        
+        GroupAssignmentEntity assignment = new GroupAssignmentEntity (
+            user.getEntity (), group, AssignmentStatus.APPLICATION
+        );
+        
+        if (group.getSelfAssignment ()) {
+            assignment.setStatus (AssignmentStatus.ASSIGNED);
+        }
+        
+        assignment.setIssued (LocalDateTime.now (clock));
+        assignment.setCommitter (user.getEntity ());
+        gAssignmentsRepository.save (assignment);
+    }
+    
+    @ProtectedMethod
+    public boolean isUserInGroup (WUser user, GroupEntity group) {
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod (), user);
+        GroupAssignmentEntity assignment = gAssignmentsRepository
+        . findByUserAndGroup (user.getEntity (), group);
+        
+        final AssignmentStatus status = assignment.getStatus ();
+        return assignment != null && AssignmentStatus.ASSIGNED.equals (status);
     }
     
     /*
@@ -194,9 +224,10 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     public List <GroupMember> getGroupMembers (GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
+        // TODO: userm role in group // must be taken from period
         return gAssignmentsRepository.findByGroup (group).stream ()
              . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
-             . map     (row -> new GroupMember (row.getUser (), row.getRole ()))
+             . map     (row -> new GroupMember (row.getUser (), null))
              . collect (Collectors.toList ());
     }
     

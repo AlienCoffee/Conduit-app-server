@@ -61,8 +61,10 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
     
     @ProtectedMethod
     public WUser getUser (Long id) {
-        accessGuard.method (MiscUtils.getMethod ());
-        return getEntity (id);
+        final WUser user = getEntity (id);
+        accessGuard.method (MiscUtils.getMethod (), user);
+        
+        return user;
     }
     
     @ProtectedMethod

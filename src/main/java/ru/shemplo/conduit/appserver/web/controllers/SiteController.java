@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
@@ -117,8 +118,14 @@ public class SiteController {
         
         try {            
             final List <RegisteredPeriodRoleEntity> roles 
-                = rolesService.getAssignedUserRolesForPeriod (user, period);
-            mav.addObject ("assigned_roles", roles);
+                = rolesService.getUserRolesForPeriod (user, period);
+            mav.addObject ("role_applications", roles);
+            
+            long amount = roles.stream ()
+            . map    (RegisteredPeriodRoleEntity::getStatus)
+            . filter (AssignmentStatus.ASSIGNED::equals)
+            . count  ();
+            mav.addObject ("have_assigned_roles", amount > 0);
         } catch (SecurityException se) {}
         
         try {            
@@ -150,6 +157,19 @@ public class SiteController {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         ModelAndView mav = new ModelAndView ("period/registration");
         mav.addObject ("period", period);
+        mav.addObject ("user", user);
+        
+        try {            
+            final List <RegisteredPeriodRoleEntity> roles 
+                = rolesService.getUserRolesForPeriod (user, period);
+            mav.addObject ("role_applications", roles);
+            
+            long amount = roles.stream ()
+            . map    (RegisteredPeriodRoleEntity::getStatus)
+            . filter (AssignmentStatus.ASSIGNED::equals)
+            . count  ();
+            mav.addObject ("have_assigned_roles", amount > 0);
+        } catch (SecurityException se) {}
         
         final List <PersonalDataTemplate> templates = personalDataService
             . getUserRegisteredTemplates (user, period);

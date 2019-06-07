@@ -49,7 +49,7 @@ public class PostsService {
     
     @ProtectedMethod
     public List <PostEntity> getPostsByGroup (GroupEntity group) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         return postsRepository.findIdsByGroup (group).stream ()
              . map     (this::getPost)
@@ -59,7 +59,7 @@ public class PostsService {
     @ProtectedMethod
     public PostEntity createInforamtionPost (GroupEntity group, String title, 
             String content, LocalDateTime published, WUser author) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         final GroupType gType = group.getType ();
         if (GroupType.POOL.equals (gType)) {

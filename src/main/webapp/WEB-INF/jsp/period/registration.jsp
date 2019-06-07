@@ -22,7 +22,8 @@
     	<a href="/">index</a>
     	<a href="/periods">periods</a>
     	
-    	<c:if test="${templates != null && not empty templates}">
+    	<!--
+    	<c:if test="${have_assigned_roles}">
     		<p>
     			<span><b>Registered templates:</b></span>
     			<c:forEach var="temp" items="${templates}">
@@ -30,9 +31,11 @@
     			</c:forEach>
     		</p>
     	</c:if>
+    	-->
     	
     	<c:choose>
-    		<c:when test="${period.getStatus () eq 'REGISTRATION'}">
+    		<c:when test="${period.getStatus () eq 'REGISTRATION' 
+    						&& !have_assigned_roles}">
     			<p>
 		    		<select id="regType"></select>
 		    		<button id="loadTypes">load</button>
@@ -41,10 +44,11 @@
 		    	<div id="regDiv"></div>
 		    	
 		    	<input id="periodID" type="hidden" value="${period.getId ()}" />
+		    	<input id="userID" type="hidden" value="${user.getId ()}" />
     		</c:when>
     		
     		<c:otherwise>
-    			<p>Registraction for this period is closed</p>
+    			<p>Registration is closed for this period</p>
     		</c:otherwise>
     	</c:choose>
     	<script src="/resources/js/period.js"></script>

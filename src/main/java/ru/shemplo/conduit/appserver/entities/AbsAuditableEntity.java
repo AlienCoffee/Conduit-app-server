@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.start.DBTemplateConstant;
+import ru.shemplo.conduit.appserver.start.DBTemplateField;
 
 @ToString
 @Getter @Setter
@@ -22,6 +23,7 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     
     @JsonIgnore
     @DBTemplateConstant
+    @DBTemplateField ("{now}")
     @Column (nullable = false)
     protected LocalDateTime issued;
     

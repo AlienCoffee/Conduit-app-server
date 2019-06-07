@@ -1,3 +1,5 @@
+var userData = {};
+
 window.onload = function (e) {
 	var metas = document.getElementsByTagName ("meta");
 	var token  = metas ["_csrf"].getAttribute ("content");
@@ -9,38 +11,69 @@ window.onload = function (e) {
 	
 	if (button) {
 		button.onclick = function (e) {
-			var req = new XMLHttpRequest ();
-			req.open ("GET", "/api/get/period/register-roles", true);
-			req.setRequestHeader (header, token);
-			
-			req.onreadystatechange = function () {
-				if (req.readyState != 4) { return; }
+			setTimeout (function () {
+				var req = new XMLHttpRequest ();
+				req.open ("GET", "/api/get/period/register-roles", true);
+				req.setRequestHeader (header, token);
 				
-				if (req.status != 200) {
-					alert (req.statusText);
-				} else if (confirm (req.responseText)) { 
-					var answer = JSON.parse (req.responseText);
+				req.onreadystatechange = function () {
+					if (req.readyState != 4) { return; }
 					
-					var container = document.getElementById ("regType");
+					if (req.status != 200) {
+						alert (req.statusText);
+					} else if (confirm (req.responseText)) { 
+						var answer = JSON.parse (req.responseText);
+						
+						var container = document.getElementById ("regType");
+						container.innerHTML = "";
+						
+						if (answer.error) {
+							container.innerHTML = answer.message;
+						} else {
+							templates = answer.object;
+							
+							Object.keys (templates).forEach (temp => {
+								var elem = document.createElement ("option");
+								elem.setAttribute ("value", temp);
+								elem.innerHTML = temp;
+								
+								container.append (elem);
+							});
+						}
+					}
+				}
+				
+				req.send ();
+			}, 200);
+			
+			var req2 = new XMLHttpRequest ();
+			req2.open ("POST", "/api/get/personal-data", true);
+			req2.setRequestHeader (header, token);
+			
+			req2.onreadystatechange = function () {
+				if (req2.readyState != 4) { return; }
+				
+				if (req2.status != 200) {
+					alert (req.statusText);
+				} else if (confirm (req2.responseText)) { 
+					var answer = JSON.parse (req2.responseText);
+					
+					var container = document.getElementById ("regDiv");
 					container.innerHTML = "";
 					
 					if (answer.error) {
 						container.innerHTML = answer.message;
 					} else {
-						templates = answer.object;
-						
-						Object.keys (templates).forEach (temp => {
-							var elem = document.createElement ("option");
-							elem.setAttribute ("value", temp);
-							elem.innerHTML = temp;
-							
-							container.append (elem);
-						});
+						userData = answer.object.values;
 					}
 				}
 			}
 			
-			req.send ();
+			var data = new FormData ();
+			data.append ("period", document.getElementById ("periodID").value);
+			data.append ("user", document.getElementById ("userID").value);
+			
+			req2.send (data);
 		}
 	}
 	
@@ -72,6 +105,9 @@ window.onload = function (e) {
 						
 						var input = document.createElement ("input");
 						input.setAttribute ("id", row.parameterName);
+						input.value = userData [row.parameterName]
+									? userData [row.parameterName]
+									: "";
 						p2.append (input);
 					} else if (row.type == "NUMBER") {
 						var p2 = document.createElement ("p");
@@ -79,6 +115,9 @@ window.onload = function (e) {
 						
 						var input = document.createElement ("input");
 						input.setAttribute ("id", row.parameterName);
+						input.value = userData [row.parameterName]
+									? userData [row.parameterName]
+									: "";
 						input.setAttribute ("type", "number");
 						p2.append (input);
 					} else if (row.type == "DATE") {
@@ -87,6 +126,9 @@ window.onload = function (e) {
 						
 						var input = document.createElement ("input");
 						input.setAttribute ("id", row.parameterName);
+						input.value = userData [row.parameterName]
+									? userData [row.parameterName]
+									: "";
 						input.setAttribute ("type", "date");
 						p2.append (input);
 					}

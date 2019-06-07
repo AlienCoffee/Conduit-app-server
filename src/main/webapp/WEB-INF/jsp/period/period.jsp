@@ -23,11 +23,15 @@
     	<a href="/periods">periods</a>
     	
     	<c:choose>
-    		<c:when test="${assigned_roles != null && not empty assigned_roles}">
+    		<c:when test="${have_assigned_roles}">
     			<p>
 	    			<span><b>Assigned roles:</b></span>
-	    			<c:forEach var="role" items="${assigned_roles}">
-	    				<span>${role.getTemplate ().getName ()}</span>
+	    			<c:forEach var="role" items="${role_applications}">
+	    				<span>
+	    					${role.getTemplate ().getName ()}
+	    					(${role.getStatus ().name ()
+	    						   .toLowerCase ()})
+    					</span>
 	    			</c:forEach>
 	    		</p>
     		</c:when>
@@ -36,14 +40,13 @@
     			<p>
 	    			<span>You have no <b>assigned</b> roles in this period</span>
 	    		</p>
+	    		<p>
+					You also can
+					<a href="/period/${period.getId ()}/registration">register</a>
+					for roles
+				</p>
     		</c:otherwise>
     	</c:choose>
-    	
-    	<p>
-			You also can
-			<a href="/period/${period.getId ()}/registration">register</a>
-			for other roles
-		</p>
     	
     	<c:choose>
     		<c:when test="${have_access_to_groups}">
@@ -59,6 +62,7 @@
 				   				<div>
 				   					<b>Links:</b>
 				   					<a href="/group/${group.getId ()}">info</a>
+				   					<button>join</button>
 				   				</div>
 				    		</div>
 		    			</c:forEach>
@@ -81,6 +85,7 @@
 				   				<div>
 				   					<b>Links:</b>
 				   					<a href="/group/${group.getId ()}">info</a>
+				   					<button>join</button>
 				   				</div>
 				    		</div>
 		    			</c:forEach>
@@ -103,6 +108,7 @@
 				   				<div>
 				   					<b>Links:</b>
 				   					<a href="/group/${group.getId ()}">info</a>
+				   					<button>join</button>
 				   				</div>
 				    		</div>
 		    			</c:forEach>
@@ -125,6 +131,7 @@
 				   				<div>
 				   					<b>Links:</b>
 				   					<a href="/group/${group.getId ()}">info</a>
+				   					<button>join</button>
 				   				</div>
 				    		</div>
 		    			</c:forEach>

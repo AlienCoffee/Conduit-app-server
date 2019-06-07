@@ -63,7 +63,7 @@ public abstract class AbsEntity implements Identifiable {
                             }
                         }).collect (Collectors.joining (", ", "[", "]"));
                     } else { // it's just a simple value (String, Number, LocalDate, ...)                    
-                        value = object == null ? null : object.toString ();
+                        value = object == null ? null : "\"" + object.toString () + "\"";
                     }
                 } catch (Exception e) {}
             } else {
@@ -81,12 +81,12 @@ public abstract class AbsEntity implements Identifiable {
     }
     
     protected static String getEntityTemplateId (AbsEntity entity) {
-        String packageName = AbsEntity.class.getPackage ().getName ();
+        String packageName = AbsEntity.class.getPackage ().getName () + ".";
         String entityName = entity.getClass ().getName ().replace (packageName, "");
         
         StringBuilder sb = new StringBuilder ();
         if (entity instanceof Named) {
-            Named named = MiscUtils.cast (entity );
+            Named named = MiscUtils.cast (entity);
             String name = Utils.clearWhitespaces (named.getName ().toLowerCase ());
             sb.append (name);
         } else {

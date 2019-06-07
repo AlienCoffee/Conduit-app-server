@@ -49,7 +49,7 @@ public class OlympiadsService {
     
     @ProtectedMethod
     public List <OlympiadEntity> getOlympiadsByGroup (GroupEntity group) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         return olympiadsRepository.findIdsByGroup (group).stream ()
              . map     (this::getOlympiad)
@@ -59,7 +59,7 @@ public class OlympiadsService {
     @ProtectedMethod
     public OlympiadEntity createOlympiad (GroupEntity group, String name, String description, 
             LocalDateTime publish, LocalDateTime finish, Integer attempts, WUser creator) {
-        accessGuard.method (MiscUtils.getMethod ());
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         Objects.requireNonNull (publish, "Publish time should be set up");
         

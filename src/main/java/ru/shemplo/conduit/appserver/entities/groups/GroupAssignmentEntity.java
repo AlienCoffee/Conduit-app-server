@@ -23,9 +23,6 @@ public class GroupAssignmentEntity extends AbsAuditableEntity {
     private UserEntity user;
     
     @ManyToOne (optional = false)
-    private RoleEntity role;
-    
-    @ManyToOne (optional = false)
     private GroupEntity group;
     
     @Column (nullable = false)
