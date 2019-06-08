@@ -47,10 +47,11 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     @ProtectedMethod
     public GroupEntity getGroup (Long id) throws EntityNotFoundException {
-        final GroupEntity entity = getEntity (id);
+        //final GroupEntity entity = getEntity (id);
+        final GroupEntity entity = groupsRepository.findById (id).get ();
         
         accessGuard.method (MiscUtils.getMethod (), entity.getPeriod ());
-        return getEntity (id);
+        return entity;
     }
     
     @ProtectedMethod
@@ -233,6 +234,16 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     @ProtectedMethod
     public List <GroupEntity> getUserGroups (WUser user) {
+        accessGuard.method (MiscUtils.getMethod (), user);
+        
+        return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()
+             . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
+             . map     (GroupAssignmentEntity::getGroup)
+             . collect (Collectors.toList ());
+    }
+    
+    @ProtectedMethod
+    public List <GroupEntity> getUserApplication (WUser user) {
         accessGuard.method (MiscUtils.getMethod (), user);
         
         return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()

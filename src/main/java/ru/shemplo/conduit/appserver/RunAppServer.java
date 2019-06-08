@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import ru.shemplo.conduit.appserver.entities.repositories.GroupEntityRepository;
 import ru.shemplo.conduit.appserver.start.DBValidator;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
 
@@ -40,6 +41,8 @@ public class RunAppServer {
         
         context.getBean (MethodsScanner.class).scanMethods (context);
         context.getBean (DBValidator.class).validate ();
+        
+        System.out.println (context.getBean (GroupEntityRepository.class));
     }
     
     @Bean public static Clock getSystemClock () {

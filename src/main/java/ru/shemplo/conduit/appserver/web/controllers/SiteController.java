@@ -4,10 +4,7 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +31,8 @@ import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
+import ru.shemplo.conduit.appserver.web.dto.PageGroupRow;
+import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Controller
@@ -116,6 +115,8 @@ public class SiteController {
         final PeriodEntity period  = periodsService.getPeriod (periodID);
         mav.addObject ("period", period);
         
+        mav.addObject ("group_types", GroupType.values ());
+        
         try {            
             final List <RegisteredPeriodRoleEntity> roles 
                 = rolesService.getUserRolesForPeriod (user, period);
@@ -129,19 +130,24 @@ public class SiteController {
         } catch (SecurityException se) {}
         
         try {            
-            final Map <GroupType, List <GroupEntity>> groups 
-                = groupsService.getPeriodGroups (period).stream ()
-                . collect (Collectors.groupingBy (GroupEntity::getType));
+            final Set <GroupEntity> userGroups = new HashSet <> (
+                groupsService.getUserGroups (user)
+            );
+            
+            final Map <GroupType, List <PageGroupRow>> groups 
+                = groupsService.getPeriodGroups (period).stream ().map (PageGroupRow::new)
+                . collect (Collectors.groupingBy (row -> row.getGroup ().getType ()));
+            
             
             for (GroupType type : GroupType.values ()) {
-                List <GroupEntity> list = groups.get (type);
+                List <PageGroupRow> list = groups.get (type);
                 if (list != null) {
-                    list.sort (Comparator.comparing (GroupEntity::getName));
-                    mav.addObject (type.name () + "_groups", list);
+                    list.sort (Comparator.comparing (row -> row.getGroup ().getName ()));
                 }
             }
             
             mav.addObject ("have_access_to_groups", true);
+            mav.addObject ("groups", groups);
         } catch (SecurityException se) {
             mav.addObject ("have_access_to_groups", false);
         }

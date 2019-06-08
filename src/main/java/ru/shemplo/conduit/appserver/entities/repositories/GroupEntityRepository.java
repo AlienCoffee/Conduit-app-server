@@ -9,10 +9,10 @@ import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 
 public interface GroupEntityRepository extends AbsEntityRepository <GroupEntity> {
     
-    @Query ("SELECT id FROM GroupEntity")
+    @Query ("SELECT ent.id FROM GroupEntity ent")
     public List <Long> findAllIds ();
     
-    @Query ("SELECT id FROM GroupEntity WHERE period_id = :period")
+    @Query ("SELECT ent.id FROM GroupEntity ent WHERE ent.period = :period")
     public List <Long> findIdsByPeriod (PeriodEntity period);
     
     public List <GroupEntity> findByPeriod (PeriodEntity period);
