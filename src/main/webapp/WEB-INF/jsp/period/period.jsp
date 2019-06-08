@@ -62,11 +62,11 @@
 					    			<p>(${group.getGroup ().getId ()}) <b>${group.getGroup ().getName ()}</b></p>
 					    			<div><b>Description:</b> ${group.getGroup ().getDescription ()}</div>
 					    			<div><b>Head teacher:</b> ${group.getGroup ().getHead ().getLogin ()}</div>
-					    			<div><b>You are in group:</b> ${group.isAssigned () ? 'yes' : 'no'}</div>
+					    			<div><b>You are in group:</b> ${group.getStatus () eq 'ASSIGNED' ? 'yes' : 'no'}</div>
 					   				<div>
 					   					<b>Links:</b>
 					   					<a href="/group/${group.getGroup ().getId ()}">info</a>
-					   					<c:if test="${!group.isAssigned ()}">
+					   					<c:if test="${group.getStatus () eq 'REJECTED'}">
 					   						<button id="join${group.getGroup ().getId ()}" class="group-join-button">join</button>
 					   					</c:if>
 					   				</div>

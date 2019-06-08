@@ -47,8 +47,8 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     
     @ProtectedMethod
     public GroupEntity getGroup (Long id) throws EntityNotFoundException {
-        //final GroupEntity entity = getEntity (id);
-        final GroupEntity entity = groupsRepository.findById (id).get ();
+        final GroupEntity entity = getEntity (id);
+        //final GroupEntity entity = groupsRepository.findById (id).get ();
         
         accessGuard.method (MiscUtils.getMethod (), entity.getPeriod ());
         return entity;
@@ -110,16 +110,6 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         assignment.setIssued (LocalDateTime.now (clock));
         assignment.setCommitter (user.getEntity ());
         gAssignmentsRepository.save (assignment);
-    }
-    
-    @ProtectedMethod
-    public boolean isUserInGroup (WUser user, GroupEntity group) {
-        accessGuard.method (MiscUtils.getMethod (), group.getPeriod (), user);
-        GroupAssignmentEntity assignment = gAssignmentsRepository
-        . findByUserAndGroup (user.getEntity (), group);
-        
-        final AssignmentStatus status = assignment.getStatus ();
-        return assignment != null && AssignmentStatus.ASSIGNED.equals (status);
     }
     
     /*
@@ -225,30 +215,10 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     public List <GroupMember> getGroupMembers (GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
-        // TODO: userm role in group // must be taken from period
+        // TODO: user role in group // must be taken from period
         return gAssignmentsRepository.findByGroup (group).stream ()
              . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
              . map     (row -> new GroupMember (row.getUser (), null))
-             . collect (Collectors.toList ());
-    }
-    
-    @ProtectedMethod
-    public List <GroupEntity> getUserGroups (WUser user) {
-        accessGuard.method (MiscUtils.getMethod (), user);
-        
-        return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()
-             . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
-             . map     (GroupAssignmentEntity::getGroup)
-             . collect (Collectors.toList ());
-    }
-    
-    @ProtectedMethod
-    public List <GroupEntity> getUserApplication (WUser user) {
-        accessGuard.method (MiscUtils.getMethod (), user);
-        
-        return gAssignmentsRepository.findByUser (user.getEntity ()).stream ()
-             . filter  (row -> row.getStatus ().equals (AssignmentStatus.ASSIGNED))
-             . map     (GroupAssignmentEntity::getGroup)
              . collect (Collectors.toList ());
     }
     

@@ -13,6 +13,6 @@ public interface UserEntityRepository extends AbsEntityRepository <UserEntity> {
     
     public UserEntity findByPhone (String phone);
     
-    public UserEntity findByLogin (String phone);
+    public UserEntity findByLogin (String login);
     
 }

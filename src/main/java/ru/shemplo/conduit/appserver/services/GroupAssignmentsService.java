@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupAssignmentEntityRepository;
@@ -47,6 +48,16 @@ public class GroupAssignmentsService extends AbsCachedService <GroupAssignmentEn
         final List <Long> ids = assignmentRepository
             . findIdsByUser (user.getEntity ());
         return getEntities (ids, true);
+    }
+    
+    @ProtectedMethod
+    public boolean isUserInGroup (WUser user, GroupEntity group) {
+        accessGuard.method (MiscUtils.getMethod (), group.getPeriod (), user);
+        GroupAssignmentEntity assignment = assignmentRepository
+        . findByUserAndGroup (user.getEntity (), group);
+        
+        final AssignmentStatus status = assignment.getStatus ();
+        return assignment != null && AssignmentStatus.ASSIGNED.equals (status);
     }
     
     @ProtectedMethod

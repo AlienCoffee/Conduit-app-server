@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 
 @ToString
@@ -13,8 +14,7 @@ public class PageGroupRow {
     
     private final GroupEntity group;
     
-    private boolean assigned = false;
-    private boolean applied  = false;
+    private AssignmentStatus status;
     
     
 }

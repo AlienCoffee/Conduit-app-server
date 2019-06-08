@@ -32,13 +32,13 @@ import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.conduit.appserver.web.dto.PageGroupRow;
-import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Controller
 @RequiredArgsConstructor
 public class SiteController {
     
+    private final GroupAssignmentsService groupAssignmentsService;
     private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
@@ -131,11 +131,22 @@ public class SiteController {
         
         try {            
             final Set <GroupEntity> userGroups = new HashSet <> (
-                groupsService.getUserGroups (user)
+                groupAssignmentsService.getUserGroups (user)
+            );
+            final Set <GroupEntity> userApplications = new HashSet <> (
+                groupAssignmentsService.getUserApplications (user)
             );
             
             final Map <GroupType, List <PageGroupRow>> groups 
                 = groupsService.getPeriodGroups (period).stream ().map (PageGroupRow::new)
+                . peek    (row -> {
+                    AssignmentStatus status = userGroups.contains (row.getGroup ())
+                                            ? AssignmentStatus.ASSIGNED
+                                            : userApplications.contains (row.getGroup ())
+                                            ? AssignmentStatus.APPLICATION
+                                            : AssignmentStatus.REJECTED;
+                    row.setStatus (status);
+                })
                 . collect (Collectors.groupingBy (row -> row.getGroup ().getType ()));
             
             
