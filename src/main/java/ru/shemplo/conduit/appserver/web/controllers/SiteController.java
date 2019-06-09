@@ -148,8 +148,6 @@ public class SiteController {
                     row.setStatus (status);
                 })
                 . collect (Collectors.groupingBy (row -> row.getGroup ().getType ()));
-            
-            
             for (GroupType type : GroupType.values ()) {
                 List <PageGroupRow> list = groups.get (type);
                 if (list != null) {

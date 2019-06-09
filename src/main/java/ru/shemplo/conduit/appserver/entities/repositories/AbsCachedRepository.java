@@ -30,6 +30,14 @@ public abstract class AbsCachedRepository <T extends AbsEntity> extends SimpleJp
         return repository.findById (id);
         
         /* TODO: for future optimization
+         * 
+         * Idea: if it's necessary to load one entity then no needs
+         * to use hibernate with it's over many INNER JOINS for each field.
+         * We can retrieve just IDs and use other repositories to load
+         * object fields. It's better because with growth of data in DB
+         * the total complexity will stay the same. For better performance
+         * CACHEs can be used.
+         * 
         System.out.println ("AbsCachedRepository.findById(" + id + ") ~ " + getDomainClass ());
         
         T entity = CACHE.getOrPut (id, () -> {

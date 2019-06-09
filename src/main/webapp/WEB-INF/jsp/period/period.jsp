@@ -67,7 +67,10 @@
 					   					<b>Links:</b>
 					   					<a href="/group/${group.getGroup ().getId ()}">info</a>
 					   					<c:if test="${group.getStatus () eq 'REJECTED'}">
-					   						<button id="join${group.getGroup ().getId ()}" class="group-join-button">join</button>
+					   						<button id="join${group.getGroup ().getId ()}" 
+					   								class="group-join-button">
+				   								join
+			   								</button>
 					   					</c:if>
 					   				</div>
 					    		</div>

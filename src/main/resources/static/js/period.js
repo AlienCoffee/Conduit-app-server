@@ -20,7 +20,7 @@ window.onload = function (e) {
 					if (req.readyState != 4) { return; }
 					
 					if (req.status != 200) {
-						alert (req.statusText);
+						alert (req.statusText + " / " + req.responseText);
 					} else if (confirm (req.responseText)) { 
 						var answer = JSON.parse (req.responseText);
 						
@@ -54,7 +54,7 @@ window.onload = function (e) {
 				if (req2.readyState != 4) { return; }
 				
 				if (req2.status != 200) {
-					alert (req.statusText);
+					alert (req.statusText + " / " + req.responseText);
 				} else if (confirm (req2.responseText)) { 
 					var answer = JSON.parse (req2.responseText);
 					
@@ -149,7 +149,7 @@ window.onload = function (e) {
 					if (req.readyState != 4) { return; }
 					
 					if (req.status != 200) {
-						alert (req.statusText);
+						alert (req.statusText + " / " + req.responseText);
 					} else if (confirm (req.responseText)) { 
 						location.reload (); 
 					}
@@ -172,6 +172,37 @@ window.onload = function (e) {
 				
 				req.send (data);
 			}
+		}
+	}
+	
+	for (let button of document.getElementsByClassName ("group-join-button")) {
+		button.onclick = function (e) {
+			setTimeout (function () {
+				var req = new XMLHttpRequest ();
+				req.open ("POST", "/api/create/group-join", true);
+				req.setRequestHeader (header, token);
+				
+				req.onreadystatechange = function () {
+					if (req.readyState != 4) { return; }
+					
+					if (req.status != 200) {
+						alert (req.statusText + " / " + req.responseText);
+					} else if (confirm (req.responseText)) { 
+						var answer = JSON.parse (req.responseText);
+						
+						if (answer.error) {
+							alert (answer.message);
+						} else {
+							location.reload ();
+						}
+					}
+				}
+				
+				var data = new FormData ();
+				data.append ("group", button.id.substr (4));
+				
+				req.send (data);
+			}, 200);
 		}
 	}
 }

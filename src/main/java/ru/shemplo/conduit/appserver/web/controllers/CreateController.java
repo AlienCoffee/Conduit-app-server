@@ -30,6 +30,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 @RequiredArgsConstructor
 public class CreateController {
     
+    //private final GroupAssignmentsService groupAssignmentsService;
     private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
@@ -160,6 +161,17 @@ public class CreateController {
         return ResponseBox.ok ();
     }
     */
+    
+    @PostMapping (API_CREATE_GROUP_JOIN)
+    public ResponseBox <Void> handleCreateGroupJoin (
+        @IndentifiedUser        WUser user,
+        @RequestParam ("group") Long groupID
+    ) {
+        final GroupEntity group = groupsService.getGroup (groupID);
+        
+        groupsService.createGroupJoin (user, group);
+        return ResponseBox.ok ();
+    }
     
     @PostMapping (API_CREATE_INFORMATION_POST)
     public ResponseBox <Void> handleCreateInformationPost (

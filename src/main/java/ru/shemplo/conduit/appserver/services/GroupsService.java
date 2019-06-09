@@ -93,10 +93,10 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     }
     
     @ProtectedMethod
-    public void joinGroup (WUser user, GroupEntity group) {
+    public void createGroupJoin (WUser user, GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod (), user);
         if (gAssignmentsRepository.findByUserAndGroup (user.getEntity (), group) != null) {
-            throw new IllegalStateException ("User already sent joined the group");
+            throw new IllegalStateException ("User already joined the group");
         }
         
         GroupAssignmentEntity assignment = new GroupAssignmentEntity (
