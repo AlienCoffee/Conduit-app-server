@@ -890,4 +890,68 @@ window.onload = function (e) {
 			req.send (data);
 		}
 	}
+	
+	for (let button of document.getElementsByClassName ("group-join-apply-button")) {
+		button.onclick = function (e) {
+			setTimeout (function () {
+				var req = new XMLHttpRequest ();
+				req.open ("POST", "/api/update/group-join/application", true);
+				req.setRequestHeader (header, token);
+				
+				req.onreadystatechange = function () {
+					if (req.readyState != 4) { return; }
+					
+					if (req.status != 200) {
+						alert (req.statusText + " / " + req.responseText);
+					} else if (confirm (req.responseText)) { 
+						var answer = JSON.parse (req.responseText);
+						
+						if (answer.error) {
+							alert (answer.message);
+						} else {
+							location.reload ();
+						}
+					}
+				}
+				
+				var data = new FormData ();
+				data.append ("application", button.id.substr (5));
+				data.append ("status", "ASSIGNED");
+				
+				req.send (data);
+			}, 200);
+		}
+	}
+	
+	for (let button of document.getElementsByClassName ("group-join-reject-button")) {
+		button.onclick = function (e) {
+			setTimeout (function () {
+				var req = new XMLHttpRequest ();
+				req.open ("POST", "/api/update/group-join/application", true);
+				req.setRequestHeader (header, token);
+				
+				req.onreadystatechange = function () {
+					if (req.readyState != 4) { return; }
+					
+					if (req.status != 200) {
+						alert (req.statusText + " / " + req.responseText);
+					} else if (confirm (req.responseText)) { 
+						var answer = JSON.parse (req.responseText);
+						
+						if (answer.error) {
+							alert (answer.message);
+						} else {
+							location.reload ();
+						}
+					}
+				}
+				
+				var data = new FormData ();
+				data.append ("application", button.id.substr (5));
+				data.append ("status", "REJECTED");
+				
+				req.send (data);
+			}, 200);
+		}
+	}
 }

@@ -17,6 +17,53 @@
     	<h2>Admin</h2>
     	<a href="/">index</a>
     	
+    	<h3>Important things</h3>
+    	
+    	<table border="1">
+    		<caption>Group join applications</caption>
+    		
+    		<tr>
+    			<td>#</td>
+    			<td>User</td>
+    			<td>Period</td>
+    			<td>Group</td>
+    			<td>Issued</td>
+    			<td>Action</td>
+    		</tr>
+    		
+    		<c:choose>
+    			<c:when test="${group_join_applications != null && not empty group_join_applications}">
+    				<c:forEach var="application" items="${group_join_applications}">
+    					<tr>
+    						<td>${application.getId ()}</td>
+    						<td>${application.getUser ().getLogin ()}</td>
+    						<td>${application.getGroup ().getPeriod ().getName ()}</td>
+    						<td>${application.getGroup ().getName ()}</td>
+    						<td>${application.getIssued ()}</td>
+    						<td>
+    							<button id="gjoin${application.getId ()}" 
+    									class="group-join-apply-button">
+   									apply
+								</button>
+    							<button id="gjoin${application.getId ()}" 
+    									class="group-join-reject-button">
+   									reject
+								</button>
+    						</td>
+    					</tr>
+    				</c:forEach>
+    			</c:when>
+    			
+    			<c:otherwise>
+    				<tr>
+    					<td colspan="6">No applications now</td>
+    				</tr>
+    			</c:otherwise>
+    		</c:choose>
+    	</table>
+    	
+    	<hr />
+    	
     	<h3>User</h3>
     	
     	<p>

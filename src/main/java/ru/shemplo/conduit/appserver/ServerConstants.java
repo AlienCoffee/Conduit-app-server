@@ -85,5 +85,6 @@ public class ServerConstants {
     public static final String API_UPDATE_REMOVE_ROLE_OPTION = API_UPDATE_REMOVE_ + "role-option";
     public static final String API_UPDATE_ADD_ROLE_TO_USER = API_UPDATE_ADD_ + "role-to-user";
     public static final String API_UPDATE_REMOVE_ROLE_FROM_USER = API_UPDATE_REMOVE_ + "role-from-user";
+    public static final String API_UPDATE_GROUP_JOIN_APPLICATION = API_UPDATE_ + "group-join" + $ + "application";
     
 }

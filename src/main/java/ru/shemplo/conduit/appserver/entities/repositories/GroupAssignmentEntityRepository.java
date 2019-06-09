@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 
+import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
@@ -24,5 +25,7 @@ public interface GroupAssignmentEntityRepository extends AbsEntityRepository <Gr
     
     @Query ("SELECT ent.id FROM GroupAssignmentEntity ent WHERE ent.user = :user")
     public List <Long> findIdsByUser (UserEntity user);
+    
+    public List <GroupAssignmentEntity> findByStatus (AssignmentStatus status);
     
 }

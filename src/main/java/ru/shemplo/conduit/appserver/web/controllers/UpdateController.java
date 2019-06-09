@@ -20,6 +20,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 @RequiredArgsConstructor
 public class UpdateController {
     
+    private final GroupAssignmentsService groupAssignmentsService;
     private final MethodsScanner methodsScanner;
     private final MethodsService methodsService;
     private final OptionsService optionsService;
@@ -106,7 +107,7 @@ public class UpdateController {
     }
     
     @PostMapping (API_UPDATE_PERIOD_STATE)
-    public ResponseBox <Void> handleChagePeriodState (
+    public ResponseBox <Void> handleChangePeriodState (
         @IndentifiedUser         WUser committer,
         @RequestParam ("period") Long periodID,
         @RequestParam ("status") String statusName
@@ -114,6 +115,18 @@ public class UpdateController {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         final PeriodStatus status = PeriodStatus.valueOf (statusName);
         periodsService.changePeriodStatus (period, status, committer);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_UPDATE_GROUP_JOIN_APPLICATION)
+    public ResponseBox <Void> handleChangeGroupJoinApplicationStatus (
+        @IndentifiedUser              WUser committer,
+        @RequestParam ("application") Long applicationID,
+        @RequestParam ("status")      String statusName
+    ) {
+        final AssignmentStatus status = AssignmentStatus.valueOf (statusName);
+        groupAssignmentsService.changeApplicationStatus (applicationID, 
+                                                    status, committer);
         return ResponseBox.ok ();
     }
     

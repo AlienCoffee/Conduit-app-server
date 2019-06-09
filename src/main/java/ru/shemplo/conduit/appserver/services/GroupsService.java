@@ -109,6 +109,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
         
         assignment.setIssued (LocalDateTime.now (clock));
         assignment.setCommitter (user.getEntity ());
+        log.info (assignment.toTemplateString ());
         gAssignmentsRepository.save (assignment);
     }
     

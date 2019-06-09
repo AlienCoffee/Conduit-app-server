@@ -20,6 +20,7 @@ import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
@@ -71,6 +72,12 @@ public class SiteController {
             UserEntity ent = user != null ? user.getEntity () : null;
             ModelAndView view = new ModelAndView ("admin");
             view.addObject ("user", ent);
+            
+            final List <GroupAssignmentEntity> gasses = groupAssignmentsService
+                . getAllApplicationsWithStatus (AssignmentStatus.APPLICATION);
+            
+            gasses.sort (Comparator.comparing (GroupAssignmentEntity::getIssued));
+            view.addObject ("group_join_applications", gasses);
             
             return view;
         } catch (SecurityException se) {
