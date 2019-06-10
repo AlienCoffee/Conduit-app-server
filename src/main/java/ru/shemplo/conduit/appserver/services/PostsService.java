@@ -11,6 +11,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
@@ -35,16 +36,18 @@ public class PostsService {
     
     @ProtectedMethod
     public PostEntity getPost (long id) throws EntityNotFoundException {
-        accessGuard.method (MiscUtils.getMethod ());
-        
-        PostEntity period = CACHE.getOrPut (id, 
+        final PostEntity post = CACHE.getOrPut (id, 
             () -> postsRepository.findById (id).orElse (null)
         );
         
-        if (period != null) { return period; }
+        if (post == null) {
+            String message = "Unknown post credits `" + id + "`";
+            throw new EntityNotFoundException (message);            
+        }
         
-        String message = "Unknown post credits `" + id + "`";
-        throw new EntityNotFoundException (message);
+        PeriodEntity period = post.getGroup ().getPeriod ();
+        accessGuard.method (MiscUtils.getMethod (), period);
+        return post;
     }
     
     @ProtectedMethod

@@ -215,6 +215,7 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
     @ProtectedMethod
     public List <GroupMember> getGroupMembers (GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
+        accessGuard.group  (group);
         
         // TODO: user role in group // must be taken from period
         return gAssignmentsRepository.findByGroup (group).stream ()

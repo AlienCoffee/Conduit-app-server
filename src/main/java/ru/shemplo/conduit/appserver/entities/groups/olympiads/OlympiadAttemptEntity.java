@@ -19,7 +19,7 @@ import ru.shemplo.conduit.appserver.entities.FileEntity;
 public class OlympiadAttemptEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
-    private OlympiadProblemEntity problem;
+    private OlympiadEntity olympiad;
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)

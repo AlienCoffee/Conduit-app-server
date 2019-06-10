@@ -78,7 +78,7 @@
 			    		</c:when>
 			    		
 			    		<c:otherwise>
-			    			<p>No information groups in period yet</p>
+			    			<p>No ${type.getName ().toLowerCase ()} groups in period yet</p>
 			    		</c:otherwise>
 			    	</c:choose>
     			</c:forEach>

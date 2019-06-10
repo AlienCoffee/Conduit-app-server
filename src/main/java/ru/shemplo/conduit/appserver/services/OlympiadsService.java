@@ -11,6 +11,8 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
@@ -21,6 +23,7 @@ import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.LRUCache;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OlympiadsService {
@@ -35,16 +38,18 @@ public class OlympiadsService {
     
     @ProtectedMethod
     public OlympiadEntity getOlympiad (long id) throws EntityNotFoundException {
-        accessGuard.method (MiscUtils.getMethod ());
-        
-        OlympiadEntity period = CACHE.getOrPut (id, 
+        OlympiadEntity olympiad = CACHE.getOrPut (id, 
             () -> olympiadsRepository.findById (id).orElse (null)
         );
         
-        if (period != null) { return period; }
+        if (olympiad == null) {
+            String message = "Unknown olympiad credits `" + id + "`";
+            throw new EntityNotFoundException (message);
+        }
         
-        String message = "Unknown olympiad credits `" + id + "`";
-        throw new EntityNotFoundException (message);
+        PeriodEntity period = olympiad.getGroup ().getPeriod ();
+        accessGuard.method (MiscUtils.getMethod (), period);
+        return olympiad;
     }
     
     @ProtectedMethod
@@ -88,6 +93,7 @@ public class OlympiadsService {
         entity.setCommitter (creator.getEntity ());
         entity.setIssued (now);
         
+        log.info (entity.toTemplateString ());
         return olympiadsRepository.save (entity);
     }
     

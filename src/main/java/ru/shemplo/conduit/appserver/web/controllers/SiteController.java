@@ -40,6 +40,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 public class SiteController {
     
     private final GroupAssignmentsService groupAssignmentsService;
+    private final OlympiadAttemptsService olympiadAttemptsService;
     private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
@@ -229,6 +230,7 @@ public class SiteController {
     
     @GetMapping (PAGE_OLYMPIAD)
     public ModelAndView handleOlympiadPage (
+        @IndentifiedUser     WUser user,
         @PathVariable ("id") Long olympiadID
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad");
@@ -244,6 +246,26 @@ public class SiteController {
            . getProblemsByOlympiad (olympiad);
         problems.sort (Comparator.comparing (OlympiadProblemEntity::getId));
         mav.addObject ("problems", problems);
+        
+        final int attemptsNumber = olympiadAttemptsService
+        . getRemainingUserAttemptsNumber (user, olympiad);
+        mav.addObject ("remaining_attempts", attemptsNumber);
+        
+        return mav;
+    }
+    
+    @GetMapping (PAGE_OLYMPIAD_ATTEMPTS)
+    public ModelAndView handleOlympiadAttemptsPage (
+        @PathVariable ("id") Long olympiadID
+    ) {
+        ModelAndView mav = new ModelAndView ("period/olympiad_attempts");
+        
+        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        final GroupEntity group = olympiad.getGroup ();
+        
+        mav.addObject ("period", group.getPeriod ());
+        mav.addObject ("olympiad", olympiad);
+        mav.addObject ("group", group);
         
         return mav;
     }

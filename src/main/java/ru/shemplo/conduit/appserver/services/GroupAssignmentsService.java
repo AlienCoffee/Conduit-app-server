@@ -66,14 +66,19 @@ public class GroupAssignmentsService extends AbsCachedService <GroupAssignmentEn
         return getEntities (ids, true);
     }
     
+    public boolean isUserInGroup_ss (WUser user, GroupEntity group) {
+        GroupAssignmentEntity assignment = assignmentRepository
+        . findByUserAndGroup (user.getEntity (), group);
+        if (assignment == null) { return false; }
+        
+        final AssignmentStatus status = assignment.getStatus ();
+        return AssignmentStatus.ASSIGNED.equals (status);
+    }
+    
     @ProtectedMethod
     public boolean isUserInGroup (WUser user, GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod (), user);
-        GroupAssignmentEntity assignment = assignmentRepository
-        . findByUserAndGroup (user.getEntity (), group);
-        
-        final AssignmentStatus status = assignment.getStatus ();
-        return assignment != null && AssignmentStatus.ASSIGNED.equals (status);
+        return isUserInGroup_ss (user, group);
     }
     
     @ProtectedMethod

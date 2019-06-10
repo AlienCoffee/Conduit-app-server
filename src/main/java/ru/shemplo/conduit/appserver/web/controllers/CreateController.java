@@ -2,6 +2,8 @@ package ru.shemplo.conduit.appserver.web.controllers;
 
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -11,8 +13,10 @@ import javax.validation.ValidationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.appserver.entities.FileEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
@@ -37,6 +41,7 @@ public class CreateController {
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
     private final GroupsService groupsService;
+    private final FilesService filesService;
     private final PostsService postsService;
     private final RolesService rolesService;
     private final UsersService usersService;
@@ -221,6 +226,25 @@ public class CreateController {
         final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         olympiadProblemsService.createOlympiadProblem (olympiad, title, content, 
                                                        cost, description, user);
+        
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_CREATE_OLYMPIAD_ATTEMPT)
+    public ResponseBox <Void> handleCreateOlympiadAttempt (
+        @IndentifiedUser           WUser user,
+        @RequestParam ("olympiad") Long olympiadID,
+        @RequestParam ("comment")  String comment,
+        @RequestParam ("file")     MultipartFile file
+    ) throws IOException {
+        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        
+        
+        try (
+            InputStream is = file.getInputStream ();
+        ) {            
+            filesService.saveOlympiadAttemptArchive (is, olympiad, user);
+        }
         
         return ResponseBox.ok ();
     }

@@ -23,14 +23,58 @@
     	<a href="/periods">periods</a>
     	<a href="/period/${period.getId ()}">period</a>
     	<a href="/group/${group.getId ()}">group</a>
+    	<a href="/olympiad/${olympiad.getId ()}/attempts">attempts for check</a>
     	
     	<pre>${olympiad.getDescription ()}</pre>
-    	<p><b>Send attempts</b>   : ${olympiad.getAttemptsLimit ()}</p>
-    	<p><b>Olympiad author</b> : ${olympiad.getCommitter ().getLogin ()}</p>
+    	<p><b>Attempts number limit</b>: ${olympiad.getAttemptsLimit ()}</p>
+    	<p><b>Olympiad author</b>: ${olympiad.getCommitter ().getLogin ()}</p>
     	
     	<h3>Make attempt</h3>
     	
-    	<p>---</p>
+    	<c:choose>
+    		<c:when test="${true}">    		
+		    	<p><b>Remaining attempts</b>   : ${remaining_attempts}</p>
+		    	
+		    	<p>
+		    		Only <b>.zip</b> archives with images (<b>.png</b>, <b>.jpg</b>) 
+		    		and text files (<b>.pdf</b>) is allowed
+	    		</p>
+		    	
+		    	<p>
+		    		<input id="attempt-comment-input" type="text" />
+		    		<input id="attempt-file-input" type="file" />
+		    		<button id="send-attempt">send</button>
+		    	</p>
+    		</c:when>
+    		
+    		<c:otherwise>
+    			<p>You have reached attempts limit</p>
+    		</c:otherwise>
+    	</c:choose>
+    	
+    	<h3>Follow attempts</h3>
+		    	
+    	<table border="1">
+    		<caption>Your attempts</caption>
+    		
+    		<tr>
+    			<td>#</td>
+    			<td>Issued</td>
+    			<td>Status</td>
+    		</tr>
+    		
+    		<c:choose>
+    			<c:when test="${false}">
+    				
+    			</c:when>
+    			
+    			<c:otherwise>
+    				<tr>
+    					<td colspan="3">No attempts now</td>
+    				</tr>
+    			</c:otherwise>
+    		</c:choose>
+    	</table>
     	
     	<h3>Problems</h3>
     	
@@ -53,6 +97,7 @@
     		</c:otherwise>
     	</c:choose>
     	
-    	<script src="/resources/js/period.js"></script>
+    	<input id="olympiad-id" type="hidden" value="${olympiad.getId ()}" />
+    	<script src="/resources/js/olympiad.js"></script>
     </body>
 </html>

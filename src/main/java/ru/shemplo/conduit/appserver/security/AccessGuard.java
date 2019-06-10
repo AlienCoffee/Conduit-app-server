@@ -13,9 +13,11 @@ import org.springframework.stereotype.Component;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
+import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard.AccessEntity;
 import ru.shemplo.conduit.appserver.services.AbsCachedService;
+import ru.shemplo.conduit.appserver.services.GroupAssignmentsService;
 import ru.shemplo.conduit.appserver.services.PeriodsService;
 import ru.shemplo.conduit.appserver.services.UsersService;
 import ru.shemplo.conduit.appserver.utils.Utils;
@@ -27,6 +29,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @Component ("accessGuard")
 public final class AccessGuard extends AbsCachedService <AccessEntity> {
     
+    @Autowired private GroupAssignmentsService groupAssignmentsService;
     @Autowired @Getter private SecurityService securityService;
     private final GuardRulesService guardRulesService;
     @Autowired private PeriodsService periodsService;
@@ -63,14 +66,19 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
         CACHE.invalidate (); 
     }
     
-    public void object (String object, PeriodEntity period, WUser target) {
+    private WUser fetchContextUser () {
         Authentication authentication = SecurityContextHolder.getContext ()
                                       . getAuthentication ();
         if (!(authentication.getPrincipal () instanceof WUser)) {
             throw new SecurityException ("Not WUser");
         }
         
-        WUser user = MiscUtils.cast (authentication.getPrincipal ());
+        return MiscUtils.cast (authentication.getPrincipal ());
+    }
+    
+    public void object (String object, PeriodEntity period, WUser target) {
+        final WUser user = fetchContextUser ();
+        
         // Everything is allowed for administrator accounts
         if (user.getEntity ().getIsAdmin ()) { return; }
         
@@ -130,6 +138,18 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
     
     public void method (Method method) { 
         method (method, PeriodEntity.getSystem ()); 
+    }
+    
+    public void group (GroupEntity group) {
+        final WUser user = fetchContextUser ();
+        
+        // Everything is allowed for administrator accounts
+        if (user.getEntity ().getIsAdmin ()) { return; }
+        
+        if (!groupAssignmentsService.isUserInGroup_ss (user, group)) {
+            String message = "User has no access to group";
+            throw new IllegalStateException (message);
+        }
     }
     
     

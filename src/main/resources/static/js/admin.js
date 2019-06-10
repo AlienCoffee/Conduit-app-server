@@ -715,7 +715,8 @@ window.onload = function (e) {
 				if (req.status != 200) {
 					alert (req.statusText);
 				} else if (confirm (req.responseText)) { 
-					location.reload (); 
+					var answer = JSON.parse (req.responseText);
+					if (!answer.error) { location.reload (); }
 				}
 			}
 			
@@ -788,7 +789,7 @@ window.onload = function (e) {
 			var data = new FormData ();
 			data.append ("title",   document.getElementById ("agpTitle").value);
 			data.append ("group",   document.getElementById ("agpGroup").value);
-			data.append ("content",   document.getElementById ("agpContent").value);
+			data.append ("content", document.getElementById ("agpContent").value);
 			console.log (data);
 			
 			req.send (data);
