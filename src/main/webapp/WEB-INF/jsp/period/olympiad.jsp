@@ -42,7 +42,7 @@
 		    	
 		    	<p>
 		    		<input id="attempt-comment-input" type="text" />
-		    		<input id="attempt-file-input" type="file" />
+		    		<input id="attempt-file-input" type="file" accept="application/zip" />
 		    		<button id="send-attempt">send</button>
 		    	</p>
     		</c:when>

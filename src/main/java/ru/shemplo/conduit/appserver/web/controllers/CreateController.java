@@ -3,7 +3,6 @@ package ru.shemplo.conduit.appserver.web.controllers;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -35,6 +34,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 public class CreateController {
     
     //private final GroupAssignmentsService groupAssignmentsService;
+    private final OlympiadAttemptsService olympiadAttemptsService;
     private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
@@ -238,13 +238,13 @@ public class CreateController {
         @RequestParam ("file")     MultipartFile file
     ) throws IOException {
         final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
-        
-        
-        try (
-            InputStream is = file.getInputStream ();
-        ) {            
-            filesService.saveOlympiadAttemptArchive (is, olympiad, user);
+        if (olympiadAttemptsService.getRemainingUserAttemptsNumber (user, olympiad) == 0) {
+            String message = "The number of available attempts is exceeded";
+            throw new IllegalStateException (message);
         }
+        
+        FileEntity archive = filesService.saveOlympiadAttemptArchive (file, olympiad, user);
+        olympiadAttemptsService.createAttempt (user, olympiad, archive);
         
         return ResponseBox.ok ();
     }
