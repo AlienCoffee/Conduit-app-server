@@ -64,7 +64,7 @@
 			    			<div><b>Author:</b> ${olympiad.getCommitter ().getLogin ()}</div>
 			    			<div>
 			   					<b>Links:</b>
-			   					<a href="/olympiad/${olympiad.getId ()}">problems</a>
+			   					<a href="/olympiad/${olympiad.getId ()}">info</a>
 			   				</div>
 			    		</div>
 	    			</c:forEach>

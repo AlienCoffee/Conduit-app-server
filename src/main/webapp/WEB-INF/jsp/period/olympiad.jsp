@@ -32,7 +32,7 @@
     	<h3>Make attempt</h3>
     	
     	<c:choose>
-    		<c:when test="${true}">    		
+    		<c:when test="${remaining_attempts > 0}">    		
 		    	<p><b>Remaining attempts</b>   : ${remaining_attempts}</p>
 		    	
 		    	<p>
@@ -61,16 +61,24 @@
     			<td>#</td>
     			<td>Issued</td>
     			<td>Status</td>
+    			<td>Comment</td>
     		</tr>
     		
     		<c:choose>
-    			<c:when test="${false}">
-    				
+    			<c:when test="${not empty attempts}">
+    				<c:forEach var="attempt" items="${attempts}">
+    					<tr>
+    						<td>${attempt.getId ()}</td>
+    						<td>${attempt.getIssued ()}</td>
+    						<td>${attempt.getStatus ()}</td>
+    						<td>${attempt.getReason ()}</td>
+    					</tr>
+    				</c:forEach>
     			</c:when>
     			
     			<c:otherwise>
     				<tr>
-    					<td colspan="3">No attempts now</td>
+    					<td colspan="4">No attempts now</td>
     				</tr>
     			</c:otherwise>
     		</c:choose>

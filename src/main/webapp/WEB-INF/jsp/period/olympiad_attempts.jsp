@@ -22,6 +22,24 @@
     	<a href="/group/${group.getId ()}">group</a>
     	<a href="/olympiad/${olympiad.getId ()}">olympiad</a>
     	
+    	<c:choose>
+    		<c:when test="${attempts != null && not empty attempts}">
+    			<c:forEach var="attempt" items="${attempts}">
+    				<p>
+    					(${attempt.getId ()}) 
+    					Attempt from <u>${attempt.getUser ().getLogin ()}</u>
+    					at <u>${attempt.getIssued ()}</u>
+    					
+    					<button>check</button>
+   					</p>
+    			</c:forEach>
+    		</c:when>
+    		
+    		<c:otherwise>
+    			<p>No attempts available for check now</p>
+    		</c:otherwise>
+    	</c:choose>
+    	
     	<script src="/resources/js/olympiad.js"></script>
     </body>
 </html>

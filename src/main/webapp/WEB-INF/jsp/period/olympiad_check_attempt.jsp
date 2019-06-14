@@ -22,6 +22,8 @@
     	<a href="/group/${group.getId ()}">group</a>
     	<a href="/group/${olympiad.getId ()}">olympiad</a>
     	
+    	
+    	
     	<script src="/resources/js/olympiad.js"></script>
     </body>
 </html>

@@ -24,6 +24,7 @@ import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
@@ -251,6 +252,11 @@ public class SiteController {
         . getRemainingUserAttemptsNumber (user, olympiad);
         mav.addObject ("remaining_attempts", attemptsNumber);
         
+        List <OlympiadAttemptEntity> attempts = olympiadAttemptsService
+           . getUserAttempts (user, olympiad);
+        attempts.sort (Comparator.comparing (OlympiadAttemptEntity::getId).reversed ());
+        mav.addObject ("attempts", attempts);
+        
         return mav;
     }
     
@@ -266,6 +272,8 @@ public class SiteController {
         mav.addObject ("period", group.getPeriod ());
         mav.addObject ("olympiad", olympiad);
         mav.addObject ("group", group);
+        
+        mav.addObject ("attempts", olympiadAttemptsService.getAttemptsForCheck (olympiad));
         
         return mav;
     }

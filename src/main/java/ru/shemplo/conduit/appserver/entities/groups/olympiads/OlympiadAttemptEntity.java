@@ -8,6 +8,7 @@ import javax.persistence.*;
 import lombok.*;
 import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
 import ru.shemplo.conduit.appserver.entities.FileEntity;
+import ru.shemplo.conduit.appserver.entities.UserEntity;
 
 @Entity
 @ToString
@@ -20,6 +21,9 @@ public class OlympiadAttemptEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
     private OlympiadEntity olympiad;
+    
+    @ManyToOne (optional = false)
+    private UserEntity user;
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
