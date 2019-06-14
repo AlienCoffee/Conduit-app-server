@@ -242,6 +242,7 @@ public class SiteController {
         mav.addObject ("period", group.getPeriod ());
         mav.addObject ("olympiad", olympiad);
         mav.addObject ("group", group);
+        mav.addObject ("user", user);
         
         List <OlympiadProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (olympiad);

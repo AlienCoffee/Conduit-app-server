@@ -23,17 +23,32 @@
     	<a href="/periods">periods</a>
     	<a href="/period/${period.getId ()}">period</a>
     	<a href="/group/${group.getId ()}">group</a>
-    	<a href="/olympiad/${olympiad.getId ()}/attempts">attempts for check</a>
+    	<c:if test="${user.getEntity ().getIsAdmin ()}">
+    		<a href="/olympiad/${olympiad.getId ()}/attempts">attempts for check</a>
+    		<c:choose>
+    			<c:when test="${!olympiad.isResultsFinalized ()}">    			
+		    		<button>finalize results</button>
+    			</c:when>
+    			
+    			<c:otherwise>
+    				<button>invalidate results</button>
+    			</c:otherwise>
+    		</c:choose>
+    	</c:if>
+    	<c:if test="${olympiad.isResultsFinalized () && olympiad.isResultsVisible ()}">
+    		<a href="/olympiad/${olympiad.getId ()}/results">results</a>
+    	</c:if>
     	
     	<pre>${olympiad.getDescription ()}</pre>
     	<p><b>Attempts number limit</b>: ${olympiad.getAttemptsLimit ()}</p>
     	<p><b>Olympiad author</b>: ${olympiad.getCommitter ().getLogin ()}</p>
+    	<p><b>Till</b>: ${olympiad.getFinished ()}</p>
     	
     	<h3>Make attempt</h3>
     	
     	<c:choose>
     		<c:when test="${remaining_attempts > 0}">    		
-		    	<p><b>Remaining attempts</b>   : ${remaining_attempts}</p>
+		    	<p><b>Remaining attempts</b>: ${remaining_attempts}</p>
 		    	
 		    	<p>
 		    		Only <b>.zip</b> archives with images (<b>.png</b>, <b>.jpg</b>) 

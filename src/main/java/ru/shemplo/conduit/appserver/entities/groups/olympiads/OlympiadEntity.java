@@ -34,4 +34,10 @@ public class OlympiadEntity extends AbsAuditableEntity {
     @Column (nullable = false, columnDefinition = "int(11) default 2")
     private Integer attemptsLimit = 2;
     
+    @Column (nullable = false)
+    private boolean resultsFinalized = false;
+    
+    @Column (nullable = false)
+    private boolean resultsVivsible = true;
+    
 }

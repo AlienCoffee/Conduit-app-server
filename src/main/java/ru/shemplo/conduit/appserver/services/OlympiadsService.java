@@ -15,37 +15,38 @@ import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OlympiadEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.utils.LRUCache;
+import ru.shemplo.conduit.appserver.utils.NotEffectiveMethod;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OlympiadsService {
+public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     
+    private final OlympiadAttemptsService olympiadAttemptsService;
     private final OlympiadEntityRepository olympiadsRepository;
+    private final OlympaidChecksService olympaidChecksService;
     private final AccessGuard accessGuard;
     private final Clock clock;
     
-    private static final int CACHE_SIZE = 32;
-    
-    private final LRUCache <OlympiadEntity> CACHE = new LRUCache <> (CACHE_SIZE);
+    @Override
+    protected OlympiadEntity loadEntity (Long id) {
+        return olympiadsRepository.findById (id).orElse (null);
+    }
+
+    @Override
+    protected int getCacheSize () { return 32; }
     
     @ProtectedMethod
     public OlympiadEntity getOlympiad (long id) throws EntityNotFoundException {
-        OlympiadEntity olympiad = CACHE.getOrPut (id, 
-            () -> olympiadsRepository.findById (id).orElse (null)
-        );
-        
-        if (olympiad == null) {
-            String message = "Unknown olympiad credits `" + id + "`";
-            throw new EntityNotFoundException (message);
-        }
+        OlympiadEntity olympiad = getEntity (id);
+        if (olympiad == null) { return null; }
         
         PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);
@@ -95,6 +96,51 @@ public class OlympiadsService {
         
         log.info (entity.toTemplateString ());
         return olympiadsRepository.save (entity);
+    }
+    
+    @ProtectedMethod @NotEffectiveMethod
+    public OlympiadEntity setResultsStatus (OlympiadEntity olympiad, boolean finallized, WUser committer) {
+        final PeriodEntity period = olympiad.getGroup ().getPeriod ();
+        accessGuard.method (MiscUtils.getMethod (), period);
+        
+        if (finallized) {
+            finalizeOlympiadResults (olympiad, committer);
+            String message = "Results finalized";
+            olympiad.setComment (message);
+        } else {
+            String message = "Results invalidated and check openned again";
+            invalidateOlympiadResults (olympiad, committer);
+            olympiad.setComment (message);
+        }
+        
+        olympiad.setCommitter (committer.getEntity ());
+        olympiad.setIssued (LocalDateTime.now (clock));
+        olympiad.setResultsFinalized (finallized);
+        
+        return olympiadsRepository.save (olympiad);
+    }
+    
+    private void finalizeOlympiadResults (OlympiadEntity olympiad, WUser committer) {
+        if (LocalDateTime.now (clock).isBefore (olympiad.getFinished ())) {
+            String message = "Results can't be finalized before the end of olympiad";
+            throw new IllegalStateException (message);
+        }
+        
+        List <OlympiadAttemptEntity> attempts = olympiadAttemptsService
+           . getAttemptsForCheck (olympiad);
+        for (OlympiadAttemptEntity attempt : attempts) {
+            if (!olympaidChecksService.isAttemptChecked (attempt)) {
+                String message = "At least one attempt is not checked (attempt: " 
+                               + attempt.getId () + ")";
+                throw new IllegalStateException (message);
+            }
+        }
+        
+        olympiadAttemptsService.markPendingAttemptsAsChecked (olympiad, committer);
+    }
+    
+    private void invalidateOlympiadResults (OlympiadEntity olympiad, WUser committer) {
+        
     }
     
 }
