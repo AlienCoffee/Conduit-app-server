@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import lombok.*;
 import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
 import ru.shemplo.conduit.appserver.entities.FileEntity;
@@ -31,7 +34,8 @@ public class OlympiadAttemptEntity extends AbsAuditableEntity {
     
     private String reason;
     
-    @ManyToMany
+    @ManyToMany ()
+    @LazyCollection (LazyCollectionOption.FALSE)
     private List <FileEntity> attachments = new ArrayList <> ();
     
 }

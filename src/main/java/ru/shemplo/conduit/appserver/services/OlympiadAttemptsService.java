@@ -42,6 +42,15 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     @Override
     protected int getCacheSize () { return 32; }
     
+    @ProtectedMethod
+    public OlympiadAttemptEntity getAttempt (Long id) {
+        OlympiadAttemptEntity entity = getEntity (id);
+        
+        PeriodEntity period = entity.getOlympiad ().getGroup ().getPeriod ();
+        accessGuard.method (MiscUtils.getMethod (), period);
+        return entity;
+    }
+    
     @ProtectedMethod @NotEffectiveMethod ({"use cache"})
     public List <OlympiadAttemptEntity> getUserAttempts (WUser user, OlympiadEntity olympiad) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();

@@ -1,11 +1,15 @@
 package ru.shemplo.conduit.appserver.services;
 
+import static ru.shemplo.conduit.appserver.ServerConstants.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -15,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.FileEntity;
+import ru.shemplo.conduit.appserver.entities.PeriodEntity;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.FileEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
@@ -26,8 +32,6 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @Service
 @RequiredArgsConstructor
 public class FilesService extends AbsCachedService <FileEntity> {
-    
-    private final static File ATTEMPTS_DIR = new File ("attempts");
     
     private final FileEntityRepository filesRepository;
     private final AccessGuard accessGuard;
@@ -60,8 +64,11 @@ public class FilesService extends AbsCachedService <FileEntity> {
             final ZipFile zdesc = new ZipFile (desc);
         ) {
             Enumeration <? extends ZipEntry> entries = zdesc.entries ();
+            int amoutn = 0;
+            
             while (entries.hasMoreElements ()) {
                 ZipEntry entry = entries.nextElement ();
+                amoutn += 1;
                 
                 if (entry.getSize () >= 5_000_000) { // ~ 5Mb
                     valid = false; errorNo = 0;
@@ -70,6 +77,15 @@ public class FilesService extends AbsCachedService <FileEntity> {
                 
                 // TODO: check of file type (at least by extension)
             }
+            
+            if (amoutn == 0) {
+                String message = "Attached archive is empty";                
+                throw new IllegalStateException (message);
+            }
+        } catch (IOException ioe) {
+            final String reason = ioe.getMessage () != null ? ioe.getMessage () : "unknown";
+            String message = String.format ("Failed to read archive (reason: %s)", reason);
+            throw new IOException (message);
         }
         
         if (!valid) {
@@ -87,6 +103,29 @@ public class FilesService extends AbsCachedService <FileEntity> {
         
         log.info (entity.toTemplateString ());
         return filesRepository.save (entity);
+    }
+    
+    @ProtectedMethod
+    public List <ZipEntry> getEntriesInAttemptArchive (OlympiadAttemptEntity attempt, WUser user) {
+        final PeriodEntity period = attempt.getOlympiad ().getGroup ().getPeriod ();
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        
+        FileEntity file = attempt.getAttachments ().get (0);
+        List <ZipEntry> names = new ArrayList <> ();
+        
+        try (                
+            final ZipFile zdesc = new ZipFile (file.toFile ());
+        ) {
+            ///////////////////////////////////////
+            zdesc.stream ().forEach (names::add);//
+            ///////////////////////////////////////
+        } catch (IOException ioe) {
+            final String reason = ioe.getMessage () != null ? ioe.getMessage () : "unknown";
+            String message = String.format ("Failed to read archive (reason: %s)", reason);
+            throw new IllegalStateException (message);
+        }
+        
+        return names;
     }
     
 }

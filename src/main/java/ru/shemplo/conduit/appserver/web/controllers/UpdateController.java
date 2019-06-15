@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -21,6 +22,7 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 public class UpdateController {
     
     private final GroupAssignmentsService groupAssignmentsService;
+    private final OlympiadsService olympiadsService;
     private final MethodsScanner methodsScanner;
     private final MethodsService methodsService;
     private final OptionsService optionsService;
@@ -127,6 +129,17 @@ public class UpdateController {
         final AssignmentStatus status = AssignmentStatus.valueOf (statusName);
         groupAssignmentsService.changeApplicationStatus (applicationID, 
                                                     status, committer);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_UPDATE_OLYMPIAD_RESULTS)
+    public ResponseBox <Void> handleToggleOlympiadResults (
+        @IndentifiedUser           WUser   committer,
+        @RequestParam ("olympiad") Long    olympiadID,
+        @RequestParam ("finalize") Boolean finalize
+    ) {
+        OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        olympiadsService.setResultsStatus (olympiad, finalize, committer);
         return ResponseBox.ok ();
     }
     

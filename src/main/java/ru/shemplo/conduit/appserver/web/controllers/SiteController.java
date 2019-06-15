@@ -4,6 +4,8 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.security.Principal;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,8 +34,11 @@ import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.services.*;
+import ru.shemplo.conduit.appserver.web.dto.AttachmentFileRow;
+import ru.shemplo.conduit.appserver.web.dto.CheckingAttemptRow;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.conduit.appserver.web.dto.PageGroupRow;
+import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Controller
@@ -43,13 +48,16 @@ public class SiteController {
     private final GroupAssignmentsService groupAssignmentsService;
     private final OlympiadAttemptsService olympiadAttemptsService;
     private final OlympiadProblemsService olympiadProblemsService;
+    private final OlympaidChecksService olympaidChecksService;
     private final PersonalDataService personalDataService;
     private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final GroupsService groupsService;
+    private final FilesService filesService;
     private final PostsService postsService;
     private final RolesService rolesService;
     private final AccessGuard accessGuard;
+    private final Clock clock;
     
     @GetMapping ($)
     public ModelAndView handleIndexPage (
@@ -244,6 +252,9 @@ public class SiteController {
         mav.addObject ("group", group);
         mav.addObject ("user", user);
         
+        LocalDateTime now = LocalDateTime.now (clock);
+        mav.addObject ("is_olympiad_finished", !now.isBefore (olympiad.getFinished ()));
+        
         List <OlympiadProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (olympiad);
         problems.sort (Comparator.comparing (OlympiadProblemEntity::getId));
@@ -263,6 +274,7 @@ public class SiteController {
     
     @GetMapping (PAGE_OLYMPIAD_ATTEMPTS)
     public ModelAndView handleOlympiadAttemptsPage (
+        @IndentifiedUser     WUser user,
         @PathVariable ("id") Long olympiadID
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad_attempts");
@@ -274,7 +286,52 @@ public class SiteController {
         mav.addObject ("olympiad", olympiad);
         mav.addObject ("group", group);
         
-        mav.addObject ("attempts", olympiadAttemptsService.getAttemptsForCheck (olympiad));
+        List <OlympiadAttemptEntity> attempts = olympiadAttemptsService
+           . getAttemptsForCheck (olympiad);
+        List <CheckingAttemptRow> attemptsRows = attempts.stream ()
+           . map (attempt -> {
+               final Pair <Integer, Integer> results = olympaidChecksService
+                   . getNumberOfCheckedProblemsAndScoreByUser (attempt, user);
+               return new CheckingAttemptRow (attempt, results.F, results.S);
+           })
+           . collect (Collectors.toList ());
+           
+        mav.addObject ("attempts", attemptsRows);
+        
+        return mav;
+    }
+    
+    @GetMapping (PAGE_ATTEMPT_CHECK)
+    public ModelAndView handleAttemptCheckPage (
+        @IndentifiedUser     WUser user,
+        @PathVariable ("id") Long attemptID
+    ) {
+        ModelAndView mav = new ModelAndView ("period/olympiad_check_attempt");
+        OlympiadAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
+        
+        final OlympiadEntity olympiad = attempt.getOlympiad ();
+        final GroupEntity group = olympiad.getGroup ();
+        
+        mav.addObject ("period", group.getPeriod ());
+        mav.addObject ("olympiad", olympiad);
+        mav.addObject ("attempt", attempt);
+        mav.addObject ("group", group);
+        
+        final List <AttachmentFileRow> filesRows = filesService
+        . getEntriesInAttemptArchive (attempt, user).stream ()
+        . map     (entry -> {
+            String path = entry.getName ();
+            long size = entry.getSize ();
+            
+            String name = path; int index = -1;
+            if ((index = path.lastIndexOf ('/')) != -1) {
+                name = path.substring (index + 1);
+            }
+            
+            return new AttachmentFileRow (name, path, size + "b");
+        })
+        . collect (Collectors.toList ());
+        mav.addObject ("files", filesRows);
         
         return mav;
     }

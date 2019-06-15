@@ -27,11 +27,11 @@
     		<a href="/olympiad/${olympiad.getId ()}/attempts">attempts for check</a>
     		<c:choose>
     			<c:when test="${!olympiad.isResultsFinalized ()}">    			
-		    		<button>finalize results</button>
+		    		<button onclick="toggleResults(true)">finalize results</button>
     			</c:when>
     			
     			<c:otherwise>
-    				<button>invalidate results</button>
+    				<button onclick="toggleResults(false)">invalidate results</button>
     			</c:otherwise>
     		</c:choose>
     	</c:if>
@@ -47,7 +47,7 @@
     	<h3>Make attempt</h3>
     	
     	<c:choose>
-    		<c:when test="${remaining_attempts > 0}">    		
+    		<c:when test="${remaining_attempts > 0 && !is_olympiad_finished}">    		
 		    	<p><b>Remaining attempts</b>: ${remaining_attempts}</p>
 		    	
 		    	<p>
@@ -62,9 +62,13 @@
 		    	</p>
     		</c:when>
     		
-    		<c:otherwise>
+    		<c:when test="${is_olympiad_finished}">    		
+		    	<p>Olympiad time is over</p>
+    		</c:when>
+    		
+    		<c:when test="${remaining_attempts == 0}">    		
     			<p>You have reached attempts limit</p>
-    		</c:otherwise>
+    		</c:when>
     	</c:choose>
     	
     	<h3>Follow attempts</h3>

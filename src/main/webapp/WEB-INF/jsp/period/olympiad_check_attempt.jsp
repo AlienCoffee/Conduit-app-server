@@ -20,9 +20,29 @@
     	<a href="/periods">periods</a>
     	<a href="/period/${period.getId ()}">period</a>
     	<a href="/group/${group.getId ()}">group</a>
-    	<a href="/group/${olympiad.getId ()}">olympiad</a>
+    	<a href="/olympiad/${olympiad.getId ()}">olympiad</a>
     	
+    	<h3>Attachment files</h3>
     	
+    	<c:choose>
+    		<c:when test="${not empty files}">
+    			<ul>
+	    			<c:forEach var="file" items="${files}">
+	    				<li>
+	    					<a href="file/${file.getName ()}" target="_blank">
+	    						${file.getName ()}
+    						</a>
+	    				</li>
+	    			</c:forEach>
+    			</ul>
+    		</c:when>
+    		
+    		<c:otherwise>
+    			<p>Failed to unzip archive</p>
+    		</c:otherwise>
+    	</c:choose>
+    	
+    	<h3>Results form</h3>
     	
     	<script src="/resources/js/olympiad.js"></script>
     </body>

@@ -1,11 +1,14 @@
 package ru.shemplo.conduit.appserver;
 
+import java.io.File;
 import java.time.format.DateTimeFormatter;
 
 public class ServerConstants {
     
     public static final DateTimeFormatter RU_DATETIME_FORMAT 
          = DateTimeFormatter.ofPattern ("dd.MM.yyyy HH:mm:ss");
+    
+    public static final File ATTEMPTS_DIR = new File ("attempts");
     
     public static final String DB_TEMPLATE_PROPERTY = "server.database.template";
     
@@ -20,6 +23,7 @@ public class ServerConstants {
     public static final String PAGE_GROUP = $ + "group" + $ + "{id}";
     public static final String PAGE_OLYMPIAD = $ + "olympiad" + $ + "{id}";
     public static final String PAGE_OLYMPIAD_ATTEMPTS = PAGE_OLYMPIAD + $ + "attempts";
+    public static final String PAGE_ATTEMPT_CHECK = $ + "attempt" + $ + "{id}" + $ + "check";
     
     public static final String API = $ + "api";
     public static final String API_ = API + $;
@@ -88,5 +92,6 @@ public class ServerConstants {
     public static final String API_UPDATE_ADD_ROLE_TO_USER = API_UPDATE_ADD_ + "role-to-user";
     public static final String API_UPDATE_REMOVE_ROLE_FROM_USER = API_UPDATE_REMOVE_ + "role-from-user";
     public static final String API_UPDATE_GROUP_JOIN_APPLICATION = API_UPDATE_ + "group-join" + $ + "application";
+    public static final String API_UPDATE_OLYMPIAD_RESULTS = API_UPDATE_ + "olympiad" + $ + "toggle-results";
     
 }

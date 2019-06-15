@@ -38,3 +38,30 @@ window.onload = function (e) {
 		}
 	}
 }
+
+var toggleResults = function (finalize) {
+	var metas = document.getElementsByTagName ("meta");
+	var token  = metas ["_csrf"].getAttribute ("content");
+	var header = metas ["_csrf_header"].getAttribute ("content");
+	
+	var req = new XMLHttpRequest ();
+	req.open ("POST", "/api/update/olympiad/toggle-results", true);
+	req.setRequestHeader (header, token);
+	
+	req.onreadystatechange = function () {
+		if (req.readyState != 4) { return; }
+		
+		if (req.status != 200) {
+			alert (req.statusText + " / " + req.responseText);
+		} else if (confirm (req.responseText)) { 
+			var answer = JSON.parse (req.responseText);
+			if (!answer.error) { location.reload (); }
+		}
+	}
+	
+	var data = new FormData ();
+	data.append ("olympiad", document.getElementById ("olympiad-id").value);
+	data.append ("finalize", finalize);
+	
+	req.send (data);
+}

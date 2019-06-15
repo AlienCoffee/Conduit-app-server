@@ -15,6 +15,7 @@ import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.NotEffectiveMethod;
+import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 //@Slf4j
@@ -42,7 +43,7 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
         Set <Long> checkedProblemsId = olympiadChecksRepository
-          . findCheckedProblemsIds (attempt);
+          . findCheckedProblemsIds (attempt.getId ());
         
         List <OlympiadProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (attempt.getOlympiad ());
@@ -54,6 +55,18 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
         }
         
         return true;
+    }
+    
+    @ProtectedMethod @NotEffectiveMethod
+    public Pair <Integer, Integer> getNumberOfCheckedProblemsAndScoreByUser (OlympiadAttemptEntity attempt, WUser user) {
+        final PeriodEntity period = attempt.getOlympiad ().getGroup ().getPeriod ();
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        
+        Long attemptID = attempt.getId (), userID = user.getId ();
+        final Set <Long> problems = olympiadChecksRepository
+            . findCheckedProblemsIdsByUser (attemptID, userID);
+        Integer score = olympiadChecksRepository.getTotalScoreForAttemptByUser (attemptID, userID);
+        return Pair.mp (problems.size (), score);
     }
     
 }

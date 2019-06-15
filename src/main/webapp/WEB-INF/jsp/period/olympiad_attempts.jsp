@@ -24,13 +24,24 @@
     	
     	<c:choose>
     		<c:when test="${attempts != null && not empty attempts}">
-    			<c:forEach var="attempt" items="${attempts}">
+    			<c:forEach var="row" items="${attempts}">
     				<p>
-    					(${attempt.getId ()}) 
-    					Attempt from <u>${attempt.getUser ().getLogin ()}</u>
-    					at <u>${attempt.getIssued ()}</u>
+    					(${row.getAttempt ().getId ()}) 
+    					Attempt from <u>${row.getAttempt ().getUser ().getLogin ()}</u>
+    					at <u>${row.getAttempt ().getIssued ()}</u>
     					
-    					<button>check</button>
+    					<c:choose>
+    						<c:when test="${row.getCheckedProblems () > 0}">
+    							problems: row.getCheckedProblems (),
+    							points: row.getCheckScore ()
+    						</c:when>
+    					
+    						<c:otherwise>
+    							(not checked)
+    						</c:otherwise>
+    					</c:choose>
+    					
+    					<a href="/attempt/${row.getAttempt ().getId ()}/check">check</a>
    					</p>
     			</c:forEach>
     		</c:when>
