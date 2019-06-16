@@ -140,7 +140,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     }
     
     private void invalidateOlympiadResults (OlympiadEntity olympiad, WUser committer) {
-        
+        olympiadAttemptsService.markCheckedAttemptsAsPending (olympiad, committer);
     }
     
 }

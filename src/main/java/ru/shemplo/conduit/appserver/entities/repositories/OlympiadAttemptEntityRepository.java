@@ -29,6 +29,12 @@ public interface OlympiadAttemptEntityRepository extends AbsEntityRepository <Ol
                        + "ent.reason='Olympiad results finalized', ent.committer = :user "
                        + "WHERE ent.olympiad = :olympiad AND ent.status='PENDING'")
     public void markAllPendingAttemptsAsChecked (@Param ("user") UserEntity user, 
-            @Param ("olympiad") OlympiadEntity olympiad);
+        @Param ("olympiad") OlympiadEntity olympiad);
+    
+    @Modifying @Query ("UPDATE OlympiadAttemptEntity ent SET ent.status='PENDING', "
+            + "ent.reason='Olympiad results invalidated', ent.committer = :user "
+            + "WHERE ent.olympiad = :olympiad AND ent.status='CHECKED'")
+    public void markAllCheckedAttemptsAsPending (@Param ("user") UserEntity user, 
+        @Param ("olympiad") OlympiadEntity olympiad);
     
 }
