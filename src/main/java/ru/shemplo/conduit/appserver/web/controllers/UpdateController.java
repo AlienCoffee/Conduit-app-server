@@ -10,18 +10,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
+import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
+import ru.shemplo.conduit.appserver.web.dto.CheckedOlympiadProblems;
 
 @RestController
 @RequiredArgsConstructor
 public class UpdateController {
     
     private final GroupAssignmentsService groupAssignmentsService;
+    private final OlympiadAttemptsService olympiadAttemptsService;
+    private final OlympaidChecksService olympaidChecksService;
     private final OlympiadsService olympiadsService;
     private final MethodsScanner methodsScanner;
     private final MethodsService methodsService;
@@ -29,6 +33,18 @@ public class UpdateController {
     private final PeriodsService periodsService;
     private final RolesService rolesService;
     private final UsersService usersService;
+    
+    @PostMapping (API_INVALIDATE_CACHES)
+    public ResponseBox <Void> handleInvalidateCaches () {
+        groupAssignmentsService.invalidateCache ();
+        olympiadAttemptsService.invalidateCache ();
+        olympaidChecksService.invalidateCache ();
+        olympiadsService.invalidateCache ();
+        periodsService.invalidateCache ();
+        rolesService.invalidateCache ();
+        usersService.invalidateCache ();
+        return ResponseBox.ok ();
+    }
     
     @PostMapping (API_UPDATE_ADD_METHOD_RULE)
     public ResponseBox <Void> handleAddMethodRule (
@@ -140,6 +156,17 @@ public class UpdateController {
     ) {
         OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         olympiadsService.setResultsStatus (olympiad, finalize, committer);
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_UPDATE_ATTEMPT_RESULTS)
+    public ResponseBox <Void> handleSaveAttemptResults (
+        @IndentifiedUser          WUser committer,
+        @RequestParam ("attempt") Long  attemptID,
+        @RequestParam ("results") CheckedOlympiadProblems results
+    ) {
+        OlympiadAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
+        olympaidChecksService.saveAttemptResults (attempt, results, committer);
         return ResponseBox.ok ();
     }
     

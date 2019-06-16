@@ -44,6 +44,25 @@
     	
     	<h3>Results form</h3>
     	
+    	<c:forEach var="problem" items="${problems}">
+    		<p>
+    			(${problem.getId ()})
+    			<input class="attempt-problem-id" type="hidden" 
+    				   value="${problem.getId ()}" />
+    			<input class="attempt-problem-points" type="number" 
+    				   min="0" max="${problem.getCost ()}" />
+    			<sub>(max. ${problem.getCost ()})</sub> 
+    			<input class="attempt-problem-comment" type="text" 
+    				   placeholder="comment"/> - 
+    			${problem.getTitle ()}
+   			</p>
+    	</c:forEach>
+    	
+    	<p>
+    		<button onclick="saveResults ()">save</button>
+    	</p>
+    	
+    	<input id="attempt-id" type="hidden" value="${attempt.getId ()}">
     	<script src="/resources/js/olympiad.js"></script>
     </body>
 </html>

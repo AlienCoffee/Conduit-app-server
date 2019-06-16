@@ -28,6 +28,8 @@ public class ServerConstants {
     public static final String API = $ + "api";
     public static final String API_ = API + $;
     
+    public static final String API_INVALIDATE_CACHES = API_ + "invalidate" + $ + "caches";
+    
     public static final String API_UNCHECKED = API_ + "unchecked";
     public static final String API_UNCHECKED_ = API_UNCHECKED + $;
     
@@ -93,5 +95,6 @@ public class ServerConstants {
     public static final String API_UPDATE_REMOVE_ROLE_FROM_USER = API_UPDATE_REMOVE_ + "role-from-user";
     public static final String API_UPDATE_GROUP_JOIN_APPLICATION = API_UPDATE_ + "group-join" + $ + "application";
     public static final String API_UPDATE_OLYMPIAD_RESULTS = API_UPDATE_ + "olympiad" + $ + "toggle-results";
+    public static final String API_UPDATE_ATTEMPT_RESULTS = API_UPDATE_ + "attempt" + $ + "save-results";
     
 }

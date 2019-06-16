@@ -65,3 +65,46 @@ var toggleResults = function (finalize) {
 	
 	req.send (data);
 }
+
+var saveResults = function () {
+	var metas = document.getElementsByTagName ("meta");
+	var token  = metas ["_csrf"].getAttribute ("content");
+	var header = metas ["_csrf_header"].getAttribute ("content");
+	
+	var req = new XMLHttpRequest ();
+	req.open ("POST", "/api/update/attempt/save-results", true);
+	req.setRequestHeader (header, token);
+	
+	req.onreadystatechange = function () {
+		if (req.readyState != 4) { return; }
+		
+		if (req.status != 200) {
+			alert (req.statusText + " / " + req.responseText);
+		} else if (confirm (req.responseText)) { 
+			var answer = JSON.parse (req.responseText);
+			if (!answer.error) { location.reload (); }
+		}
+	}
+	
+	var data = new FormData ();
+	data.append ("attempt", document.getElementById ("attempt-id").value);
+	
+	var comments = document.getElementsByClassName ("attempt-problem-comment");
+	var points = document.getElementsByClassName ("attempt-problem-points");
+	var ids = document.getElementsByClassName ("attempt-problem-id");
+	
+	var results = [];
+	for (var i = 0; i < ids.length; i++) {
+		var comment = comments [i].value;
+		var pointsI = points [i].value;
+		var id      = ids [i].value;
+		results.push ({
+			"comment": comment,
+			"points": pointsI,
+			"id": id
+		});
+	}
+	
+	data.append ("results", JSON.stringify (results));
+	req.send (data);
+}

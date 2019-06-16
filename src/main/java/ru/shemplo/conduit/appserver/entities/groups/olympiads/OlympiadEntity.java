@@ -38,6 +38,6 @@ public class OlympiadEntity extends AbsAuditableEntity {
     private boolean resultsFinalized = false;
     
     @Column (nullable = false)
-    private boolean resultsVivsible = true;
+    private boolean resultsVisible = true;
     
 }

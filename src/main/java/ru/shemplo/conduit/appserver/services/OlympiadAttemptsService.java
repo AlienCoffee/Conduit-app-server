@@ -129,7 +129,7 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
         return result;
     }
     
-    @ProtectedMethod
+    @ProtectedMethod @Transactional
     public void markPendingAttemptsAsChecked (OlympiadEntity olympiad, WUser committer) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);

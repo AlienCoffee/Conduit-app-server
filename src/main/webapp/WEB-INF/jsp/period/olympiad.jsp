@@ -35,14 +35,15 @@
     			</c:otherwise>
     		</c:choose>
     	</c:if>
-    	<c:if test="${olympiad.isResultsFinalized () && olympiad.isResultsVisible ()}">
-    		<a href="/olympiad/${olympiad.getId ()}/results">results</a>
-    	</c:if>
     	
     	<pre>${olympiad.getDescription ()}</pre>
     	<p><b>Attempts number limit</b>: ${olympiad.getAttemptsLimit ()}</p>
     	<p><b>Olympiad author</b>: ${olympiad.getCommitter ().getLogin ()}</p>
     	<p><b>Till</b>: ${olympiad.getFinished ()}</p>
+    	
+    	<c:if test="${olympiad.isResultsFinalized () && olympiad.isResultsVisible ()}">
+    		<p><a href="/olympiad/${olympiad.getId ()}/results">results</a></p>
+    	</c:if>
     	
     	<h3>Make attempt</h3>
     	

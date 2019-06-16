@@ -1,9 +1,6 @@
 package ru.shemplo.conduit.appserver.entities.groups.olympiads;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
@@ -13,8 +10,10 @@ import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table (name = "olympiad_checks")
 @EqualsAndHashCode (callSuper = true)
+@Table (name = "olympiad_checks", uniqueConstraints = {
+    @UniqueConstraint (columnNames = {"problem_id", "attempt_id", "committer_id"})
+})
 public class OlympiadCheckEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)

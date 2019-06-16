@@ -32,12 +32,22 @@
     					
     					<c:choose>
     						<c:when test="${row.getCheckedProblems () > 0}">
-    							problems: row.getCheckedProblems (),
-    							points: row.getCheckScore ()
+    							(problems: ${row.getCheckedProblems ()},
+    							points: ${row.getCheckScore ()}, 
     						</c:when>
     					
     						<c:otherwise>
-    							(not checked)
+    							(not checked, 
+    						</c:otherwise>
+    					</c:choose>
+    					
+    					<c:choose>
+    						<c:when test="${row.isFullyChecked ()}">
+    							fully checked)
+    						</c:when>
+    					
+    						<c:otherwise>
+    							need check) 
     						</c:otherwise>
     					</c:choose>
     					

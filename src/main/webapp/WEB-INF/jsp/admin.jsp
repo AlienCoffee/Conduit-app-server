@@ -64,6 +64,10 @@
     	
     	<hr />
     	
+    	<p>
+    		<button onclick="invalidateCaches ()">invalidate caches</button>
+    	</p>
+    	
     	<h3>User</h3>
     	
     	<p>

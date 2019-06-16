@@ -53,4 +53,11 @@ public abstract class AbsCachedService <T extends Identifiable> {
         return entities;
     }
     
+    /**
+     * 
+     */
+    public void invalidateCache () {
+        CACHE.invalidate ();
+    }
+    
 }

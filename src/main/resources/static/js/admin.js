@@ -956,3 +956,25 @@ window.onload = function (e) {
 		}
 	}
 }
+
+var invalidateCaches = function () {
+	var metas = document.getElementsByTagName ("meta");
+	var token  = metas ["_csrf"].getAttribute ("content");
+	var header = metas ["_csrf_header"].getAttribute ("content");
+	
+	var req = new XMLHttpRequest ();
+	req.open ("POST", "/api/invalidate/caches", true);
+	req.setRequestHeader (header, token);
+	
+	req.onreadystatechange = function () {
+		if (req.readyState != 4) { return; }
+		
+		if (req.status != 200) {
+			alert (req.statusText);
+		} else if (confirm (req.responseText)) { 
+			location.reload (); 
+		}
+	}
+	
+	req.send ();
+}

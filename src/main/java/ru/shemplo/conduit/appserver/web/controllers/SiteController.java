@@ -292,7 +292,8 @@ public class SiteController {
            . map (attempt -> {
                final Pair <Integer, Integer> results = olympaidChecksService
                    . getNumberOfCheckedProblemsAndScoreByUser (attempt, user);
-               return new CheckingAttemptRow (attempt, results.F, results.S);
+               boolean checked = olympaidChecksService.isAttemptChecked (attempt);
+               return new CheckingAttemptRow (attempt, results.F, results.S, checked);
            })
            . collect (Collectors.toList ());
            
@@ -332,6 +333,10 @@ public class SiteController {
         })
         . collect (Collectors.toList ());
         mav.addObject ("files", filesRows);
+        
+        List <OlympiadProblemEntity> problems = olympiadProblemsService
+           . getProblemsByOlympiad (olympiad);
+        mav.addObject ("problems", problems);
         
         return mav;
     }

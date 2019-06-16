@@ -14,4 +14,6 @@ public class CheckingAttemptRow {
     
     private final Integer checkedProblems, checkScore;
     
+    private final boolean fullyChecked;
+    
 }
