@@ -1,5 +1,7 @@
+/src/main/webapp/WEB-INF/jsp
 /src/main/resources/static
 /.settings/
+/attempts
 /target/
 /.idea/
 /bin/
