@@ -1,7 +1,8 @@
+/src/main/resources/static
 /.settings/
 /target/
+/.idea/
 /bin/
-.idea/
 
 .project
 .classpath
