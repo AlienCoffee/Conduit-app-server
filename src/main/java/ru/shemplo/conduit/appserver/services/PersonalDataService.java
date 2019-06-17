@@ -43,8 +43,8 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
     @Override
     protected PersonalDataCollector loadEntity (Long id) {
         Pair <Long, Long> periodNuserIds = Utils.dehash2 (id);
-        final PeriodEntity period = periodsService.getPeriod (periodNuserIds.F);
-        final WUser user = usersService.getUser (periodNuserIds.S);
+        final PeriodEntity period = periodsService.getPeriod (periodNuserIds.S);
+        final WUser user = usersService.getUser (periodNuserIds.F);
         
         final PersonalDataCollector collector = new PersonalDataCollector (user, period);
         dataRepository.findByUserAndPeriod (user.getEntity (), period).stream ()
@@ -60,7 +60,7 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
     @ProtectedMethod
     public PersonalDataCollector getPersonalData (WUser user, PeriodEntity period) {
         accessGuard.method (MiscUtils.getMethod (), period, user);
-        return getEntity (Utils.hash2 (period, user));
+        return getEntity (Utils.hash2 (user, period));
     }
     
     @ProtectedMethod

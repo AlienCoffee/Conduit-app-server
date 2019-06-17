@@ -17,6 +17,7 @@ import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupJoinType;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupAssignmentEntityRepository;
 import ru.shemplo.conduit.appserver.entities.repositories.GroupEntityRepository;
@@ -99,11 +100,16 @@ public class GroupsService extends AbsCachedService <GroupEntity> {
             throw new IllegalStateException ("User already joined the group");
         }
         
+        if (GroupJoinType.ASSIGNMENT.equals (group.getJoinType ())) {
+            String message = "Join to this group only by special assignment";
+            throw new IllegalStateException (message);
+        }
+        
         GroupAssignmentEntity assignment = new GroupAssignmentEntity (
             user.getEntity (), group, AssignmentStatus.APPLICATION
         );
         
-        if (group.getSelfAssignment ()) {
+        if (GroupJoinType.FREE.equals (group.getJoinType ())) {
             assignment.setStatus (AssignmentStatus.ASSIGNED);
         }
         

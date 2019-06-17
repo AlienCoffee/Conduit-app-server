@@ -66,7 +66,8 @@
 					   				<div>
 					   					<b>Links:</b>
 					   					<a href="/group/${group.getGroup ().getId ()}">info</a>
-					   					<c:if test="${group.getStatus () eq 'REJECTED'}">
+					   					<c:if test="${group.getStatus () eq 'REJECTED' 
+					   							&& not (group.getJoinType () eq 'ASSIGNMENT')}">
 					   						<button id="join${group.getGroup ().getId ()}" 
 					   								class="group-join-button">
 				   								join

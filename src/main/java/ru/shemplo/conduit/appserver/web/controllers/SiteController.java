@@ -22,10 +22,7 @@ import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupAssignmentEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
-import ru.shemplo.conduit.appserver.entities.groups.GroupType;
-import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
+import ru.shemplo.conduit.appserver.entities.groups.*;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEntity;
@@ -162,6 +159,8 @@ public class SiteController {
                                             : userApplications.contains (row.getGroup ())
                                             ? AssignmentStatus.APPLICATION
                                             : AssignmentStatus.REJECTED;
+                    GroupJoinType joinType = row.getGroup ().getJoinType ();
+                    row.setJoinType (joinType);
                     row.setStatus (status);
                 })
                 . collect (Collectors.groupingBy (row -> row.getGroup ().getType ()));

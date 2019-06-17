@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.shemplo.conduit.appserver.entities.AssignmentStatus;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupJoinType;
 
 @ToString
 @Getter @Setter
@@ -16,5 +17,6 @@ public class PageGroupRow {
     
     private AssignmentStatus status;
     
+    private GroupJoinType joinType;
     
 }

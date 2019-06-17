@@ -32,7 +32,8 @@ public class GroupEntity extends AbsEntity {
     private String description;
     
     @Column (nullable = false)
-    private Boolean selfAssignment = false;
+    @Enumerated (EnumType.STRING)
+    private GroupJoinType joinType;
     
     @ManyToOne (optional = false)
     private UserEntity head;
