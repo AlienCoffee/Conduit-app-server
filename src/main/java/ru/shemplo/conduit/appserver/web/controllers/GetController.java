@@ -3,6 +3,8 @@ package ru.shemplo.conduit.appserver.web.controllers;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.lang.reflect.Method;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
+import ru.shemplo.conduit.appserver.web.dto.BlogPostDTO;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.conduit.appserver.web.form.WebFormRow;
 import ru.shemplo.snowball.stuctures.Pair;
@@ -31,6 +34,7 @@ import ru.shemplo.snowball.stuctures.Pair;
 public class GetController {
     
     private final PersonalDataService personalDataService;
+    private final BlogPostsService blogPostsService;
     private final OlympiadsService olympiadsService;
     private final MethodsScanner methodsScanner;
     private final MethodsService methodsService;
@@ -39,6 +43,7 @@ public class GetController {
     private final GroupsService groupsService;
     private final RolesService rolesService;
     private final UsersService usersService;
+    private final Clock clock;
     
     
     @GetMapping (API_GET_PERIODS) 
@@ -126,6 +131,28 @@ public class GetController {
     ) {
         final GroupEntity group = groupsService.getGroup (groupID);
         return ResponseBox.ok (olympiadsService.getOlympiadsByGroup (group));
+    }
+    
+    @PostMapping (API_GET_MAIN_CHANNEL_BLOG_POSTS) 
+    public ResponseBox <List <BlogPostDTO>> handleGetMainChannelBlogPosts (
+        @RequestParam (value = "group", required = false) String since
+    ) {
+        LocalDateTime border = (since != null && since.length () > 0)
+                             ? LocalDateTime.parse (since) 
+                             : LocalDateTime.now (clock);
+        List <BlogPostEntity> posts = blogPostsService
+           . getMainChannelPosts (border);
+        
+        List <BlogPostDTO> dtos = posts.stream ().map (post -> {
+                final String title = post.getTitle (), content = post.getContent ();
+                final String author = post.getCommitter ().getLogin ();
+                final LocalDateTime issued = post.getPublished ();
+                
+                BlogPostDTO dto = new BlogPostDTO (title, content, author, issued);
+                return dto;
+            })
+            . collect (Collectors.toList ());
+        return ResponseBox.ok (dtos);
     }
     
 }

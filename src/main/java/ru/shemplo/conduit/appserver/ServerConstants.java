@@ -60,6 +60,7 @@ public class ServerConstants {
     public static final String API_GET_INFORMATION_POSTS = API_GET_ + "information-posts";
     public static final String API_GET_INFORMATION_POST = API_GET_ + "information-post";
     public static final String API_GET_OLYMPIADS = API_GET_ + "olympiads";
+    public static final String API_GET_MAIN_CHANNEL_BLOG_POSTS = API_GET_ + "main-channel-posts";
     
     public static final String API_CREATE = API_ + "create";
     public static final String API_CREATE_ = API_CREATE + $;

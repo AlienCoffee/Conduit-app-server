@@ -1,0 +1,19 @@
+package ru.shemplo.conduit.appserver.entities.repositories;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import ru.shemplo.conduit.appserver.entities.BlogPostEntity;
+
+public interface BlogPostEntityRepository extends AbsEntityRepository <BlogPostEntity> {
+    
+    @Query ("SELECT ent.id FROM BlogPostEntity ent WHERE ent.published <= :date")
+    public List <Long> findIdsBeforeDate (@Param ("date") LocalDateTime date);
+    
+    @Query ("SELECT ent.id FROM BlogPostEntity ent WHERE (ent.inMainChannel = TRUE) AND (ent.published <= :date)")
+    public List <Long> findIdsBeforeDateInMainChannel (@Param ("date") LocalDateTime date);
+    
+}
