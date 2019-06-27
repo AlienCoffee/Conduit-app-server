@@ -152,7 +152,9 @@ public class GetController {
                 return dto;
             })
             . collect (Collectors.toList ());
-        return ResponseBox.ok (dtos);
+        
+        
+        return ResponseBox.ok (dtos).addParam ("more", false);
     }
     
 }
