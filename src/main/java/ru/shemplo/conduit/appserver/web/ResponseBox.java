@@ -5,7 +5,9 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.shemplo.conduit.ts.generator.DTOType;
 
+@DTOType
 @RequiredArgsConstructor
 public class ResponseBox <T> {
     
