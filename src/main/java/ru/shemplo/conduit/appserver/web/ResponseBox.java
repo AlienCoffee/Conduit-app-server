@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.ts.generator.DTOType;
 
-@DTOType
 @RequiredArgsConstructor
+@DTOType (generateTypeAssignment = true)
 public class ResponseBox <T> {
     
     @Getter private Map <String, Object> params = new HashMap <> ();

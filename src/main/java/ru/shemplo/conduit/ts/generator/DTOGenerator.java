@@ -1,5 +1,6 @@
 package ru.shemplo.conduit.ts.generator;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.*;
 import java.util.*;
@@ -36,25 +37,27 @@ public class DTOGenerator {
     }
     
     private void printType (Class <?> type, PrintWriter pw) {
-        //List <Type> implTypes = Arrays.asList (type.getGenericInterfaces ());
+        final List <String> implTypes = Arrays.asList (type.getGenericInterfaces ()).stream ()
+            . filter  (intf -> intf.getClass ().isAnnotationPresent (DTOType.class))
+            . map     (this::processType).collect (Collectors.toList ());
+        DTOType annotation = type.getAnnotation (DTOType.class);
         Type superType = type.getGenericSuperclass ();
         
         pw.print ("export class ");
         pw.print (processType (type));
-        if (!Object.class.equals (superType)) {
-            pw.print (" extends ");
-            pw.print (processType (superType));
+        
+        if (annotation.superclass () != null && annotation.superclass ().length () > 0) {
+            pw.print (" extends "); pw.print (annotation.superclass ());
+        } else if (superType.getClass ().isAnnotationPresent (DTOType.class)) {
+            pw.print (" extends "); pw.print (processType (superType));
         }
-        /*
+        
+        implTypes.addAll (Arrays.asList (annotation.interfaces ()));
         if (implTypes.size () > 0) {
             pw.print (" implements ");
-            pw.print (
-                implTypes.stream ().map (this::processType)
-                . filter  (v -> v.length () > 0)
-                . collect (Collectors.joining (", "))
-            );
+            pw.print (implTypes.stream ().collect (Collectors.joining (", ")));
         }
-        */
+        
         pw.println (" {");
         printBody (type, pw);
         pw.println ("}");
@@ -120,6 +123,7 @@ public class DTOGenerator {
         mappedTypes.add (Trio.mt (Number.class, "number", true));
         mappedTypes.add (Trio.mt (List.class, "Array", true));
         mappedTypes.add (Trio.mt (Pair.class, "Pair", false));
+        mappedTypes.add (Trio.mt (File.class, "File", false));
         mappedTypes.add (Trio.mt (Void.class, "void", false));
         mappedTypes.add (Trio.mt (Map.class, "Map", true));
     }
@@ -128,6 +132,8 @@ public class DTOGenerator {
         String pureName = type.getSimpleName ();
         if (type.isAnnotationPresent (DTOType.class)) {
             pureName = pureName.replace ("DTO", "");
+        } else if (type.isPrimitive ()) {
+            pureName = "number";
         } else {
             boolean found = false;
             for (Trio <Class <?>, String, Boolean> ctype : mappedTypes) {

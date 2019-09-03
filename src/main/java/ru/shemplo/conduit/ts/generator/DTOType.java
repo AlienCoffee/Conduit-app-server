@@ -12,4 +12,10 @@ public @interface DTOType {
     
     String [] interfaces () default {};
     
+    String superclass () default "";
+    
+    String [] code () default {};
+    
+    boolean generateTypeAssignment () default false;
+    
 }
