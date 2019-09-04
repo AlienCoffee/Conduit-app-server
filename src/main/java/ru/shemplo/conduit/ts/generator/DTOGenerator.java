@@ -3,12 +3,14 @@ package ru.shemplo.conduit.ts.generator;
 import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.*;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import ru.shemplo.snowball.stuctures.Pair;
-import ru.shemplo.snowball.stuctures.Trio;
 import ru.shemplo.snowball.utils.ClasspathManager;
 import ru.shemplo.snowball.utils.MiscUtils;
 
@@ -16,6 +18,7 @@ public class DTOGenerator {
     
     private final Collector <CharSequence, ?, String> GENERIC_COLLECTOR = Collectors.joining (", ", "<", ">");
     
+    @Getter
     private final Set <Class <?>> types = new LinkedHashSet <> ();
     
     private final ClasspathManager cpManager;
@@ -83,7 +86,7 @@ public class DTOGenerator {
         //System.out.println (type.getClass () + " / " + type);
         if (type instanceof Class) {
             Class <?> ctype = MiscUtils.cast (type);
-            String ctypeName = convertName (ctype);
+            String ctypeName = convertName (ctype, false);
             sb.append (ctypeName);
             
             List <String> typeParameters = Arrays.asList (ctype.getTypeParameters ()).stream ()
@@ -98,7 +101,7 @@ public class DTOGenerator {
             ParameterizedType ptype = MiscUtils.cast (type);
             
             Class <?> rptype = MiscUtils.cast (ptype.getRawType ());
-            String rptypeName = convertName (rptype);
+            String rptypeName = convertName (rptype, false);
             sb.append (rptypeName);
             
             if (!rptypeName.equals ("any")) {
@@ -106,7 +109,6 @@ public class DTOGenerator {
                         . map (this::processType).collect (GENERIC_COLLECTOR);
                 sb.append (" ").append (params);
             }
-            
         } else if (type instanceof TypeVariable) {
             TypeVariable <?> vtype = MiscUtils.cast (type);
             sb.append (vtype.getName ());
@@ -115,38 +117,62 @@ public class DTOGenerator {
         return sb.toString ();
     }
     
-    private final List <Trio <Class <?>, String, Boolean>> mappedTypes = new ArrayList <> ();
+    @Getter
+    private final List <DTOMappedType> mappedTypes = new ArrayList <> ();
     
-    {
-        mappedTypes.add (Trio.mt (Boolean.class, "boolean", false));
-        mappedTypes.add (Trio.mt (String.class, "string", false));
-        mappedTypes.add (Trio.mt (Number.class, "number", true));
-        mappedTypes.add (Trio.mt (List.class, "Array", true));
-        mappedTypes.add (Trio.mt (Pair.class, "Pair", false));
-        mappedTypes.add (Trio.mt (File.class, "File", false));
-        mappedTypes.add (Trio.mt (Void.class, "void", false));
-        mappedTypes.add (Trio.mt (Map.class, "Map", true));
+    @Getter
+    @AllArgsConstructor
+    public static class DTOMappedType {
+        
+        private final Class <?> base;
+        
+        private boolean inheriting, prototyping;
+        
+        private String mappedType, prototypeName;
+        
+        public boolean checkMapping (Class <?> type) {
+            return (isInheriting () && getBase ().isAssignableFrom (type)) 
+                    || (!isInheriting () && getBase ().equals (type));
+        }
+        
     }
     
-    public String convertName (Class <?> type) {
+    {
+        mappedTypes.add (new DTOMappedType (Boolean.class, false, false, "boolean", null));
+        mappedTypes.add (new DTOMappedType (Collection.class, true, true, "Array", "Array"));
+        mappedTypes.add (new DTOMappedType (String.class, false, false, "string", "String"));
+        mappedTypes.add (new DTOMappedType (Number.class, true, false, "number", "Number"));
+        mappedTypes.add (new DTOMappedType (Temporal.class, true, true, "Date", "Date"));
+        mappedTypes.add (new DTOMappedType (Pair.class, false, true, "Pair", "Pair"));
+        mappedTypes.add (new DTOMappedType (File.class, false, true, "File", "File"));
+        mappedTypes.add (new DTOMappedType (Void.class, false, false, "void", null));
+        mappedTypes.add (new DTOMappedType (void.class, false, false, "void", null));
+        mappedTypes.add (new DTOMappedType (Date.class, true, true, "Date", "Date"));
+        mappedTypes.add (new DTOMappedType (Map.class, true, true, "Map", "Map"));
+    }
+    
+    public String convertName (Class <?> type, boolean forProto) {
         String pureName = type.getSimpleName ();
         if (type.isAnnotationPresent (DTOType.class)) {
             pureName = pureName.replace ("DTO", "");
         } else if (type.isPrimitive ()) {
-            pureName = "number";
+            pureName = type.equals (void.class) ? "void" : "number";
         } else {
             boolean found = false;
-            for (Trio <Class <?>, String, Boolean> ctype : mappedTypes) {
-                if ((ctype.T && ctype.F.isAssignableFrom (type)) 
-                        || (!ctype.T && ctype.F.equals (type))) {
-                    pureName = ctype.S;
+            for (DTOMappedType ctype : mappedTypes) {
+                if (ctype.checkMapping (type)) {
+                    if (forProto) {
+                        pureName = ctype.getPrototypeName ();
+                    } else {
+                        pureName = ctype.getMappedType ();                        
+                    }
                     found = true;
                     break;
                 }
             }
             
-            if (!found) {
-                pureName = "any";
+            if (!found || pureName == null) {
+                pureName = "Object";
             }
         }
         

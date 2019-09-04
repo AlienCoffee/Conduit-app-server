@@ -7,8 +7,10 @@ import javax.persistence.*;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
+import ru.shemplo.conduit.ts.generator.DTOType;
 
 @Entity
+@DTOType
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor

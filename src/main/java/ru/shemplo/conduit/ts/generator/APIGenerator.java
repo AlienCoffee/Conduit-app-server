@@ -2,15 +2,14 @@ package ru.shemplo.conduit.ts.generator;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.web.bind.annotation.*;
 
+import ru.shemplo.conduit.ts.generator.DTOGenerator.DTOMappedType;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.stuctures.Trio;
 import ru.shemplo.snowball.utils.ClasspathManager;
@@ -43,8 +42,11 @@ public class APIGenerator {
     }
     
     public void print (PrintWriter pw) {
+        String dtos = dtoGenerator.getTypes ().stream ().map (type -> dtoGenerator.convertName (type, false))
+                    . collect (Collectors.joining (",\n\t"));
+        pw.println (String.format ("import {\n\t%s\n} from \"./gen-dtos\";", dtos));
         pw.println ("import { Pair, assignType } from \"../common\";");
-        pw.println ("import { ResponseBox } from \"./gen-dtos\";");
+        //pw.println ("import { ResponseBox } from \"./gen-dtos\";");
         pw.println ("import { sendRequest } from \"../network\";");
         pw.println ();
         
@@ -102,10 +104,10 @@ public class APIGenerator {
         pw.print   ("\", ");
         pw.print   (isInline ? "null" : "formData");
         pw.println (");");
-        processTypesAssignment (rType, "", pw);
-        if (!rgType.equals ("void")) {   
-            pw.println ("        return answer;");
-        }
+        pw.println ("        if (answer && !answer.error) {");
+        processTypesAssignment (rType, "answer", pw);
+        pw.println ("        }");
+        pw.println ("        return answer;");
         pw.println ("    }");
     }
     
@@ -180,7 +182,91 @@ public class APIGenerator {
     }
     
     private void processTypesAssignment (Type type, String address, PrintWriter pw) {
-        
+        if (type instanceof Class) {
+            Class <?> ctype = MiscUtils.cast (type);
+            processRawTypeAssignment (ctype, address, pw);
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType ptype = MiscUtils.cast (type);
+            Class <?> ctype = MiscUtils.cast (ptype.getRawType ());
+            processRawTypeAssignment (ctype, address, pw);
+            
+            processBodyOfAssigningClass (ctype, ptype, ptype.getActualTypeArguments (), address, pw);
+        }
+    }
+    
+    private void processBodyOfAssigningClass (Class <?> ctype, Type type, Type [] generics, String address, PrintWriter pw) {
+        if (ctype.isAnnotationPresent (DTOType.class)) {
+           //DTOType annotation = ctype.getAnnotation (DTOType.class);
+            for (Field field : ctype.getDeclaredFields ()) {
+                String fieldAddress = String.join (".", address, field.getName ());
+                Type fieldType = field.getGenericType ();
+                if (fieldType instanceof TypeVariable) {
+                    TypeVariable <?> typeVar = MiscUtils.cast (fieldType);
+                    int index = Arrays.asList (ctype.getTypeParameters ()).indexOf (typeVar);
+                    fieldType = generics [index];
+                }
+                processTypesAssignment (fieldType, fieldAddress, pw);
+            }
+        } else if (Collection.class.isAssignableFrom (ctype) || ctype.isArray ()) {
+            processCollectionInAssigning (type, address, "", 0, pw);
+        } else if (Map.class.isAssignableFrom (ctype)) {
+            
+        }
+    }
+    
+    private void processCollectionInAssigning (Type type, String addres, String offset, int level, PrintWriter pw) {
+        pw.println (String.format ("            %sfor (let i%d of %s) {", offset, level, addres));
+        if (type instanceof Class) {
+            final Class <?> ctype = MiscUtils.cast (type);
+            Class <?> atype = ctype.getComponentType ();
+            if (atype.isArray ()) {
+                processCollectionInAssigning (atype, "i" + level, offset + "    ", level + 1, pw);
+            } else {
+                final String mappedType = dtoGenerator.convertName (atype, true);
+                printTypeAssignment (offset + "    ", "i" + level, mappedType, pw);
+            }
+        } if (type instanceof ParameterizedType) { // Collection <T>
+            final ParameterizedType ptype = MiscUtils.cast (type);
+            Type atype = ptype.getActualTypeArguments () [0]; // T
+            
+            if (atype instanceof Class) {
+                final Class <?> ctype = MiscUtils.cast (atype);
+                if (ctype.isArray ()) {
+                    processCollectionInAssigning (ctype, "i" + level, offset + "    ", level + 1, pw);
+                } else {
+                    final String mappedType = dtoGenerator.convertName (ctype, true);
+                    printTypeAssignment (offset + "    ", "i" + level, mappedType, pw);
+                }
+            } else if (atype instanceof ParameterizedType) {
+                final ParameterizedType pptype = MiscUtils.cast (atype);
+                Class <?> rtype = MiscUtils.cast (pptype.getRawType ());
+                if (rtype.isArray () || Collection.class.isAssignableFrom (rtype)) {
+                    processCollectionInAssigning (rtype, "i" + level, offset + "    ", level + 1, pw);
+                } else {
+                    final String mappedType = dtoGenerator.convertName (rtype, false);
+                    printTypeAssignment (offset + "    ", "i" + level, mappedType, pw);
+                }
+            }
+        }
+        pw.println (String.format ("            }"));
+    }
+    
+    private void processRawTypeAssignment (Class <?> type, String address, PrintWriter pw) {
+        if (type.isAnnotationPresent (DTOType.class)) {
+            DTOType annotation = type.getAnnotation (DTOType.class);
+            if (annotation.generateTypeAssignment ()) {
+                printTypeAssignment ("", address, dtoGenerator.convertName (type, true), pw);
+            }
+        } else {            
+            dtoGenerator.getMappedTypes ().stream ().filter (mtype -> mtype.checkMapping (type))
+            . filter (DTOMappedType::isPrototyping).findFirst ().ifPresent (mtype -> {
+                printTypeAssignment ("", address, mtype.getMappedType (), pw);
+            });
+        }
+    }
+    
+    private void printTypeAssignment (String offset, String address, String mappedType, PrintWriter pw) {
+        pw.println (String.format ("            %sassignType (%s, %s.prototype);", offset, address, mappedType));
     }
     
 }
