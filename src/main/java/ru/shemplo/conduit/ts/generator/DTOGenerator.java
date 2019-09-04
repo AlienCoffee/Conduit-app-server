@@ -140,7 +140,7 @@ public class DTOGenerator {
     {
         mappedTypes.add (new DTOMappedType (Boolean.class, false, false, "boolean", null));
         mappedTypes.add (new DTOMappedType (Collection.class, true, true, "Array", "Array"));
-        mappedTypes.add (new DTOMappedType (String.class, false, false, "string", "String"));
+        mappedTypes.add (new DTOMappedType (String.class, false, true, "string", "String"));
         mappedTypes.add (new DTOMappedType (Number.class, true, false, "number", "Number"));
         mappedTypes.add (new DTOMappedType (Temporal.class, true, true, "Date", "Date"));
         mappedTypes.add (new DTOMappedType (Pair.class, false, true, "Pair", "Pair"));
