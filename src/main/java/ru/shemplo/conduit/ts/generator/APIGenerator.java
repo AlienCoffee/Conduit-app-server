@@ -50,6 +50,14 @@ public class APIGenerator {
         pw.println ("import { sendRequest } from \"../network\";");
         pw.println ();
         
+        pw.println ("function convertObj2Map (obj : any) {");
+        pw.println ("    var map = new Map ();");
+        pw.println ("    Object.keys (obj).forEach (key => {");
+        pw.println ("        map.set (key, obj [key]);");
+        pw.println ("    }");
+        pw.println ("}");
+        pw.println ();
+        
         final Map <Class <?>, List <Method>> services = methods.stream ()
             . sorted  (Comparator.comparing (Method::getName))
             . collect (Collectors.groupingBy (Method::getDeclaringClass));
@@ -212,6 +220,7 @@ public class APIGenerator {
         } else if (Collection.class.isAssignableFrom (ctype) || ctype.isArray ()) {
             processCollectionInAssigning (type, address, offset, level, pw);
         } else if (Map.class.isAssignableFrom (ctype)) {
+            pw.println (String.format ("            %s%s = convertObj2Map (%s);", offset, address, address));
             processMapInAssigning (type, address, offset, level, pw);
         }
     }
