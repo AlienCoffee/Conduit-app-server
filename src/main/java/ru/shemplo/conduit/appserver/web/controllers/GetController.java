@@ -133,15 +133,16 @@ public class GetController {
         return ResponseBox.ok (olympiadsService.getOlympiadsByGroup (group));
     }
     
-    @PostMapping (API_GET_MAIN_CHANNEL_BLOG_POSTS) 
-    public ResponseBox <List <BlogPostDTO>> handleGetMainChannelBlogPosts (
-        @RequestParam (value = "group", required = false) String since
+    @PostMapping (API_GET_CHANNEL_BLOG_POSTS) 
+    public ResponseBox <List <BlogPostDTO>> handleGetChannelBlogPosts (
+        @RequestParam ("channel")                         String channel,
+        @RequestParam (value = "since", required = false) String since
     ) {
         LocalDateTime border = (since != null && since.length () > 0)
                              ? LocalDateTime.parse (since) 
                              : LocalDateTime.now (clock);
         List <BlogPostEntity> posts = blogPostsService
-           . getMainChannelPosts (border);
+           . getMainChannelPosts (channel, border);
         
         List <BlogPostDTO> dtos = posts.stream ().map (post -> {
                 final String title = post.getTitle (), content = post.getContent ();

@@ -2,7 +2,9 @@ package ru.shemplo.conduit.appserver.entities;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -23,8 +25,9 @@ public class BlogPostEntity extends AbsAuditableEntity {
     @Column (nullable = false)
     private LocalDateTime published;
     
-    @Column (nullable = false)
-    private boolean inMainChannel = false;
+    @Column (name = "channel")
+    @ElementCollection (fetch = FetchType.EAGER)
+    private Set <String> channels = new HashSet <> ();
     
     @ManyToMany (fetch = FetchType.EAGER)
     private List <FileEntity> attachments = new ArrayList <> ();

@@ -7,9 +7,11 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import ru.shemplo.conduit.ts.generator.DTOType;
 
 @Getter
 @ToString
+@DTOType
 @RequiredArgsConstructor
 public class BlogPostDTO {
     

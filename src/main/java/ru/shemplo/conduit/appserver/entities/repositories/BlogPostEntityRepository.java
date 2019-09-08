@@ -13,7 +13,7 @@ public interface BlogPostEntityRepository extends AbsEntityRepository <BlogPostE
     @Query ("SELECT ent.id FROM BlogPostEntity ent WHERE ent.published <= :date")
     public List <Long> findIdsBeforeDate (@Param ("date") LocalDateTime date);
     
-    @Query ("SELECT ent.id FROM BlogPostEntity ent WHERE (ent.inMainChannel = TRUE) AND (ent.published <= :date)")
-    public List <Long> findIdsBeforeDateInMainChannel (@Param ("date") LocalDateTime date);
+    @Query ("SELECT ent.id FROM BlogPostEntity ent JOIN ent.channels chs WHERE (:channel IN chs) AND (ent.published <= :date)")
+    public List <Long> findIdsBeforeDateInChannel (@Param ("channel") String channel, @Param ("date") LocalDateTime date);
     
 }

@@ -52,11 +52,10 @@ public class BlogPostsService extends AbsCachedService <BlogPostEntity> {
     }
     
     @ProtectedMethod
-    public List <BlogPostEntity> getMainChannelPosts (LocalDateTime till) {
+    public List <BlogPostEntity> getMainChannelPosts (String channel, LocalDateTime till) {
         accessGuard.method (MiscUtils.getMethod ());
         
-        final List <Long> ids = blogPostsRepository
-            . findIdsBeforeDateInMainChannel (till);
+        final List <Long> ids = blogPostsRepository.findIdsBeforeDateInChannel (channel, till);
         
         return ids.stream ().map (blogPostsRepository::findById)
              . map     (Optional::get)
