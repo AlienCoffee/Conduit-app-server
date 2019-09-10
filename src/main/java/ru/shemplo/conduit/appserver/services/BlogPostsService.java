@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.shemplo.conduit.appserver.ServerConstants;
 import ru.shemplo.conduit.appserver.entities.BlogPostEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.BlogPostEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
@@ -55,7 +57,10 @@ public class BlogPostsService extends AbsCachedService <BlogPostEntity> {
     public List <BlogPostEntity> getMainChannelPosts (String channel, LocalDateTime till) {
         accessGuard.method (MiscUtils.getMethod ());
         
-        final List <Long> ids = blogPostsRepository.findIdsBeforeDateInChannel (channel, till);
+        int load = ServerConstants.POSTS_PAGE_SIZE + 1;
+        final List <Long> ids = blogPostsRepository.findIdsBeforeDateInChannel (
+            channel, till, PageRequest.of (0, load)
+        );
         
         return ids.stream ().map (blogPostsRepository::findById)
              . map     (Optional::get)

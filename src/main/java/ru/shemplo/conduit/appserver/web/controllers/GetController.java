@@ -148,14 +148,22 @@ public class GetController {
                 final String title = post.getTitle (), content = post.getContent ();
                 final String author = post.getCommitter ().getLogin ();
                 final LocalDateTime issued = post.getPublished ();
+                final Long postId = post.getId ();
                 
-                BlogPostDTO dto = new BlogPostDTO (title, content, author, issued);
+                BlogPostDTO dto = new BlogPostDTO (postId, title, content, author, issued);
                 return dto;
             })
             . collect (Collectors.toList ());
         
-        
-        return ResponseBox.ok (dtos).addParam ("more", false);
+        boolean hasMore = posts.size () == POSTS_PAGE_SIZE + 1;
+        return ResponseBox.ok (dtos).addParam ("more", hasMore);
+    }
+    
+    @PostMapping (API_GET_MAIN_BLOG_POSTS) 
+    public ResponseBox <List <BlogPostDTO>> handleGetMainBlogPosts (
+        @RequestParam (value = "since", required = false) String since
+    ) {
+        return handleGetChannelBlogPosts (MAIN_BP_CHANNEL, since);
     }
     
 }

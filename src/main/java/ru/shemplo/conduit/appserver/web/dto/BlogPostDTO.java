@@ -11,9 +11,13 @@ import ru.shemplo.conduit.ts.generator.DTOType;
 
 @Getter
 @ToString
-@DTOType
+@DTOType (code = {
+    "public html : HTMLElement;"
+})
 @RequiredArgsConstructor
 public class BlogPostDTO {
+    
+    private final Long postId;
     
     private final String title, content, author;
     

@@ -18,6 +18,16 @@ public class WUser extends User implements Identifiable {
     
     private static final long serialVersionUID = -6022311839660659826L;
     
+    @Getter
+    private static final WUser stubUser;
+    
+    static {
+        UserEntity entity = new UserEntity ("guest", "", "", false);
+        entity.setId (0L);
+        
+        stubUser = new WUser (entity);
+    }
+    
     @Getter private final UserEntity entity;
     
     public WUser (UserEntity entity) {

@@ -14,6 +14,10 @@ public class ServerConstants {
     
     public static final String NO_ENTITY_MESSAGE = "No such entity found";
     
+    public static final String MAIN_BP_CHANNEL = "main";
+    
+    public static final int POSTS_PAGE_SIZE = 5;
+    
     public static final String $ = "/";
     
     public static final String PAGE_LOGIN = $ + "login";
@@ -60,6 +64,8 @@ public class ServerConstants {
     public static final String API_GET_INFORMATION_POSTS = API_GET_ + "information-posts";
     public static final String API_GET_INFORMATION_POST = API_GET_ + "information-post";
     public static final String API_GET_OLYMPIADS = API_GET_ + "olympiads";
+    
+    public static final String API_GET_MAIN_BLOG_POSTS = API_UNCHECKED_ + "get" + $ + "main-channel-posts";
     public static final String API_GET_CHANNEL_BLOG_POSTS = API_GET_ + "channel-posts";
     
     public static final String API_CREATE = API_ + "create";

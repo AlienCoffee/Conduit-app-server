@@ -35,6 +35,8 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
 
     @Override
     protected WUser loadEntity (Long id) {
+        if (id == 0L) { return WUser.getStubUser (); }
+        
         UserEntity entity = usersRepository.findById (id).orElse (null);
         return entity != null ? new WUser (entity) : null;
     }
@@ -56,6 +58,7 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
     }
     
     public WUser getUser_ss (Long id) {
+        if (id == 0L) { return WUser.getStubUser (); }
         return getEntity (id);
     }
     

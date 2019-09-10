@@ -69,11 +69,15 @@ public final class AccessGuard extends AbsCachedService <AccessEntity> {
     private WUser fetchContextUser () {
         Authentication authentication = SecurityContextHolder.getContext ()
                                       . getAuthentication ();
+        /*
         if (!(authentication.getPrincipal () instanceof WUser)) {
-            throw new SecurityException ("Not WUser");
+            throw new SecurityException ("Your personality is not recognized");
         }
+        */
         
-        return MiscUtils.cast (authentication.getPrincipal ());
+        return authentication.getPrincipal () instanceof WUser
+             ? MiscUtils.cast (authentication.getPrincipal ())
+             : WUser.getStubUser ();
     }
     
     public void object (String object, PeriodEntity period, WUser target) {
