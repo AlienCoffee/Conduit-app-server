@@ -1,0 +1,313 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Conduit :: Period registration</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="resources/css/common.css" />
+</head>
+
+<body>
+    <header class="mb-5">
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+            <a class="navbar-brand" href="#">Conduit</a>
+            <span class="text-light">
+                educational platform
+            </span>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="row">
+            <div class="col-3">
+                <div class="row px-1 pt-2 pb-5">
+                    <div class="col">
+                        <h4>Navigation</h4>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/">
+                                    News page
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/periods.html">
+                                    Periods
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/about.html">
+                                    About
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row px-1 py-2">
+                    <div class="col">
+                        <h4>Profile</h4>
+                        <div class="text-left px-3 py-1">
+                            <div class="spinner-border spinner-border-sm mr-2"></div>
+                            <span>Loading...</span>
+                        </div>
+                        <p class="pl-3 py-1">Login or register on site to continue work</p>
+                        <form class="pl-3">
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">@</span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Username">
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <span class="fas fa-key"></span>
+                                    </span>
+                                </div>
+                                <input type="password" class="form-control" placeholder="Password">
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    Register
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-primary ml-2">
+                                    Login
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row px-1 py-2">
+                    <div class="col">
+                        <h4>Discussions</h4>
+                        <div class="text-left px-3 py-1">
+                            <div class="spinner-border spinner-border-sm mr-2"></div>
+                            <span>Loading...</span>
+                        </div>
+                        <div class="text-left px-3 py-1">
+                            <span>No active discussions now. Wait for them or comment some blog to start new
+                                one...</span>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                Praesent eget ipsum eros. Nam tincidunt fringilla felis, sit amet aliquet metus finibus
+                                sed.
+                            </li>
+                            <li class="list-group-item">
+                                Praesent eget ipsum eros. Nam tincidunt fringilla felis, sit amet aliquet metus finibus
+                                sed.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row px-1 py-2">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-success" type="submit">Go</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <h2>Registration in period</h2>
+
+                <p>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <span class="fas fa-arrow-left mr-2"></span>
+                        <span>to period page</span>
+                    </button>
+                </p>
+
+                <div class="text-left p-2">
+                    <div class="spinner-border spinner-border-sm mr-2"></div>
+                    <span>Loading...</span>
+                </div>
+
+                <p>
+                    You did not register for this period yet.
+                </p>
+                <div class="d-flex mb-3">
+                    <span>You have already registered for roles: </span>
+                    <div class="ml-2">
+                        <mark>Teacher</mark>,
+                        <mark>Org. committee</mark>
+                    </div>.
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-role-select">
+                        <span class="fas fa-user mx-2"></span>
+                        Choose role to register for:
+                    </label>
+                    <select class="form-control" id="reg-role-select">
+                        <option>Student</option>
+                        <option>Teacher</option>
+                        <option>Org. committee</option>
+                        <option>Parent</option>
+                    </select>
+                </div>
+
+                <h4 class="mt-5">
+                    Registration for <mark>Student</mark> role
+                </h4>
+
+                <form class="container mt-3 mb-5">
+                    <h5>
+                        <span class="fas fa-address-card mx-2 my-3"></span>
+                        Personal data
+                    </h5>
+
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Last name</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">First name</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Second name</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Birthday</span>
+                                </div>
+                                <input type="date" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Gender</span>
+                                </div>
+                                <select class="form-control">
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>
+                        <span class="fas fa-id-card mx-2 my-3"></span>
+                        ID document
+                    </h5>
+
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Type</span>
+                                </div>
+                                <select class="form-control">
+                                    <option>Passport</option>
+                                    <option>Birth sertificate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Series</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Number</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">...</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>
+                        <span class="fas fa-home mx-2 my-3"></span>
+                        Living place
+                    </h5>
+
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">Region</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width: 100px;">City / Town</span>
+                                </div>
+                                <input type="text" class="form-control" id="first-name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>
+                        <span class="fas fa-handshake mx-2 my-3"></span>
+                        Almost done
+                    </h5>
+
+                    <div class="container">
+                        <div class="form-check-inline">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input" value="">
+                                Consent to the processing of personal data
+                                (<a href="#">conditions</a>)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="container d-flex justify-content-end mt-3">
+                        <button class="btn btn-sm btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+
+    </footer>
+
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js">
+    </script>
+</body>
+
+</html>

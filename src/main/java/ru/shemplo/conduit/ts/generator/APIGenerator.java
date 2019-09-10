@@ -15,7 +15,7 @@ import ru.shemplo.snowball.stuctures.Trio;
 import ru.shemplo.snowball.utils.ClasspathManager;
 import ru.shemplo.snowball.utils.MiscUtils;
 
-public class APIGenerator {
+public class APIGenerator implements Generator {
     
     private final Set <Method> methods = new LinkedHashSet <> ();
     
@@ -41,6 +41,7 @@ public class APIGenerator {
         . forEach (methods::add);
     }
     
+    @Override
     public void print (PrintWriter pw) {
         String dtos = dtoGenerator.getTypes ().stream ().map (type -> dtoGenerator.convertName (type, false))
                     . collect (Collectors.joining (",\n\t"));
@@ -54,7 +55,8 @@ public class APIGenerator {
         pw.println ("    var map = new Map ();");
         pw.println ("    Object.keys (obj).forEach (key => {");
         pw.println ("        map.set (key, obj [key]);");
-        pw.println ("    }");
+        pw.println ("    });");
+        pw.println ("    return map;");
         pw.println ("}");
         pw.println ();
         
