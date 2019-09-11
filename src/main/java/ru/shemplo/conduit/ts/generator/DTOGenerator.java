@@ -14,7 +14,7 @@ import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.ClasspathManager;
 import ru.shemplo.snowball.utils.MiscUtils;
 
-public class DTOGenerator {
+public class DTOGenerator implements Generator {
     
     private final Collector <CharSequence, ?, String> GENERIC_COLLECTOR = Collectors.joining (", ", "<", ">");
     
@@ -34,6 +34,7 @@ public class DTOGenerator {
         . <Class <?>> map (MiscUtils::cast).forEach (types::add);
     }
     
+    @Override
     public void print (PrintWriter pw) {
         types.stream ().sorted (Comparator.comparing (Class::getSimpleName))
              .forEach (type -> printType (type, pw));
@@ -62,11 +63,11 @@ public class DTOGenerator {
         }
         
         pw.println (" {");
-        printBody (type, pw);
+        printBody (type, annotation, pw);
         pw.println ("}");
     }
     
-    private void printBody (Class <?> type, PrintWriter pw) {
+    private void printBody (Class <?> type, DTOType annotation, PrintWriter pw) {
         for (Field field : type.getDeclaredFields ()) {
             if (Modifier.isStatic (field.getModifiers ())) {
                 continue; // static fields should be declared as custom code
@@ -77,6 +78,12 @@ public class DTOGenerator {
             pw.print (" : ");
             pw.print (processType (field.getGenericType ()));
             pw.println (";");
+        }
+        
+        if (annotation.code ().length > 0) {
+            for (String code : annotation.code ()) {                
+                pw.println (String.format ("    %s", code));
+            }
         }
     }
     
@@ -156,7 +163,9 @@ public class DTOGenerator {
         if (type.isAnnotationPresent (DTOType.class)) {
             pureName = pureName.replace ("DTO", "");
         } else if (type.isPrimitive ()) {
-            pureName = type.equals (void.class) ? "void" : "number";
+            pureName = type.equals (void.class) ? "void" 
+                     : type.equals (boolean.class) ? "boolean"
+                     : "number";
         } else {
             boolean found = false;
             for (DTOMappedType ctype : mappedTypes) {
