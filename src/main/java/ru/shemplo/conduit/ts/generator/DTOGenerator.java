@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import ru.shemplo.snowball.stuctures.Pair;
+import ru.shemplo.snowball.utils.Algorithms;
 import ru.shemplo.snowball.utils.ClasspathManager;
 import ru.shemplo.snowball.utils.MiscUtils;
 
@@ -68,7 +69,13 @@ public class DTOGenerator implements Generator {
     }
     
     private void printBody (Class <?> type, DTOType annotation, PrintWriter pw) {
-        for (Field field : type.getDeclaredFields ()) {
+        List <Field> fields = new ArrayList <> ();
+        Algorithms.runBFS (type, t -> !Object.class.equals (t), t -> {
+            fields.addAll (Arrays.asList (t.getDeclaredFields ()));
+            return MiscUtils.cast (Arrays.asList (t.getSuperclass ()));
+        });
+        
+        for (Field field : fields) {
             if (Modifier.isStatic (field.getModifiers ())) {
                 continue; // static fields should be declared as custom code
             }
