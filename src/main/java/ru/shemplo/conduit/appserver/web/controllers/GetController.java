@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.rjeschke.txtmark.Processor;
+
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataCollector;
@@ -145,9 +147,10 @@ public class GetController {
            . getMainChannelPosts (channel, border);
         
         List <BlogPostDTO> dtos = posts.stream ().map (post -> {
-                final String title = post.getTitle (), content = post.getContent ();
+                final String content = Processor.process (post.getContent (), true);
                 final String author = post.getCommitter ().getLogin ();
                 final LocalDateTime issued = post.getPublished ();
+                final String title = post.getTitle (); 
                 final Long postId = post.getId ();
                 
                 BlogPostDTO dto = new BlogPostDTO (postId, title, content, author, issued);

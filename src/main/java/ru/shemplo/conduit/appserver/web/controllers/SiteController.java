@@ -58,8 +58,7 @@ public class SiteController {
     
     @GetMapping ($)
     public ModelAndView handleIndexPage (
-        @IndentifiedUser WUser user,
-        HttpServletResponse response
+        @IndentifiedUser WUser user
     ) {
         UserEntity ent = user != null ? user.getEntity () : null;
         ModelAndView mav = new ModelAndView ("index");
@@ -107,9 +106,14 @@ public class SiteController {
     }
     
     @GetMapping (PAGE_PERIODS)
-    public ModelAndView handlePeriodsPage () {
+    public ModelAndView handlePeriodsPage (
+        @IndentifiedUser WUser user
+    ) {
         accessGuard.page (MiscUtils.getMethod (), "allPeriods");
         ModelAndView mav = new ModelAndView ("period/periods");
+        
+        UserEntity ent = user != null ? user.getEntity () : null;
+        mav.addObject ("user", ent);
         
         Collection <PeriodEntity> periodsC = periodsService.getAllPeriods ();
         List <PeriodEntity> periods = periodsC.stream ()
