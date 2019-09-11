@@ -27,6 +27,15 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     @Column (nullable = false)
     protected LocalDateTime issued;
     
+    @JsonIgnore
+    @DBTemplateConstant
+    @DBTemplateField ("{now}")
+    @Column (nullable = false)
+    protected LocalDateTime changed;
+    
+    @ManyToOne (optional = false)
+    protected UserEntity author;
+    
     @ManyToOne (optional = false)
     protected UserEntity committer;
     

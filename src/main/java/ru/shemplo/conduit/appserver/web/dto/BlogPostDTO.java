@@ -19,9 +19,9 @@ public class BlogPostDTO {
     
     private final Long postId;
     
-    private final String title, content, author;
+    private final String title, content, author, editor;
     
-    private final LocalDateTime published;
+    private final LocalDateTime published, modified;
     
     private List <String> tags = new ArrayList <> ();
     

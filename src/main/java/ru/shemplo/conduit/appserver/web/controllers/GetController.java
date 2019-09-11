@@ -148,12 +148,15 @@ public class GetController {
         
         List <BlogPostDTO> dtos = posts.stream ().map (post -> {
                 final String content = Processor.process (post.getContent (), true);
-                final String author = post.getCommitter ().getLogin ();
-                final LocalDateTime issued = post.getPublished ();
+                final String editor = post.getCommitter ().getLogin ();
+                final String author = post.getAuthor ().getLogin ();
+                final LocalDateTime modified = post.getChanged ();
+                final LocalDateTime issued = post.getIssued ();
                 final String title = post.getTitle (); 
                 final Long postId = post.getId ();
                 
-                BlogPostDTO dto = new BlogPostDTO (postId, title, content, author, issued);
+                BlogPostDTO dto = new BlogPostDTO (postId, title, content, 
+                        author, editor, issued, modified);
                 return dto;
             })
             . collect (Collectors.toList ());
