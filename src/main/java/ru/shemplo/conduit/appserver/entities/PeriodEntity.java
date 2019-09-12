@@ -15,9 +15,12 @@ import ru.shemplo.conduit.appserver.start.DBTemplateConstant;
 import ru.shemplo.conduit.ts.generator.DTOType;
 
 @Entity
-@DTOType
 @Getter @Setter
 @NoArgsConstructor
+@DTOType (code = {
+    "public started : boolean;",
+    "public html : HTMLElement"
+}, generateTypeAssignment = true)
 @AllArgsConstructor
 @Table (name = "periods")
 @ToString (callSuper = true)

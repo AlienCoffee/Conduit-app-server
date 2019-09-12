@@ -52,6 +52,7 @@ public class ServerConstants {
     public static final String API_GET_OPTIONS = API_GET_ + "options";
     public static final String API_GET_ROLES = API_GET_ + "roles";
     public static final String API_GET_PERIODS = API_GET_PERIOD + "s";
+    public static final String API_GET_AVAILABLE_PERIODS = API_GET_PERIODS + $ + "available";
     public static final String API_GET_PERSONAL_DATA = API_GET_ + "personal-data";
     public static final String API_GET_GROUP_TYPES = API_GET_GROUP_ + "types";
     public static final String API_GET_PERIOD_GROUPS = API_GET_PERIOD_ + "groups";

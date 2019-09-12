@@ -56,6 +56,14 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
     }
     
     @ProtectedMethod
+    public Collection <PeriodEntity> getAllAvailablePeriods (LocalDateTime moment) {
+        accessGuard.method (MiscUtils.getMethod ());
+        
+        List <Long> ids = periodsRepository.findAllIdsOfAvailablePeriod (moment);
+        return getEntities (ids, true);
+    }
+    
+    @ProtectedMethod
     public PeriodEntity createPeriod (String name, String description, LocalDateTime since, 
             LocalDateTime until, PeriodStatus status, WUser user) {
         accessGuard.method (MiscUtils.getMethod ());

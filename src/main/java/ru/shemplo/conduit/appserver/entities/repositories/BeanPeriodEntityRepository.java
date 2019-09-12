@@ -1,16 +1,14 @@
 package ru.shemplo.conduit.appserver.entities.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Repository;
-
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.snowball.utils.MiscUtils;
 
-@Primary @Repository
+//@Primary @Repository
 public class BeanPeriodEntityRepository extends AbsCachedRepository <PeriodEntity> implements PeriodEntityRepository {
     
     public BeanPeriodEntityRepository (EntityManager em, PeriodEntityRepository repository) {
@@ -27,6 +25,11 @@ public class BeanPeriodEntityRepository extends AbsCachedRepository <PeriodEntit
     public PeriodEntity findByName (String name) {
         PeriodEntityRepository repo = MiscUtils.cast (repository);
         return repo.findByName (name);
+    }
+
+    @Override
+    public List <Long> findAllIdsOfAvailablePeriod (LocalDateTime moment) {
+        return findAllIds ();
     }
     
 }

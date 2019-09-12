@@ -53,6 +53,16 @@ public class GetController {
         return ResponseBox.ok (periodsService.getAllPeriods ());
     }
     
+    @GetMapping (API_GET_AVAILABLE_PERIODS) 
+    public ResponseBox <Collection <PeriodEntity>> handleGetAvailablePeriods (
+        @RequestParam (value = "moment", required = false) String moment
+    ) {
+        LocalDateTime border = (moment != null && moment.length () > 0)
+                             ? LocalDateTime.parse (moment) 
+                             : LocalDateTime.now (clock);
+        return ResponseBox.ok (periodsService.getAllAvailablePeriods (border));
+    }
+    
     @GetMapping (API_GET_USERS) 
     public ResponseBox <Collection <UserEntity>> handleGetUsers () {
         return ResponseBox.ok (usersService.getAllUsers ());
