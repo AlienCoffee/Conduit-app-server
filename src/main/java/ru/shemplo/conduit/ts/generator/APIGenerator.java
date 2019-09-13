@@ -2,14 +2,15 @@ package ru.shemplo.conduit.ts.generator;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.web.bind.annotation.*;
 
-import ru.shemplo.conduit.ts.generator.DTOGenerator.DTOMappedType;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.stuctures.Trio;
 import ru.shemplo.snowball.utils.ClasspathManager;
@@ -43,7 +44,8 @@ public class APIGenerator implements Generator {
     
     @Override
     public void print (PrintWriter pw) {
-        String dtos = dtoGenerator.getTypes ().stream ().map (type -> dtoGenerator.convertName (type, false))
+        String dtos = dtoGenerator.getTypes ().keySet ().stream ()
+                    . map (type -> dtoGenerator.convertName (type, false))
                     . collect (Collectors.joining (",\n\t"));
         pw.println (String.format ("import {\n\t%s\n} from \"./gen-dtos\";", dtos));
         pw.println ("import { Pair, assignType } from \"../common\";");
@@ -114,9 +116,11 @@ public class APIGenerator implements Generator {
         pw.print   ("\", ");
         pw.print   (isInline ? "null" : "formData");
         pw.println (");");
-        pw.println ("        if (answer && !answer.error) {");
-        processTypesAssignment (rType, "", "answer", 0, pw);
-        pw.println ("        }");
+        pw.print ("        if (answer && !answer.error) { ");
+        //processTypesAssignment (rType, "", "answer", 0, pw);
+        String scType = dtoGenerator.convertName (DTOGenerator.getTypeClass (rType), true);
+        pw.print (String.format ("answer = %s.newInstance (answer);", scType));
+        pw.println (" }");
         pw.println ("        return answer;");
         pw.println ("    }");
     }
@@ -191,6 +195,7 @@ public class APIGenerator implements Generator {
         return String.format ("JSON.stringify (%s)", name);
     }
     
+    /*
     private void processTypesAssignment (Type type, String offset, String address, int level, PrintWriter pw) {
         if (type instanceof Class) {
             Class <?> ctype = MiscUtils.cast (type);
@@ -313,5 +318,6 @@ public class APIGenerator implements Generator {
     private void printTypeAssignment (String offset, String address, String mappedType, PrintWriter pw) {
         pw.println (String.format ("            %sassignType (%s, %s.prototype);", offset, address, mappedType));
     }
+    */
     
 }

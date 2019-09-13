@@ -20,7 +20,7 @@ public class DTOGenerator implements Generator {
     private final Collector <CharSequence, ?, String> GENERIC_COLLECTOR = Collectors.joining (", ", "<", ">");
     
     @Getter
-    private final Set <Class <?>> types = new LinkedHashSet <> ();
+    private final Map <Class <?>, List <Field>> types = new HashMap <> ();
     
     private final ClasspathManager cpManager;
 
@@ -30,14 +30,14 @@ public class DTOGenerator implements Generator {
     }
     
     private void initialize () {
-        cpManager.findObjectsWithAnnotation (new HashSet <> (Arrays.asList (DTOType.class)))
-        . get (DTOType.class).stream ().filter (obj -> obj instanceof Class)
-        . <Class <?>> map (MiscUtils::cast).forEach (types::add);
+        cpManager.findObjectsWithAnnotation (new HashSet <> (Arrays.asList (DTOType.class))).get (DTOType.class)
+        . stream ().filter (obj -> obj instanceof Class).<Class <?>> map (MiscUtils::cast)
+        . forEach (t -> types.put (t, new ArrayList <> ()));
     }
     
     @Override
     public void print (PrintWriter pw) {
-        types.stream ().sorted (Comparator.comparing (Class::getSimpleName))
+        types.keySet ().stream ().sorted (Comparator.comparing (Class::getSimpleName))
              .forEach (type -> printType (type, pw));
     }
     
@@ -48,8 +48,9 @@ public class DTOGenerator implements Generator {
         DTOType annotation = type.getAnnotation (DTOType.class);
         Type superType = type.getGenericSuperclass ();
         
+        String processedType = processType (type);
         pw.print ("export class ");
-        pw.print (processType (type));
+        pw.print (processedType);
         
         if (annotation.superclass () != null && annotation.superclass ().length () > 0) {
             pw.print (" extends "); pw.print (annotation.superclass ());
@@ -64,7 +65,8 @@ public class DTOGenerator implements Generator {
         }
         
         pw.println (" {");
-        printBody (type, annotation, pw);
+        printBody              (type, annotation, pw);
+        printStaticConstructor (type, processedType, pw);
         pw.println ("}");
     }
     
@@ -80,11 +82,9 @@ public class DTOGenerator implements Generator {
                 continue; // static fields should be declared as custom code
             }
             
-            pw.print ("    public ");
-            pw.print (field.getName ());
-            pw.print (" : ");
-            pw.print (processType (field.getGenericType ()));
-            pw.println (";");
+            String processedType = processType (field.getGenericType ()), name = field.getName ();
+            pw.println (String.format ("    public %s : %s;", name, processedType));
+            types.get (type).add (field);
         }
         
         if (annotation.code ().length > 0) {
@@ -129,6 +129,30 @@ public class DTOGenerator implements Generator {
         }
         
         return sb.toString ();
+    }
+    
+    public static Class <?> getTypeClass (Type type) {
+        if (type instanceof Class) {
+            return MiscUtils.cast (type);
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType ptype = MiscUtils.cast (type);
+            return MiscUtils.cast (ptype.getRawType ());
+        } else {
+            String message = String.format ("Unsupported type: %s", 
+                type.getClass ().getSimpleName ());
+            throw new IllegalArgumentException (message);
+        }
+    }
+    
+    private void printStaticConstructor (Type type, String processedType, PrintWriter pw) {
+        String params = Arrays.asList (getTypeClass (type).getTypeParameters ()).stream ()
+                      . map (Type::getTypeName).collect (GENERIC_COLLECTOR);
+        params = params.length () > 2 ? params : ""; // if type without parameters
+        
+        pw.println (String.format ("    public static newInstance %s (obj : any) : %s {", params, processedType));
+        pw.println (String.format ("        let instance = new %s ();", processedType));
+        pw.println ("        return instance;");
+        pw.println ("    }");
     }
     
     @Getter
