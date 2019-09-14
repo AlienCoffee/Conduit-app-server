@@ -144,15 +144,70 @@ public class DTOGenerator implements Generator {
         }
     }
     
-    private void printStaticConstructor (Type type, String processedType, PrintWriter pw) {
-        String params = Arrays.asList (getTypeClass (type).getTypeParameters ()).stream ()
+    private void printStaticConstructor (Class <?> type, String processedType, PrintWriter pw) {
+        String params = Arrays.asList (type.getTypeParameters ()).stream ()
                       . map (Type::getTypeName).collect (GENERIC_COLLECTOR);
         params = params.length () > 2 ? params : ""; // if type without parameters
         
         pw.println (String.format ("    public static newInstance %s (obj : any) : %s {", params, processedType));
         pw.println (String.format ("        let instance = new %s ();", processedType));
+        types.get (type).forEach (field -> {
+            final Type gtype = field.getGenericType ();
+            final Class <?> ctype = field.getType ();
+            final String name = field.getName ();
+            printFieldInitialization (ctype, gtype, "instance." + name, "obj." + name, false, "", 0, pw);
+        });
         pw.println ("        return instance;");
         pw.println ("    }");
+    }
+    
+    private void printFieldInitialization (Class <?> ctype, Type type, String name, 
+            String sname, boolean isNew, String offset, int level, PrintWriter pw) {
+        if (Map.class.isAssignableFrom (ctype)) {
+            String processed = processType (type);
+            String varKeyName = "key" + level;
+            pw.println (String.format ("        %s%s%s = new %s ();", offset, isNew ? "let " : "", name, processed));
+            pw.println (String.format ("        Object.keys (%s).forEach (%s => {", sname, varKeyName));
+            ParameterizedType ptype = MiscUtils.cast (type);
+            final Type ktype = ptype.getActualTypeArguments () [0];
+            //pw.println (String.format ("            let keyI = %s;", kinitPart));
+            printFieldInitialization (getTypeClass (ktype), ktype, "key" + (level + 1), varKeyName, true, 
+                    offset + "    ", level + 1, pw);
+            
+            String varValName = "val" + level;
+            Type vtype = ptype.getActualTypeArguments () [1];
+            String varValSName = String.format ("%s.get (%s)", sname, varKeyName);
+            printFieldInitialization (getTypeClass (vtype), vtype, varValName, varValSName, true, 
+                    offset + "    ", level + 1, pw);
+            pw.println (String.format ("            %s%s.set (%s, %s);", offset, name, varKeyName, varValName));
+            pw.println ("        });");
+        } else if (ctype.isArray ()) {
+            
+        } else if (Collection.class.isAssignableFrom (ctype)) {
+            
+        } else {
+            String preparedPart = prepareInitializationPart (type, sname);
+            pw.println (String.format ("        %s%s%s = %s;", offset, isNew ? "let " : "", name, preparedPart));
+        }
+    }
+    
+    private String prepareInitializationPart (Type needed, String variable) {
+        if (needed instanceof Class) {
+            Class <?> ctype = MiscUtils.cast (needed);
+            if (String.class.isAssignableFrom (ctype)) {
+                return variable;
+            } else if (Number.class.isAssignableFrom (ctype)) {
+                return "+".concat (variable);
+            } else if (ctype.isPrimitive ()) {
+                if (boolean.class.isAssignableFrom (ctype)) {
+                    return String.format ("%s == \"true\";", variable);
+                } else {
+                    return "+".concat (variable);
+                }
+            }
+        }
+        
+        return variable;
     }
     
     @Getter
@@ -189,7 +244,7 @@ public class DTOGenerator implements Generator {
         mappedTypes.add (new DTOMappedType (Map.class, true, true, "Map", "Map"));
     }
     
-    public String convertName (Class <?> type, boolean forProto) {
+    public String convertName (Class <?> type, boolean forPrototype) {
         String pureName = type.getSimpleName ();
         if (type.isAnnotationPresent (DTOType.class)) {
             pureName = pureName.replace ("DTO", "");
@@ -198,25 +253,27 @@ public class DTOGenerator implements Generator {
                      : type.equals (boolean.class) ? "boolean"
                      : "number";
         } else {
-            boolean found = false;
-            for (DTOMappedType ctype : mappedTypes) {
-                if (ctype.checkMapping (type)) {
-                    if (forProto) {
-                        pureName = ctype.getPrototypeName ();
-                    } else {
-                        pureName = ctype.getMappedType ();                        
-                    }
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (!found || pureName == null) {
+            DTOMappedType mtype = findMappedType (type);
+            if (mtype == null) {
                 pureName = "Object";
+            } else if (forPrototype) {
+                pureName = mtype.getPrototypeName ();
+            } else {
+                pureName = mtype.getMappedType ();
             }
         }
         
         return pureName;
+    }
+    
+    public DTOMappedType findMappedType (Class <?> type) {
+        for (DTOMappedType ctype : mappedTypes) {
+            if (ctype.checkMapping (type)) {
+                return ctype;
+            }
+        }
+        
+        return null;
     }
     
 }
