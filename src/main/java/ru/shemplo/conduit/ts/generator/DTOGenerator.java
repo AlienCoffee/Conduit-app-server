@@ -7,6 +7,7 @@ import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -66,7 +67,7 @@ public class DTOGenerator implements Generator {
         
         pw.println (" {");
         printBody              (type, annotation, pw);
-        printStaticConstructor (type, processedType, pw);
+        //printStaticConstructor (type, processedType, pw);
         pw.println ("}");
     }
     
@@ -131,19 +132,49 @@ public class DTOGenerator implements Generator {
         return sb.toString ();
     }
     
-    public static Class <?> getTypeClass (Type type) {
+    public static Class <?> getTypeClass (Type type, Map <String, Type> generics) {
         if (type instanceof Class) {
             return MiscUtils.cast (type);
         } else if (type instanceof ParameterizedType) {
             ParameterizedType ptype = MiscUtils.cast (type);
             return MiscUtils.cast (ptype.getRawType ());
-        } else {
+        } else if (type instanceof TypeVariable) {
+            TypeVariable <?> tvar = MiscUtils.cast (type);
+            if (generics.containsKey (tvar.getName ())) {
+                Type vtype = generics.get (tvar.getName ());
+                return getTypeClass (vtype, Collections.emptyMap ());
+            }
+            
+            String message = String.format ("Unknown TypeVariable name: %s", tvar.getName ());
+            throw new IllegalArgumentException (message);
+        } else if (type != null) {
+            System.err.println (type + " / " + type.getClass ());
             String message = String.format ("Unsupported type: %s", 
                 type.getClass ().getSimpleName ());
             throw new IllegalArgumentException (message);
         }
+        
+        return null;
     }
     
+    public static Map <String, Type> getGenericTypes (Type type) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType ptype = MiscUtils.cast (type);
+            Class <?> ctype = MiscUtils.cast (ptype.getRawType ());
+            TypeVariable <?> [] typeVariables = ctype.getTypeParameters ();
+            Type [] types = ptype.getActualTypeArguments ();
+            
+            return Stream.iterate (0, i -> i + 1).limit (typeVariables.length)
+                 . collect (Collectors.toMap (
+                     i -> typeVariables [i].getName (), 
+                     i -> types [i])
+                 );
+        }
+        
+        return Collections.emptyMap ();
+    }
+    
+    /*
     private void printStaticConstructor (Class <?> type, String processedType, PrintWriter pw) {
         String params = Arrays.asList (type.getTypeParameters ()).stream ()
                       . map (Type::getTypeName).collect (GENERIC_COLLECTOR);
@@ -209,6 +240,7 @@ public class DTOGenerator implements Generator {
         
         return variable;
     }
+    */
     
     @Getter
     private final List <DTOMappedType> mappedTypes = new ArrayList <> ();

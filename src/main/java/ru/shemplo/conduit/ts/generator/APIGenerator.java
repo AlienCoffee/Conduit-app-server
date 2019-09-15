@@ -2,10 +2,11 @@ package ru.shemplo.conduit.ts.generator;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +20,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 public class APIGenerator implements Generator {
     
     private final Set <Method> methods = new LinkedHashSet <> ();
+    private final AtomicInteger counter = new AtomicInteger ();
     
     private final ClasspathManager cpManager;
     private final DTOGenerator dtoGenerator;
@@ -116,11 +118,10 @@ public class APIGenerator implements Generator {
         pw.print   ("\", ");
         pw.print   (isInline ? "null" : "formData");
         pw.println (");");
-        pw.print ("        if (answer && !answer.error) { ");
+        pw.println ("        if (answer && !answer.error) {");
         //processTypesAssignment (rType, "", "answer", 0, pw);
-        String scType = dtoGenerator.convertName (DTOGenerator.getTypeClass (rType), true);
-        pw.print (String.format ("answer = %s.newInstance (answer);", scType));
-        pw.println (" }");
+        initializeObject ("answer", "answer", rType, "", 0, pw);
+        pw.println ("        }");
         pw.println ("        return answer;");
         pw.println ("    }");
     }
@@ -195,129 +196,133 @@ public class APIGenerator implements Generator {
         return String.format ("JSON.stringify (%s)", name);
     }
     
-    /*
-    private void processTypesAssignment (Type type, String offset, String address, int level, PrintWriter pw) {
-        if (type instanceof Class) {
-            Class <?> ctype = MiscUtils.cast (type);
-            processRawTypeAssignment (ctype, offset, address, pw);
-        } else if (type instanceof ParameterizedType) {
-            ParameterizedType ptype = MiscUtils.cast (type);
-            Class <?> ctype = MiscUtils.cast (ptype.getRawType ());
-            processRawTypeAssignment (ctype, offset, address, pw);
-            
-            processBodyOfAssigningClass (ctype, ptype, ptype.getActualTypeArguments (), 
-                    offset, address, level, pw);
-        }
-    }
+    ////////////////////////////////////////////////////////////////////////////////////////
     
-    private void processBodyOfAssigningClass (Class <?> ctype, Type type, Type [] generics, 
-            String offset, String address, int level, PrintWriter pw) {
-        if (ctype != null && ctype.isAnnotationPresent (DTOType.class)) {
-           //DTOType annotation = ctype.getAnnotation (DTOType.class);
-            for (Field field : ctype.getDeclaredFields ()) {
-                String fieldAddress = String.join (".", address, field.getName ());
-                Type fieldType = field.getGenericType ();
-                if (fieldType instanceof TypeVariable) {
-                    TypeVariable <?> typeVar = MiscUtils.cast (fieldType);
-                    int index = Arrays.asList (ctype.getTypeParameters ()).indexOf (typeVar);
-                    fieldType = generics [index];
-                }
-                processTypesAssignment (fieldType, offset, fieldAddress, level, pw);
-            }
-        } else if (Collection.class.isAssignableFrom (ctype) || ctype.isArray ()) {
-            processCollectionInAssigning (type, address, offset, level, pw);
-        } else if (Map.class.isAssignableFrom (ctype)) {
-            pw.println (String.format ("            %s%s = convertObj2Map (%s);", offset, address, address));
-            processMapInAssigning (type, address, offset, level, pw);
-        }
-    }
-    
-    private void processCollectionInAssigning (Type type, String addres, String offset, int level, PrintWriter pw) {
-        pw.println (String.format ("            %sfor (let i%d of %s) {", offset, level, addres));
-        if (type instanceof Class) {
-            final Class <?> ctype = MiscUtils.cast (type);
-            Class <?> atype = ctype.getComponentType ();
-            if (atype.isArray ()) {
-                processCollectionInAssigning (atype, "i" + level, offset + "    ", level + 1, pw);
-            } else {
-                final String mappedType = dtoGenerator.convertName (atype, true);
-                printTypeAssignment (offset + "    ", "i" + level, mappedType, pw);
-            }
-        } if (type instanceof ParameterizedType) { // Collection <T>
-            final ParameterizedType ptype = MiscUtils.cast (type);
-            Type atype = ptype.getActualTypeArguments () [0]; // T
-            
-            if (atype instanceof Class) {
-                final Class <?> ctype = MiscUtils.cast (atype);
-                if (ctype.isArray ()) {
-                    processCollectionInAssigning (ctype, "i" + level, offset + "    ", level + 1, pw);
-                } else {
-                    final String mappedType = dtoGenerator.convertName (ctype, true);
-                    printTypeAssignment (offset + "    ", "i" + level, mappedType, pw);
-                }
-            } else if (atype instanceof ParameterizedType) {
-                final ParameterizedType pptype = MiscUtils.cast (atype);
-                Class <?> rtype = MiscUtils.cast (pptype.getRawType ());
-                if (rtype.isArray () || Collection.class.isAssignableFrom (rtype)) {
-                    processCollectionInAssigning (rtype, "i" + level, offset + "    ", level + 1, pw);
-                } else {
-                    final String mappedType = dtoGenerator.convertName (rtype, false);
-                    printTypeAssignment (offset + "    ", "i" + level, mappedType, pw);
-                }
-            }
-        }
-        pw.println (String.format ("            %s}", offset));
-    }
-    
-    private void processMapInAssigning (Type type, String addres, String offset, int level, PrintWriter pw) {
-        pw.println (String.format ("            %sfor (let i%d of %s.keys ()) {", offset, level, addres));
-        ParameterizedType ptype = MiscUtils.cast (type);
-        Type ktype = ptype.getActualTypeArguments () [0];
-        if (ktype instanceof Class) {
-            Class <?> cktype = MiscUtils.cast (ktype);
-            processTypesAssignment (cktype, offset + "    ", "i" + level, level + 1, pw);
-        } else if (ktype instanceof ParameterizedType) {
-            ParameterizedType pktype = MiscUtils.cast (ktype);
-            Class <?> rpktype = MiscUtils.cast (pktype.getRawType ());
-            processBodyOfAssigningClass (rpktype, pktype, pktype.getActualTypeArguments (), 
-                    offset + "     ", "i" + level, level + 1, pw);
-        }
-        
-        String valueAddress = String.format ("%s.get (i%d)", addres, level);
-        Type vtype = ptype.getActualTypeArguments () [1];
-        if (vtype instanceof Class) {
-            Class <?> cktype = MiscUtils.cast (vtype);
-            String mappedType = dtoGenerator.convertName (cktype, true);
-            printTypeAssignment (offset + "    ", valueAddress, mappedType, pw);
-            processTypesAssignment (cktype, offset + "    ", valueAddress, level + 1, pw);
-        } else if (vtype instanceof ParameterizedType) {
-            ParameterizedType pktype = MiscUtils.cast (vtype);
-            Class <?> rpktype = MiscUtils.cast (pktype.getRawType ());
-            String mappedType = dtoGenerator.convertName (rpktype, true);
-            printTypeAssignment (offset + "    ", valueAddress, mappedType, pw);
-            processBodyOfAssigningClass (rpktype, pktype, pktype.getActualTypeArguments (), 
-                    offset + "    ", valueAddress, level + 1, pw);
-        }
-        pw.println (String.format ("            %s}", offset));
-    }
-    
-    private void processRawTypeAssignment (Class <?> type, String offset, String address, PrintWriter pw) {
-        if (type.isAnnotationPresent (DTOType.class)) {
-            DTOType annotation = type.getAnnotation (DTOType.class);
-            if (annotation.generateTypeAssignment ()) {
-                printTypeAssignment ("", address, dtoGenerator.convertName (type, true), pw);
-            }
-        } else {
-            dtoGenerator.getMappedTypes ().stream ().filter (mtype -> mtype.checkMapping (type))
-            . filter (DTOMappedType::isPrototyping).findFirst ().ifPresent (mtype -> {
-                printTypeAssignment (offset, address, mtype.getPrototypeName (), pw);
+    private void initializeObject (String name, String source, Type type, String offset, int level, PrintWriter pw) {
+        Map <String, Type> gens = DTOGenerator.getGenericTypes (type);
+        //System.out.println (type + " / " + gens);
+        Class <?> ctype = DTOGenerator.getTypeClass (type, gens);
+        if (dtoGenerator.getTypes ().containsKey (ctype) && true) {
+            dtoGenerator.getTypes ().get (ctype).forEach (field -> {
+                String srcName = (source != null ? source + "." : "") + field.getName ();
+                String varName = name + "." + field.getName ();
+                Type ftype = field.getGenericType ();
+                
+                initializeVariable (varName, srcName, false, ftype, gens, offset, 0, pw);
             });
+        } else if (Collection.class.isAssignableFrom (ctype)) {
+            ParameterizedType ptype = MiscUtils.cast (type);
+            
+            String varIName = "i" + counter.getAndIncrement ();
+            pw.println (String.format ("            %sfor (let %s in %s) {", offset, varIName, source));
+            
+            Type vtype = ptype.getActualTypeArguments () [0];
+            String varOName = "tmpObj" + counter.get (), varSName = "tmpSrc" + counter.getAndIncrement ();
+            String osource = String.format ("%s [%s]", source, varIName);
+            initializeVariable (varSName, osource, true, null, gens, offset + "    ", level + 1, pw);
+            String processedType = dtoGenerator.processType (vtype);
+            if (Character.isLowerCase (processedType.charAt (0))) {
+                initializeVariable (varOName, varSName, true, vtype, gens, offset + "    ", level + 1, pw);
+            } else {
+                String initedValue = String.format ("new %s ()", processedType);
+                initializeVariable (varOName, initedValue, true, null, gens, offset + "    ", level + 1, pw);
+            }
+            initializeObject (varOName, varSName, vtype, offset + "    ", level + 1, pw);
+            pw.println (String.format ("                %s%s.push (%s);", offset, name, varOName));
+            pw.println (String.format ("            %s}", offset));
+        } else if (Map.class.isAssignableFrom (ctype)) {
+            ParameterizedType ptype = MiscUtils.cast (type);
+            
+            String varKName = "key" + counter.get ();
+            pw.println (String.format ("            %sObject.keys (%s).forEach (%s => {", offset, source, varKName));
+            Type ktype = ptype.getActualTypeArguments () [0];
+            initializeVariable (varKName + "I", varKName, true, ktype, gens, offset + "    ", level + 1, pw);
+            
+            Type vtype = ptype.getActualTypeArguments () [1];
+            String varVName= "val" + counter.getAndIncrement ();
+            String vsource = String.format ("%s [%s]", source, varKName);
+            initializeVariable (varVName + "I", vsource, true, vtype, gens, offset + "    ", level + 1, pw);
+            pw.println (String.format ("                %s%s.set (%s, %s);", offset, name, varKName + "I", varVName + "I"));
+            pw.println (String.format ("            %s});", offset));
+        } else if (ctype.isArray ()) {
+            pw.println ("// not implemented: array");
+        } else if (ctype.isEnum ()) {
+            pw.println ("// not implemented: enum");
+        } else {
+            //pw.println ("// not implemented: object");
         }
     }
     
-    private void printTypeAssignment (String offset, String address, String mappedType, PrintWriter pw) {
-        pw.println (String.format ("            %sassignType (%s, %s.prototype);", offset, address, mappedType));
+    private void initializeVariable (String name, String source, boolean declare, Type type, 
+            Map <String, Type> generics, String offset, int level, PrintWriter pw) {
+        //System.out.println ("Init' varible: " + name);
+        Class <?> ctype = DTOGenerator.getTypeClass (type, generics);
+        if (type == null && source != null && source.length () > 0) {
+            String prefix = declare ? "let " : "";
+            pw.println (String.format ("            %s%s%s = %s; // custom type", 
+                offset, prefix, name, source));
+        } else if (dtoGenerator.getTypes ().containsKey (ctype) && true) {
+            initializeObject (name, source, type, offset + "    ", level + 1, pw);
+        } else if (Collection.class.isAssignableFrom (ctype)) {
+            ParameterizedType ptype = null;
+            if (type instanceof ParameterizedType) {
+                ptype = MiscUtils.cast (type);
+            } else if (type instanceof TypeVariable) {
+                TypeVariable <?> tvar = MiscUtils.cast (type);
+                if (generics.containsKey (tvar.getName ())) {
+                    ptype = MiscUtils.cast (generics.get (tvar.getName ()));
+                }
+            } else {
+                System.out.println (":( collection");
+            }
+            
+            String varName = "tmpArray" + counter.getAndIncrement ();
+            initializeVariable (varName, "[]", true, null, null, offset, level, pw);
+            initializeObject (varName, source, ptype, offset, level, pw);
+            initializeVariable (name, varName, declare, null, null, offset, level, pw);
+        } else if (String.class.isAssignableFrom (ctype)) {
+            String prefix = declare ? "let " : "";
+            pw.println (String.format ("            %s%s%s = \"\" + %s; // string", offset, prefix, name, source));
+        } else if (Number.class.isAssignableFrom (ctype) || ctype.isPrimitive ()) {
+            String prefix = declare ? "let " : "";
+            String postfix = boolean.class.isAssignableFrom (ctype) ? source
+                           : void.class.isAssignableFrom (ctype) ? "null" 
+                           : "+" + source;
+            pw.println (String.format ("            %s%s%s = %s; // number || primitive", 
+                offset, prefix, name, postfix));
+        } else if (Map.class.isAssignableFrom (ctype)) {
+            ParameterizedType ptype = null;
+            if (type instanceof ParameterizedType) {
+                ptype = MiscUtils.cast (type);
+            } else if (type instanceof TypeVariable) {
+                TypeVariable <?> tvar = MiscUtils.cast (type);
+                if (generics.containsKey (tvar.getName ())) {
+                    ptype = MiscUtils.cast (generics.get (tvar.getName ()));
+                }
+            } else {
+                System.out.println (":( map");
+            }
+            
+            String varName = "tmpMap" + counter.getAndIncrement ();
+            initializeVariable (varName, "new Map ()", true, null, null, offset, level, pw);
+            initializeObject (varName, source, ptype, offset, level, pw);
+            initializeVariable (name, varName, false, null, null, offset, level, pw);
+            //Type ktype = ptype.getActualTypeArguments () [0];
+            //Type vtype = ptype.getActualTypeArguments () [1];
+            
+        } else if (LocalDate.class.isAssignableFrom (ctype) || Date.class.isAssignableFrom (ctype)
+                || LocalDateTime.class.isAssignableFrom (ctype)) {
+            String prefix = declare ? "let " : "";
+            pw.println (String.format ("            %s%s%s = new Date (%s); // date", 
+                offset, prefix, name, source));
+        } else if (ctype.isArray ()) {
+            pw.println ("// not implemented: array (variable)");
+        } else if (ctype.isEnum ()) {
+            pw.println ("// not implemented: enum (variable)");
+        } else if (Object.class.isAssignableFrom (ctype)) {
+            String prefix = declare ? "let " : "";
+            pw.println (String.format ("            %s%s%s = %s; // object", offset, prefix, name, source));
+        }
     }
-    */
     
 }

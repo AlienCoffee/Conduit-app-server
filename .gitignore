@@ -1,6 +1,7 @@
 /src/main/webapp/WEB-INF/html
 /src/main/webapp/WEB-INF/jsp
 /src/main/resources/static
+/src/main/webapp
 /.settings/
 /attempts
 /target/
