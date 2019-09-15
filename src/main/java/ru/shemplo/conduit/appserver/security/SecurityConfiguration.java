@@ -59,7 +59,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 HttpServletResponse response, AuthenticationException exception) 
                 throws IOException, ServletException {
             response.setStatus (HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter ().write ("FAIL");
+            response.getWriter ().write ("{\"authorized\": false}");
         }
         
     }
@@ -72,7 +72,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 HttpServletResponse response, Authentication authentication) 
                 throws IOException, ServletException {
             response.setStatus (HttpServletResponse.SC_OK);
-            response.getWriter ().write ("OK");
+            response.getWriter ().write ("{\"authorized\": true}");
         }
         
     }
@@ -84,7 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         public void onLogoutSuccess (HttpServletRequest request, HttpServletResponse response,
                 Authentication authentication) throws IOException, ServletException {
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter ().write ("logout");
+            response.getWriter ().write ("{\"authorized\": false}");
         }
         
     }

@@ -177,8 +177,7 @@ public class DBValidator {
                         row.getParams ().put ("@" + f.getName (), value);
                     }
                     f.set (entity, null);
-                } 
-                catch (IllegalArgumentException | IllegalAccessException e) {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new IllegalStateException (e);
                 }
             } else if (full && row.getParams ().containsKey ("@" + f.getName ())) {
@@ -198,7 +197,7 @@ public class DBValidator {
                 final String value = (String) row.getParams ().get (f.getName ());
                 
                 try { 
-                    if (!f.isAnnotationPresent (DBTemplateConstant.class)) {
+                    if (!f.isAnnotationPresent (DBTemplateConstant.class) || f.get (entity) == null) {
                         f.set (entity, convertParameterValue (type, value, context)); 
                     }
                 } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -230,6 +229,8 @@ public class DBValidator {
     private <R> R convertParameterValue (Class <?> required, 
             String value, Map <String, AbsEntity> context) {
         //System.out.println ("Converter of `" + required + "` for '" + value + "'");
+        
+        if (value == null) { return null; }
         
         if (required.isEnum ()) {
             //System.out.println ("`" + required + "` is enum type");

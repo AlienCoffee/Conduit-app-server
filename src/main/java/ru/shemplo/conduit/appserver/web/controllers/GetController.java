@@ -53,6 +53,16 @@ public class GetController {
         return ResponseBox.ok (periodsService.getAllPeriods ());
     }
     
+    @GetMapping (API_GET_AVAILABLE_PERIODS) 
+    public ResponseBox <Collection <PeriodEntity>> handleGetAvailablePeriods (
+        @RequestParam (value = "moment", required = false) String moment
+    ) {
+        LocalDateTime border = (moment != null && moment.length () > 0)
+                             ? LocalDateTime.parse (moment) 
+                             : LocalDateTime.now (clock);
+        return ResponseBox.ok (periodsService.getAllAvailablePeriods (border));
+    }
+    
     @GetMapping (API_GET_USERS) 
     public ResponseBox <Collection <UserEntity>> handleGetUsers () {
         return ResponseBox.ok (usersService.getAllUsers ());
@@ -148,12 +158,15 @@ public class GetController {
         
         List <BlogPostDTO> dtos = posts.stream ().map (post -> {
                 final String content = Processor.process (post.getContent (), true);
-                final String author = post.getCommitter ().getLogin ();
-                final LocalDateTime issued = post.getPublished ();
+                final String editor = post.getCommitter ().getLogin ();
+                final String author = post.getAuthor ().getLogin ();
+                final LocalDateTime modified = post.getChanged ();
+                final LocalDateTime issued = post.getIssued ();
                 final String title = post.getTitle (); 
                 final Long postId = post.getId ();
                 
-                BlogPostDTO dto = new BlogPostDTO (postId, title, content, author, issued);
+                BlogPostDTO dto = new BlogPostDTO (postId, title, content, 
+                        author, editor, issued, modified);
                 return dto;
             })
             . collect (Collectors.toList ());

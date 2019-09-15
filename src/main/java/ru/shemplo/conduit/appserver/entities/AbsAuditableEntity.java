@@ -27,8 +27,20 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     @Column (nullable = false)
     protected LocalDateTime issued;
     
+    @JsonIgnore
+    @DBTemplateConstant
+    @DBTemplateField ("{now}")
+    @Column (nullable = false)
+    protected LocalDateTime changed;
+    
+    @ManyToOne (optional = false)
+    protected UserEntity author;
+    
     @ManyToOne (optional = false)
     protected UserEntity committer;
+    
+    @Column (nullable = false)
+    protected Boolean available = true;
     
     @Column (nullable = false, columnDefinition = "text")
     protected String comment = "";
@@ -36,6 +48,11 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     @JsonProperty ("issued")
     public String getJSONIssued () {
         return issued.format (RU_DATETIME_FORMAT);
+    }
+    
+    @JsonProperty ("changed")
+    public String getJSONChanged () {
+        return changed.format (RU_DATETIME_FORMAT);
     }
     
 }
