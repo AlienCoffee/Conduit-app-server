@@ -23,11 +23,10 @@ public class SecurityEntryPoint extends LoginUrlAuthenticationEntryPoint {
     
     @Override
     public void commence (HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException authException) throws IOException, ServletException {
-        if (isXMLOrAPIHttpRequest (request)) { // Ajax requests should be just dropped
+            AuthenticationException ae) throws IOException, ServletException {
+        if (isXMLOrAPIHttpRequest (request)) { // ajax requests should be just dropped
             response.sendError(SC_UNAUTHORIZED, "Forbidden (not authorized)");
-        } else { super.commence (request, response, authException); }
+        } else { super.commence (request, response, ae); }
     }
-    
     
 }

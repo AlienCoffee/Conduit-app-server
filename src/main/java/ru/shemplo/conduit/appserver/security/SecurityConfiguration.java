@@ -4,6 +4,7 @@ import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.*;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +28,11 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.services.UsersService;
+import ru.shemplo.conduit.appserver.web.ResponseBox;
 
 @Configuration
 @EnableWebSecurity
@@ -52,14 +56,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
     
     @Component
+    @RequiredArgsConstructor
     public static class FailedLoginHandler implements AuthenticationFailureHandler {
 
+        private final ObjectMapper omapper;
+        
         @Override
         public void onAuthenticationFailure (HttpServletRequest request, 
-                HttpServletResponse response, AuthenticationException exception) 
+                HttpServletResponse response, AuthenticationException ae) 
                 throws IOException, ServletException {
-            response.setStatus (HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter ().write ("{\"authorized\": false}");
+            final StringWriter result = new StringWriter ();
+            response.setStatus (HttpServletResponse.SC_OK);
+            
+            omapper.writeValue (result, ResponseBox.fail (ae.getMessage ()));
+            response.getWriter ().write (result.toString ());
+            response.getWriter ().flush ();
         }
         
     }
