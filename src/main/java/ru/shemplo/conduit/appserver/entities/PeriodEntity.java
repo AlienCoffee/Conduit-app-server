@@ -54,13 +54,15 @@ public class PeriodEntity extends AbsAuditableEntity {
     
     @JsonProperty ("since")
     public String getJSONSince () {
-        return since.format (RU_DATETIME_FORMAT);
+        since.format (RU_DATETIME_FORMAT);
+        return since.toString ();
     }
     
     @JsonProperty ("until")
     public String getJSONUntil () {
         if (until == null) { return ""; }
-        return until.format (RU_DATETIME_FORMAT);
+        //return until.format (RU_DATETIME_FORMAT);
+        return until.toString ();
     }
     
 }

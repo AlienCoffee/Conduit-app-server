@@ -47,12 +47,14 @@ public abstract class AbsAuditableEntity extends AbsEntity {
     
     @JsonProperty ("issued")
     public String getJSONIssued () {
-        return issued.format (RU_DATETIME_FORMAT);
+        issued.format (RU_DATETIME_FORMAT);
+        return issued.toString ();
     }
     
     @JsonProperty ("changed")
     public String getJSONChanged () {
-        return changed.format (RU_DATETIME_FORMAT);
+        changed.format (RU_DATETIME_FORMAT);
+        return changed.toString ();
     }
     
 }

@@ -46,7 +46,8 @@ public class APIGenerator implements Generator {
     
     @Override
     public void print (PrintWriter pw) {
-        String dtos = dtoGenerator.getTypes ().keySet ().stream ()
+        String dtos = Stream.concat (dtoGenerator.getTypes ().keySet ().stream (), 
+                                     dtoGenerator.getEnums ().stream ())
                     . map (type -> dtoGenerator.convertName (type, false))
                     . collect (Collectors.joining (",\n\t"));
         pw.println (String.format ("import {\n\t%s\n} from \"./gen-dtos\";", dtos));
@@ -261,8 +262,13 @@ public class APIGenerator implements Generator {
             String prefix = declare ? "let " : "";
             pw.println (String.format ("            %s%s%s = %s; // custom type", 
                 offset, prefix, name, source));
-        } else if (dtoGenerator.getTypes ().containsKey (ctype) && true) {
-            initializeObject (name, source, type, offset + "    ", level + 1, pw);
+        } else if (dtoGenerator.getTypes ().containsKey (ctype)) {
+            String varOName = "tmpObj" + counter.getAndIncrement ();
+            String processedType = dtoGenerator.processType (type);
+            String initedValue = String.format ("new %s ()", processedType);
+            initializeVariable (varOName, initedValue, true, null, null, offset, level, pw);
+            initializeObject (varOName, source, type, offset, level, pw);
+            initializeVariable (name, varOName, false, null, null, offset, level, pw);
         } else if (Collection.class.isAssignableFrom (ctype)) {
             ParameterizedType ptype = null;
             if (type instanceof ParameterizedType) {
@@ -307,18 +313,17 @@ public class APIGenerator implements Generator {
             initializeVariable (varName, "new Map ()", true, null, null, offset, level, pw);
             initializeObject (varName, source, ptype, offset, level, pw);
             initializeVariable (name, varName, false, null, null, offset, level, pw);
-            //Type ktype = ptype.getActualTypeArguments () [0];
-            //Type vtype = ptype.getActualTypeArguments () [1];
-            
         } else if (LocalDate.class.isAssignableFrom (ctype) || Date.class.isAssignableFrom (ctype)
                 || LocalDateTime.class.isAssignableFrom (ctype)) {
             String prefix = declare ? "let " : "";
             pw.println (String.format ("            %s%s%s = new Date (%s); // date", 
                 offset, prefix, name, source));
         } else if (ctype.isArray ()) {
-            pw.println ("// not implemented: array (variable)");
+            pw.println ("// not implemented: array (variable) / " + name + " / " + source);
         } else if (ctype.isEnum ()) {
-            pw.println ("// not implemented: enum (variable)");
+            String convertedType = dtoGenerator.convertName (ctype, true);
+            String initedValue = String.format ("%s.valueByName (\"\" + %s)", convertedType, source);
+            initializeVariable (name, initedValue, false, null, null, offset, level, pw);
         } else if (Object.class.isAssignableFrom (ctype)) {
             String prefix = declare ? "let " : "";
             pw.println (String.format ("            %s%s%s = %s; // object", offset, prefix, name, source));

@@ -23,6 +23,9 @@ public class DTOGenerator implements Generator {
     @Getter
     private final Map <Class <?>, List <Field>> types = new HashMap <> ();
     
+    @Getter
+    private final Set <Class <?>> enums = new HashSet <> ();
+    
     private final ClasspathManager cpManager;
 
     public DTOGenerator (ClasspathManager cpManager) {
@@ -32,13 +35,22 @@ public class DTOGenerator implements Generator {
     
     private void initialize () {
         cpManager.findObjectsWithAnnotation (new HashSet <> (Arrays.asList (DTOType.class))).get (DTOType.class)
-        . stream ().filter (obj -> obj instanceof Class).<Class <?>> map (MiscUtils::cast)
-        . forEach (t -> types.put (t, new ArrayList <> ()));
+        . stream ().filter (obj -> obj instanceof Class).<Class <?>> map (MiscUtils::cast).forEach (t -> {
+            if   (t.isEnum ()) { enums.add (t); } 
+            else { types.put (t, new ArrayList <> ()); }
+        });
     }
     
     @Override
     public void print (PrintWriter pw) {
+        pw.println ("import { Enum, EnumType } from \"../../lib/jenum\";");
+        pw.println ();
+        
         types.keySet ().stream ().sorted (Comparator.comparing (Class::getSimpleName))
+             .forEach (type -> printType (type, pw));
+        pw.println ();
+        
+        enums.stream ().sorted (Comparator.comparing (Class::getSimpleName))
              .forEach (type -> printType (type, pw));
     }
     
@@ -46,29 +58,38 @@ public class DTOGenerator implements Generator {
         final List <String> implTypes = Arrays.asList (type.getGenericInterfaces ()).stream ()
             . filter  (intf -> intf.getClass ().isAnnotationPresent (DTOType.class))
             . map     (this::processType).collect (Collectors.toList ());
-        DTOType annotation = type.getAnnotation (DTOType.class);
-        Type superType = type.getGenericSuperclass ();
-        
-        String processedType = processType (type);
-        pw.print ("export class ");
-        pw.print (processedType);
-        
-        if (annotation.superclass () != null && annotation.superclass ().length () > 0) {
-            pw.print (" extends "); pw.print (annotation.superclass ());
-        } else if (superType.getClass ().isAnnotationPresent (DTOType.class)) {
-            pw.print (" extends "); pw.print (processType (superType));
+        if (type.isEnum ()) {
+            String processedType = processType (type);
+            pw.println (String.format ("@Enum <%s> ()", processedType));
+            pw.println (String.format ("export class %s extends EnumType <%s> () {", 
+                processedType, processedType));
+            printEnumBody (type, pw);
+            pw.println ("}");
+        } else {            
+            DTOType annotation = type.getAnnotation (DTOType.class);
+            Type superType = type.getGenericSuperclass ();
+            
+            String processedType = processType (type);
+            pw.print ("export class ");
+            pw.print (processedType);
+            
+            if (annotation.superclass () != null && annotation.superclass ().length () > 0) {
+                pw.print (" extends "); pw.print (annotation.superclass ());
+            } else if (superType.getClass ().isAnnotationPresent (DTOType.class)) {
+                pw.print (" extends "); pw.print (processType (superType));
+            }
+            
+            implTypes.addAll (Arrays.asList (annotation.interfaces ()));
+            if (implTypes.size () > 0) {
+                pw.print (" implements ");
+                pw.print (implTypes.stream ().collect (Collectors.joining (", ")));
+            }
+            
+            pw.println (" {");
+            printBody              (type, annotation, pw);
+            //printStaticConstructor (type, processedType, pw);
+            pw.println ("}");
         }
-        
-        implTypes.addAll (Arrays.asList (annotation.interfaces ()));
-        if (implTypes.size () > 0) {
-            pw.print (" implements ");
-            pw.print (implTypes.stream ().collect (Collectors.joining (", ")));
-        }
-        
-        pw.println (" {");
-        printBody              (type, annotation, pw);
-        //printStaticConstructor (type, processedType, pw);
-        pw.println ("}");
     }
     
     private void printBody (Class <?> type, DTOType annotation, PrintWriter pw) {
@@ -132,6 +153,71 @@ public class DTOGenerator implements Generator {
         return sb.toString ();
     }
     
+    private void printEnumBody (Class <?> type, PrintWriter pw) {
+        if (type.getDeclaredConstructors ().length > 1) {
+            String message = "Single constructor is allowed in ENUMs";
+            throw new IllegalStateException (message);
+        }
+        
+        Class <Enum <?>> etype = MiscUtils.cast (type);
+        String processedType = processType (type);
+        
+        final Constructor <?> constructor = etype.getDeclaredConstructors () [0];
+        List <Pair <Parameter, String>> args = Arrays.asList (constructor.getParameters ()).stream ()
+           . map     (p -> Pair.mp (p, processType (p.getParameterizedType ())))
+           //. filter  (p -> Character.isLowerCase (p.S.charAt (0)))
+           . filter  (p -> !p.F.getName ().startsWith ("$"))
+           . collect (Collectors.toList ());
+        
+        for (var constant : etype.getEnumConstants ()) {
+            String cname = constant.name ();
+            String arguments = args.stream ().map (p -> getCEPV (etype, constant, p))
+                             . collect (Collectors.joining (", "));
+            
+            pw.println (String.format ("    public static readonly %s = new %s (%s);", 
+                cname, processedType, arguments));
+        }
+        if (etype.getEnumConstants ().length > 0) { pw.println (); }
+        
+        if (args.size () > 0) {
+            String arguments = args.stream ().map (this::getCEPD).collect (Collectors.joining (", "));
+            pw.println (String.format ("    private constructor (%s) {", arguments));
+            pw.println ("        super ();");
+            pw.println ("    }");
+        }
+    }
+    
+    @SuppressWarnings ("preview")
+    // getConvertedEnumParameterValue
+    private String getCEPV (Class <Enum <?>> etype, Enum <?> elem, Pair <Parameter, String> paramAndType) {
+        try {
+            final Field field = etype.getDeclaredField (paramAndType.F.getName ());
+            field.setAccessible (true);
+            
+            Object value = field.get (elem);
+            return switch (paramAndType.S) {
+                case "number" -> "" + value;
+                case "string" -> "\"" + value + "\"";
+                
+                default -> "null";
+            };
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException 
+              | IllegalAccessException e) {
+            throw new IllegalStateException (e);
+        }
+    }
+    
+    // getConvertedEnumParameterDeclaration
+    private String getCEPD (Pair <Parameter, String> paramAndType) {
+        String name = paramAndType.F.getName ();
+        
+        if (Character.isLowerCase (paramAndType.S.charAt (0))) {
+            return String.format ("readonly %s : %s", name, paramAndType.S);
+        }
+        
+        return String.format ("readonly %s : any", name);
+    }
+    
     public static Class <?> getTypeClass (Type type, Map <String, Type> generics) {
         if (type instanceof Class) {
             return MiscUtils.cast (type);
@@ -174,74 +260,6 @@ public class DTOGenerator implements Generator {
         return Collections.emptyMap ();
     }
     
-    /*
-    private void printStaticConstructor (Class <?> type, String processedType, PrintWriter pw) {
-        String params = Arrays.asList (type.getTypeParameters ()).stream ()
-                      . map (Type::getTypeName).collect (GENERIC_COLLECTOR);
-        params = params.length () > 2 ? params : ""; // if type without parameters
-        
-        pw.println (String.format ("    public static newInstance %s (obj : any) : %s {", params, processedType));
-        pw.println (String.format ("        let instance = new %s ();", processedType));
-        types.get (type).forEach (field -> {
-            final Type gtype = field.getGenericType ();
-            final Class <?> ctype = field.getType ();
-            final String name = field.getName ();
-            printFieldInitialization (ctype, gtype, "instance." + name, "obj." + name, false, "", 0, pw);
-        });
-        pw.println ("        return instance;");
-        pw.println ("    }");
-    }
-    
-    private void printFieldInitialization (Class <?> ctype, Type type, String name, 
-            String sname, boolean isNew, String offset, int level, PrintWriter pw) {
-        if (Map.class.isAssignableFrom (ctype)) {
-            String processed = processType (type);
-            String varKeyName = "key" + level;
-            pw.println (String.format ("        %s%s%s = new %s ();", offset, isNew ? "let " : "", name, processed));
-            pw.println (String.format ("        Object.keys (%s).forEach (%s => {", sname, varKeyName));
-            ParameterizedType ptype = MiscUtils.cast (type);
-            final Type ktype = ptype.getActualTypeArguments () [0];
-            //pw.println (String.format ("            let keyI = %s;", kinitPart));
-            printFieldInitialization (getTypeClass (ktype), ktype, "key" + (level + 1), varKeyName, true, 
-                    offset + "    ", level + 1, pw);
-            
-            String varValName = "val" + level;
-            Type vtype = ptype.getActualTypeArguments () [1];
-            String varValSName = String.format ("%s.get (%s)", sname, varKeyName);
-            printFieldInitialization (getTypeClass (vtype), vtype, varValName, varValSName, true, 
-                    offset + "    ", level + 1, pw);
-            pw.println (String.format ("            %s%s.set (%s, %s);", offset, name, varKeyName, varValName));
-            pw.println ("        });");
-        } else if (ctype.isArray ()) {
-            
-        } else if (Collection.class.isAssignableFrom (ctype)) {
-            
-        } else {
-            String preparedPart = prepareInitializationPart (type, sname);
-            pw.println (String.format ("        %s%s%s = %s;", offset, isNew ? "let " : "", name, preparedPart));
-        }
-    }
-    
-    private String prepareInitializationPart (Type needed, String variable) {
-        if (needed instanceof Class) {
-            Class <?> ctype = MiscUtils.cast (needed);
-            if (String.class.isAssignableFrom (ctype)) {
-                return variable;
-            } else if (Number.class.isAssignableFrom (ctype)) {
-                return "+".concat (variable);
-            } else if (ctype.isPrimitive ()) {
-                if (boolean.class.isAssignableFrom (ctype)) {
-                    return String.format ("%s == \"true\";", variable);
-                } else {
-                    return "+".concat (variable);
-                }
-            }
-        }
-        
-        return variable;
-    }
-    */
-    
     @Getter
     private final List <DTOMappedType> mappedTypes = new ArrayList <> ();
     
@@ -278,7 +296,7 @@ public class DTOGenerator implements Generator {
     
     public String convertName (Class <?> type, boolean forPrototype) {
         String pureName = type.getSimpleName ();
-        if (type.isAnnotationPresent (DTOType.class)) {
+        if (type.isAnnotationPresent (DTOType.class) || type.isEnum ()) {
             pureName = pureName.replace ("DTO", "");
         } else if (type.isPrimitive ()) {
             pureName = type.equals (void.class) ? "void" 

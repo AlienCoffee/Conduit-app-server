@@ -138,8 +138,9 @@ public class DBValidator {
         }
         
         AbsEntity instance = null;
-        try   { instance = MiscUtils.cast (type.newInstance ()); } 
-        catch (InstantiationException | IllegalAccessException e) {
+        try   { instance = MiscUtils.cast (type.getDeclaredConstructor ().newInstance ()); } 
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException 
+            | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalStateException (e);
         }
         
