@@ -92,10 +92,23 @@ public class SiteController {
         }
     }
     
+    @GetMapping (PAGE_REGISTRATION)
+    public ModelAndView handleRegistrationPage (Principal principal,
+            HttpServletResponse response) {
+        if (principal instanceof WUser) { // Already authorized
+            response.setStatus (SC_MOVED_TEMPORARILY);
+            response.setHeader ("Location", "/");
+            
+            return null;
+        }
+        
+        return new ModelAndView ("reg");
+    }
+    
     @GetMapping (PAGE_LOGIN)
     public ModelAndView handleLoginPage (Principal principal,
             HttpServletResponse response) {
-        if (principal != null) { // Already authorized
+        if (principal instanceof WUser) { // Already authorized
             response.setStatus (SC_MOVED_TEMPORARILY);
             response.setHeader ("Location", "/");
             

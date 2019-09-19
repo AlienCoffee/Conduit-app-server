@@ -115,7 +115,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure (HttpSecurity http) throws Exception {
         http.antMatcher ("/**")
             .authorizeRequests ()
-                .antMatchers ($, PAGE_LOGIN, API_UNCHECKED_ + "**", "/error").permitAll ()
+                .antMatchers ($, PAGE_LOGIN, PAGE_REGISTRATION, 
+                    API_UNCHECKED_ + "**", "/error")
+                .permitAll ()
                 .anyRequest ().authenticated ()
                 .and ()
             .exceptionHandling ()

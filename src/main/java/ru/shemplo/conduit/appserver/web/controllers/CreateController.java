@@ -25,8 +25,7 @@ import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
-import ru.shemplo.conduit.appserver.utils.PasswordValidator;
-import ru.shemplo.conduit.appserver.utils.PhoneValidator;
+import ru.shemplo.conduit.appserver.utils.FormValidator;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
 
 @RestController
@@ -49,24 +48,38 @@ public class CreateController {
     
     @PostMapping (API_CREATE_USER)
     public ResponseBox <Void> handleCreateUser (
-        @RequestParam ("phone")     String phone,
-        @RequestParam ("password")  String password,
-        @RequestParam (value = "login", required = false)  
-            String login
+        @RequestParam ("login")    String login,
+        @RequestParam ("phone")    String phone,
+        @RequestParam ("password") String password
     ) {
-        try   { phone = PhoneValidator.validate (phone); } 
+        try   { login = FormValidator.validateLogin (login); } 
         catch (ValidationException ve) {
             return ResponseBox.fail (ve.getMessage ());
         }
         
-        try   { password = PasswordValidator.validate (password); } 
+        try   { phone = FormValidator.validatePhone (phone); } 
         catch (ValidationException ve) {
             return ResponseBox.fail (ve.getMessage ());
         }
         
-        final String vphone = PhoneValidator.format (phone);
-        usersService.createUser (login, vphone, password);
+        try   { password = FormValidator.validatePassword (password); } 
+        catch (ValidationException ve) {
+            return ResponseBox.fail (ve.getMessage ());
+        }
         
+        final String vphone = FormValidator.formatPhone (phone);
+        //usersService.createUser (login, vphone, password);
+        
+        return ResponseBox.ok ();
+    }
+    
+    @PostMapping (API_VERIFY_USER)
+    public ResponseBox <Void> handleVerifyUser (
+        @RequestParam ("login")    String login,
+        @RequestParam ("phone")    String phone,
+        @RequestParam ("password") String password,
+        @RequestParam ("secret")   String secret
+    ) {
         return ResponseBox.ok ();
     }
     

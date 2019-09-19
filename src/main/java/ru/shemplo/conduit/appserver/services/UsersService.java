@@ -20,7 +20,7 @@ import ru.shemplo.conduit.appserver.entities.repositories.UserEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
-import ru.shemplo.conduit.appserver.utils.PhoneValidator;
+import ru.shemplo.conduit.appserver.utils.FormValidator;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Slf4j
@@ -50,7 +50,7 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
         UserEntity entityL = usersRepository.findByLogin (loginOrPhone);
         if (entityL != null) { return new WUser (entityL); }
         
-        loginOrPhone = PhoneValidator.format (loginOrPhone);
+        loginOrPhone = FormValidator.formatPhone (loginOrPhone);
         UserEntity entityP = usersRepository.findByPhone (loginOrPhone);
         if (entityP != null) { return new WUser (entityP); }
         
@@ -80,7 +80,8 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
             throws EntityExistsException {
         try {
             // Check that login and phone is not used yet
-            loadUserByUsername (login);    loadUserByUsername (phone);
+            loadUserByUsername (login); 
+            loadUserByUsername (phone);
             throw new EntityExistsException ("Login or phone is already used");
         } catch (UsernameNotFoundException unfe) {
             final String encoded = passwordEncoder.encode (password);

@@ -21,9 +21,10 @@ public class ServerConstants {
     public static final String $ = "/";
     
     public static final String PAGE_LOGIN = $ + "login";
+    public static final String PAGE_REGISTRATION = $ + "reg";
     public static final String PAGE_PERIODS = $ + "periods";
     public static final String PAGE_PERIOD = $ + "period" + $ + "{id}";
-    public static final String PAGE_PERIOD_REGISTRATION = PAGE_PERIOD + $ + "registration";
+    public static final String PAGE_PERIOD_REGISTRATION = PAGE_PERIOD + $ + "reg";
     public static final String PAGE_GROUP = $ + "group" + $ + "{id}";
     public static final String PAGE_OLYMPIAD = $ + "olympiad" + $ + "{id}";
     public static final String PAGE_OLYMPIAD_ATTEMPTS = PAGE_OLYMPIAD + $ + "attempts";
@@ -73,6 +74,7 @@ public class ServerConstants {
     public static final String API_CREATE_ = API_CREATE + $;
     
     public static final String API_CREATE_USER = API_UNCHECKED_ + "create" + $ + "user";
+    public static final String API_VERIFY_USER = API_UNCHECKED_ + "verify" + $ + "user";
     public static final String API_CREATE_OPTION = API_CREATE_ + "option";
     public static final String API_CREATE_ROLE = API_CREATE_ + "role";
     public static final String API_CREATE_PERIOD = API_CREATE_ + "period";
