@@ -60,6 +60,7 @@ public class SiteController {
     public ModelAndView handleIndexPage (
         @IndentifiedUser WUser user
     ) {
+        System.out.println (Thread.currentThread ());
         UserEntity ent = user != null ? user.getEntity () : null;
         ModelAndView mav = new ModelAndView ("index");
         mav.addObject ("user", ent);

@@ -146,7 +146,17 @@ public class APIGenerator implements Generator {
     private String prepareMethodArguments (Method method) {
         List <String> params = new ArrayList <> ();
         
-        getStreamOfParameters (method).forEach (param -> params.add (param.S + " : " + param.T));
+        getStreamOfParameters (method).map (param -> {
+            boolean required = true;
+            if (param.F.isAnnotationPresent (RequestParam.class) && required) {
+                RequestParam rp = param.F.getAnnotation (RequestParam.class);
+                required = rp.required ();
+            }
+            
+            return Pair.mp (param, required);
+        }).sorted ((a, b) -> (b.S ? 1 : 0) - (a.S ? 1 : 0)).forEach (pair -> {
+            params.add (String.format ("%s%s : %s", pair.F.S, pair.S ? "" : "?", pair.F.T));
+        });
         
         return params.stream ().collect (Collectors.joining (", "));
     }

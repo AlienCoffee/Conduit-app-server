@@ -12,9 +12,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table (name = "verification_codes")
-public class VerifacationEntity extends AbsAuditableEntity {
+public class VerificationEntity extends AbsAuditableEntity {
     
     @Column (nullable = false, unique = true)
-    private String phone, checksum;
+    private String login, phone;
+    
+    @Column (nullable = false)
+    private String checksum;
     
 }

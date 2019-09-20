@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.validation.ValidationException;
 
@@ -36,6 +38,7 @@ public class CreateController {
     private final OlympiadAttemptsService olympiadAttemptsService;
     private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
+    private final VerificationService verificationService;
     private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
@@ -46,40 +49,57 @@ public class CreateController {
     private final UsersService usersService;
     private final Clock clock;
     
+    private final Lock REG_LOCK = new ReentrantLock (true);
+    
     @PostMapping (API_CREATE_USER)
     public ResponseBox <Void> handleCreateUser (
         @RequestParam ("login")    String login,
         @RequestParam ("phone")    String phone,
-        @RequestParam ("password") String password
+        @RequestParam ("password") String password,
+        @RequestParam (value = "secret", required = false)   
+            String secret
     ) {
-        try   { login = FormValidator.validateLogin (login); } 
-        catch (ValidationException ve) {
-            return ResponseBox.fail (ve.getMessage ());
-        }
-        
-        try   { phone = FormValidator.validatePhone (phone); } 
-        catch (ValidationException ve) {
-            return ResponseBox.fail (ve.getMessage ());
-        }
-        
-        try   { password = FormValidator.validatePassword (password); } 
-        catch (ValidationException ve) {
+        try   { 
+            login    = FormValidator.validateLogin (login); 
+            phone    = FormValidator.validatePhone (phone);
+            password = FormValidator.validatePassword (password);
+        } catch (ValidationException ve) {
             return ResponseBox.fail (ve.getMessage ());
         }
         
         final String vphone = FormValidator.formatPhone (phone);
-        //usersService.createUser (login, vphone, password);
         
-        return ResponseBox.ok ();
-    }
-    
-    @PostMapping (API_VERIFY_USER)
-    public ResponseBox <Void> handleVerifyUser (
-        @RequestParam ("login")    String login,
-        @RequestParam ("phone")    String phone,
-        @RequestParam ("password") String password,
-        @RequestParam ("secret")   String secret
-    ) {
+        REG_LOCK.lock ();
+        if (usersService.loadUserByUsername (login) != null 
+                || verificationService.isLoginPending_ss (login)) {
+            String message = "This login is already used";
+            
+            REG_LOCK.unlock ();
+            return ResponseBox.fail (message);
+        }
+        
+        if (usersService.loadUserByUsername (phone) != null 
+                || verificationService.isPhonePending_ss (phone)) {
+            String message = "This phone number is already used";
+            
+            REG_LOCK.unlock ();
+            return ResponseBox.fail (message);
+        }
+        
+        if (secret != null && secret.length () > 0) {
+            if (verificationService.checkCodeAndDelete_ss (login, vphone, password, secret)) {
+                usersService.createUser (login, vphone, password);
+            } else {
+                String message = "Wrong verification code";
+                
+                REG_LOCK.unlock ();
+                return ResponseBox.fail (message);
+            }
+        } else {            
+            verificationService.createCode_ss (login, vphone, password);
+        }
+        
+        REG_LOCK.unlock ();
         return ResponseBox.ok ();
     }
     
