@@ -78,17 +78,19 @@ public class UsersService extends AbsCachedService <WUser> implements UserDetail
     
     public WUser createUser (String login, String phone, String password)
             throws EntityExistsException {
+        /*
         try {
             // Check that login and phone is not used yet
             loadUserByUsername (login); 
             loadUserByUsername (phone);
             throw new EntityExistsException ("Login or phone is already used");
         } catch (UsernameNotFoundException unfe) {
-            final String encoded = passwordEncoder.encode (password);
-            UserEntity entity = new UserEntity (login, phone, encoded, false);
-            log.info (entity.toTemplateString ());
-            return new WUser (usersRepository.save (entity));
         }
+        */
+        final String encoded = passwordEncoder.encode (password);
+        UserEntity entity = new UserEntity (login, phone, encoded, false);
+        log.info (entity.toTemplateString ());
+        return new WUser (usersRepository.save (entity));
     }
     
     /*

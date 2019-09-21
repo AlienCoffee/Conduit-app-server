@@ -50,7 +50,7 @@ public class VerificationService {
         LocalDateTime now = LocalDateTime.now (clock);
         
         if (entity == null) {
-            String secret = "";
+            String secret = password; // TODO: change password to sending via SMS code
             
             String hash = generateHash (phone, login, password, secret);
             entity = new VerificationEntity (login, phone, hash);

@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.validation.ValidationException;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,21 +70,32 @@ public class CreateController {
         
         final String vphone = FormValidator.formatPhone (phone);
         
+        //System.out.println ("Before danger zone " + Thread.currentThread ().getName ());
         REG_LOCK.lock ();
-        if (usersService.loadUserByUsername (login) != null 
-                || verificationService.isLoginPending_ss (login)) {
-            String message = "This login is already used";
-            
-            REG_LOCK.unlock ();
-            return ResponseBox.fail (message);
+        //System.out.println ("Enter to danger zone " + Thread.currentThread ().getName ());
+        
+        try {            
+            if (usersService.loadUserByUsername (login) != null 
+                    || verificationService.isLoginPending_ss (login)) {
+                String message = "This login is already used";
+                
+                REG_LOCK.unlock ();
+                return ResponseBox.fail (message);
+            }
+        } catch (UsernameNotFoundException unfe) {
+            // it's expected and needed
         }
         
-        if (usersService.loadUserByUsername (phone) != null 
-                || verificationService.isPhonePending_ss (phone)) {
-            String message = "This phone number is already used";
-            
-            REG_LOCK.unlock ();
-            return ResponseBox.fail (message);
+        try {            
+            if (usersService.loadUserByUsername (phone) != null 
+                    || verificationService.isPhonePending_ss (phone)) {
+                String message = "This phone number is already used";
+                
+                REG_LOCK.unlock ();
+                return ResponseBox.fail (message);
+            }
+        } catch (UsernameNotFoundException unfe) {
+            // it's expected and needed
         }
         
         if (secret != null && secret.length () > 0) {

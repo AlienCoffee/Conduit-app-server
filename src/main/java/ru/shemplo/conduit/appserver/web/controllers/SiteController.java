@@ -60,7 +60,6 @@ public class SiteController {
     public ModelAndView handleIndexPage (
         @IndentifiedUser WUser user
     ) {
-        System.out.println (Thread.currentThread ());
         UserEntity ent = user != null ? user.getEntity () : null;
         ModelAndView mav = new ModelAndView ("index");
         mav.addObject ("user", ent);
@@ -96,7 +95,7 @@ public class SiteController {
     @GetMapping (PAGE_REGISTRATION)
     public ModelAndView handleRegistrationPage (Principal principal,
             HttpServletResponse response) {
-        if (principal instanceof WUser) { // Already authorized
+        if (principal != null) { // Already authorized
             response.setStatus (SC_MOVED_TEMPORARILY);
             response.setHeader ("Location", "/");
             
@@ -109,7 +108,7 @@ public class SiteController {
     @GetMapping (PAGE_LOGIN)
     public ModelAndView handleLoginPage (Principal principal,
             HttpServletResponse response) {
-        if (principal instanceof WUser) { // Already authorized
+        if (principal != null) { // Already authorized
             response.setStatus (SC_MOVED_TEMPORARILY);
             response.setHeader ("Location", "/");
             

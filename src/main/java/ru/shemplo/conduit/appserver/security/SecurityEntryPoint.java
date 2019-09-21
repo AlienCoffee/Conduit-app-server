@@ -25,7 +25,9 @@ public class SecurityEntryPoint extends LoginUrlAuthenticationEntryPoint {
     public void commence (HttpServletRequest request, HttpServletResponse response,
             AuthenticationException ae) throws IOException, ServletException {
         if (isXMLOrAPIHttpRequest (request)) { // ajax requests should be just dropped
-            response.sendError(SC_UNAUTHORIZED, "Forbidden (not authorized)");
+            String comment = ae.getMessage () != null ? ae.getMessage () : "not authorized";
+            String message = String.format ("Forbidden (%s)", comment);
+            response.sendError (SC_UNAUTHORIZED, message);
         } else { super.commence (request, response, ae); }
     }
     
