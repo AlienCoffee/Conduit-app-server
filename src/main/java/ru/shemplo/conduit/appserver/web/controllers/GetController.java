@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataCollector;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
-import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
@@ -37,7 +36,6 @@ public class GetController {
     
     private final PersonalDataService personalDataService;
     private final BlogPostsService blogPostsService;
-    private final OlympiadsService olympiadsService;
     private final MethodsScanner methodsScanner;
     private final MethodsService methodsService;
     private final PeriodsService periodsService;
@@ -135,14 +133,6 @@ public class GetController {
     ) {
         final GroupEntity group = groupsService.getGroup (groupID);
         return ResponseBox.ok (groupsService.getGroupMembers (group));
-    }
-    
-    @PostMapping (API_GET_OLYMPIADS) 
-    public ResponseBox <List <SheetEntity>> handleGetOlympiads (
-        @RequestParam ("group") Long groupID
-    ) {
-        final GroupEntity group = groupsService.getGroup (groupID);
-        return ResponseBox.ok (olympiadsService.getOlympiadsByGroup (group));
     }
     
     @PostMapping (API_GET_CHANNEL_BLOG_POSTS) 

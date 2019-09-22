@@ -4,8 +4,6 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
 import java.security.Principal;
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,19 +21,13 @@ import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
 import ru.shemplo.conduit.appserver.entities.groups.*;
-import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
-import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetProblemEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.services.*;
-import ru.shemplo.conduit.appserver.web.dto.AttachmentFileRow;
-import ru.shemplo.conduit.appserver.web.dto.CheckingAttemptRow;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.conduit.appserver.web.dto.PageGroupRow;
-import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
 @Controller
@@ -43,18 +35,14 @@ import ru.shemplo.snowball.utils.MiscUtils;
 public class SiteController {
     
     private final GroupAssignmentsService groupAssignmentsService;
-    private final OlympiadAttemptsService olympiadAttemptsService;
-    private final OlympiadProblemsService olympiadProblemsService;
-    private final OlympaidChecksService olympaidChecksService;
     private final PersonalDataService personalDataService;
-    private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final GroupsService groupsService;
-    private final FilesService filesService;
+    //private final FilesService filesService;
     private final PostsService postsService;
     private final RolesService rolesService;
     private final AccessGuard accessGuard;
-    private final Clock clock;
+    //private final Clock clock;
     
     @GetMapping ($)
     public ModelAndView handleIndexPage (
@@ -241,9 +229,11 @@ public class SiteController {
         posts.sort (Comparator.comparing (PostEntity::getPublished));
         mav.addObject ("posts", posts);
         
+        /*
         List <SheetEntity> olympiads = olympiadsService.getOlympiadsByGroup (group);
         olympiads.sort (Comparator.comparing (SheetEntity::getPublished));
         mav.addObject ("olympiads", olympiads);
+        */
         
         List <GroupMember> members = groupsService.getGroupMembers (group);
         members.sort (Comparator.<GroupMember, String> comparing (m -> m.getRole ().getTemplate ().name ())
@@ -260,6 +250,7 @@ public class SiteController {
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad");
         
+        /*
         final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         final GroupEntity group = olympiad.getGroup ();
         
@@ -284,6 +275,7 @@ public class SiteController {
            . getUserAttempts (user, olympiad);
         attempts.sort (Comparator.comparing (SheetAttemptEntity::getId).reversed ());
         mav.addObject ("attempts", attempts);
+        */
         
         return mav;
     }
@@ -295,6 +287,7 @@ public class SiteController {
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad_attempts");
         
+        /*
         final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         final GroupEntity group = olympiad.getGroup ();
         
@@ -314,6 +307,7 @@ public class SiteController {
            . collect (Collectors.toList ());
            
         mav.addObject ("attempts", attemptsRows);
+        */
         
         return mav;
     }
@@ -324,6 +318,8 @@ public class SiteController {
         @PathVariable ("id") Long attemptID
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad_check_attempt");
+        
+        /*
         SheetAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
         
         final SheetEntity olympiad = attempt.getOlympiad ();
@@ -353,6 +349,7 @@ public class SiteController {
         List <SheetProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (olympiad);
         mav.addObject ("problems", problems);
+        */
         
         return mav;
     }

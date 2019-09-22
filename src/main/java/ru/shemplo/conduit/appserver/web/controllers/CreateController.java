@@ -2,7 +2,6 @@ package ru.shemplo.conduit.appserver.web.controllers;
 
 import static ru.shemplo.conduit.appserver.ServerConstants.*;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -15,16 +14,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.FileEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
-import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -36,15 +32,12 @@ import ru.shemplo.conduit.appserver.web.ResponseBox;
 public class CreateController {
     
     //private final GroupAssignmentsService groupAssignmentsService;
-    private final OlympiadAttemptsService olympiadAttemptsService;
-    private final OlympiadProblemsService olympiadProblemsService;
     private final PersonalDataService personalDataService;
     private final VerificationService verificationService;
-    private final OlympiadsService olympiadsService;
     private final PeriodsService periodsService;
     private final OptionsService optionsService;
     private final GroupsService groupsService;
-    private final FilesService filesService;
+    //private final FilesService filesService;
     private final PostsService postsService;
     private final RolesService rolesService;
     private final UsersService usersService;
@@ -234,62 +227,6 @@ public class CreateController {
         final GroupEntity group = groupsService.getGroup (groupID);
         postsService.createInforamtionPost (group, title, content, 
                                             publishTime, user);
-        
-        return ResponseBox.ok ();
-    }
-    
-    @PostMapping (API_CREATE_OLYMPIAD)
-    public ResponseBox <Void> handleCreateOlympiad (
-        @IndentifiedUser          WUser user,
-        @RequestParam ("group")   Long groupID,
-        @RequestParam ("name")    String name,
-        @RequestParam ("publish") String pusblishDate,
-        @RequestParam ("finish")  String finishDate,
-        @RequestParam (value = "description", required = false) 
-            String description,
-        @RequestParam (value = "attempts", required = false) 
-            Integer attempts
-    ) {
-        final LocalDateTime publish = LocalDateTime.parse (pusblishDate);
-        final LocalDateTime finish = LocalDateTime.parse (finishDate);
-        final GroupEntity group = groupsService.getGroup (groupID);
-        
-        olympiadsService.createOlympiad (group, name, description, publish, finish, attempts, user);
-        return ResponseBox.ok ();
-    }
-    
-    @PostMapping (API_CREATE_OLYMPIAD_PROBLEM)
-    public ResponseBox <Void> handleCreateOlympiadProblem (
-        @IndentifiedUser           WUser user,
-        @RequestParam ("olympiad") Long olympiadID,
-        @RequestParam ("title")    String title,
-        @RequestParam ("content")  String content,
-        @RequestParam ("cost")     Integer cost,
-        @RequestParam (value = "difficulty", required = false) 
-            Integer description
-    ) {
-        final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
-        olympiadProblemsService.createOlympiadProblem (olympiad, title, content, 
-                                                       cost, description, user);
-        
-        return ResponseBox.ok ();
-    }
-    
-    @PostMapping (API_CREATE_OLYMPIAD_ATTEMPT)
-    public ResponseBox <Void> handleCreateOlympiadAttempt (
-        @IndentifiedUser           WUser user,
-        @RequestParam ("olympiad") Long olympiadID,
-        @RequestParam ("comment")  String comment,
-        @RequestParam ("file")     MultipartFile file
-    ) throws IOException {
-        final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
-        if (olympiadAttemptsService.getRemainingUserAttemptsNumber (user, olympiad) == 0) {
-            String message = "The number of available attempts is exceeded";
-            throw new IllegalStateException (message);
-        }
-        
-        FileEntity archive = filesService.saveOlympiadAttemptArchive (file, olympiad, user);
-        olympiadAttemptsService.createAttempt (user, olympiad, archive);
         
         return ResponseBox.ok ();
     }
