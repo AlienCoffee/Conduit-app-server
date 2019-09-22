@@ -1,4 +1,4 @@
-package ru.shemplo.conduit.appserver.entities.groups.olympiads;
+package ru.shemplo.conduit.appserver.entities.groups.sheets;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +17,7 @@ import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 @Table (name = "olympiads", uniqueConstraints = {
     @UniqueConstraint (columnNames = {"group_id", "name"})
 })
-public class OlympiadEntity extends AbsAuditableEntity {
+public class SheetEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
     private GroupEntity group;

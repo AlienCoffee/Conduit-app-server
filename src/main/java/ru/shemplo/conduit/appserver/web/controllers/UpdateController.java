@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -154,7 +154,7 @@ public class UpdateController {
         @RequestParam ("olympiad") Long    olympiadID,
         @RequestParam ("finalize") Boolean finalize
     ) {
-        OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         olympiadsService.setResultsStatus (olympiad, finalize, committer);
         return ResponseBox.ok ();
     }
@@ -165,7 +165,7 @@ public class UpdateController {
         @RequestParam ("attempt") Long  attemptID,
         @RequestParam ("results") CheckedOlympiadProblems results
     ) {
-        OlympiadAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
+        SheetAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
         olympaidChecksService.saveAttemptResults (attempt, results, committer);
         return ResponseBox.ok ();
     }

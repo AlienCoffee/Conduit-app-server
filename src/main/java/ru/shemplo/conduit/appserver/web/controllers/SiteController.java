@@ -23,9 +23,9 @@ import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
 import ru.shemplo.conduit.appserver.entities.groups.*;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetProblemEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -241,8 +241,8 @@ public class SiteController {
         posts.sort (Comparator.comparing (PostEntity::getPublished));
         mav.addObject ("posts", posts);
         
-        List <OlympiadEntity> olympiads = olympiadsService.getOlympiadsByGroup (group);
-        olympiads.sort (Comparator.comparing (OlympiadEntity::getPublished));
+        List <SheetEntity> olympiads = olympiadsService.getOlympiadsByGroup (group);
+        olympiads.sort (Comparator.comparing (SheetEntity::getPublished));
         mav.addObject ("olympiads", olympiads);
         
         List <GroupMember> members = groupsService.getGroupMembers (group);
@@ -260,7 +260,7 @@ public class SiteController {
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad");
         
-        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         final GroupEntity group = olympiad.getGroup ();
         
         mav.addObject ("period", group.getPeriod ());
@@ -271,18 +271,18 @@ public class SiteController {
         LocalDateTime now = LocalDateTime.now (clock);
         mav.addObject ("is_olympiad_finished", !now.isBefore (olympiad.getFinished ()));
         
-        List <OlympiadProblemEntity> problems = olympiadProblemsService
+        List <SheetProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (olympiad);
-        problems.sort (Comparator.comparing (OlympiadProblemEntity::getId));
+        problems.sort (Comparator.comparing (SheetProblemEntity::getId));
         mav.addObject ("problems", problems);
         
         final int attemptsNumber = olympiadAttemptsService
         . getRemainingUserAttemptsNumber (user, olympiad);
         mav.addObject ("remaining_attempts", attemptsNumber);
         
-        List <OlympiadAttemptEntity> attempts = olympiadAttemptsService
+        List <SheetAttemptEntity> attempts = olympiadAttemptsService
            . getUserAttempts (user, olympiad);
-        attempts.sort (Comparator.comparing (OlympiadAttemptEntity::getId).reversed ());
+        attempts.sort (Comparator.comparing (SheetAttemptEntity::getId).reversed ());
         mav.addObject ("attempts", attempts);
         
         return mav;
@@ -295,14 +295,14 @@ public class SiteController {
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad_attempts");
         
-        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         final GroupEntity group = olympiad.getGroup ();
         
         mav.addObject ("period", group.getPeriod ());
         mav.addObject ("olympiad", olympiad);
         mav.addObject ("group", group);
         
-        List <OlympiadAttemptEntity> attempts = olympiadAttemptsService
+        List <SheetAttemptEntity> attempts = olympiadAttemptsService
            . getAttemptsForCheck (olympiad);
         List <CheckingAttemptRow> attemptsRows = attempts.stream ()
            . map (attempt -> {
@@ -324,9 +324,9 @@ public class SiteController {
         @PathVariable ("id") Long attemptID
     ) {
         ModelAndView mav = new ModelAndView ("period/olympiad_check_attempt");
-        OlympiadAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
+        SheetAttemptEntity attempt = olympiadAttemptsService.getAttempt (attemptID);
         
-        final OlympiadEntity olympiad = attempt.getOlympiad ();
+        final SheetEntity olympiad = attempt.getOlympiad ();
         final GroupEntity group = olympiad.getGroup ();
         
         mav.addObject ("period", group.getPeriod ());
@@ -350,7 +350,7 @@ public class SiteController {
         . collect (Collectors.toList ());
         mav.addObject ("files", filesRows);
         
-        List <OlympiadProblemEntity> problems = olympiadProblemsService
+        List <SheetProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (olympiad);
         mav.addObject ("problems", problems);
         

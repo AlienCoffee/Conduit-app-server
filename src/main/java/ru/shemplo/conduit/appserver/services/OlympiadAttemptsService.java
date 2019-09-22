@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.FileEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptStatus;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptStatus;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OlympiadAttemptEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -27,7 +27,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEntity> {
+public class OlympiadAttemptsService extends AbsCachedService <SheetAttemptEntity> {
     
     private final OlympiadAttemptEntityRepository olympiadAttemptsRepository;
     private final UsersService usersService;
@@ -35,7 +35,7 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     private final Clock clock;
     
     @Override
-    protected OlympiadAttemptEntity loadEntity (Long id) {
+    protected SheetAttemptEntity loadEntity (Long id) {
         return olympiadAttemptsRepository.findById (id).orElse (null);
     }
 
@@ -43,8 +43,8 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     protected int getCacheSize () { return 32; }
     
     @ProtectedMethod
-    public OlympiadAttemptEntity getAttempt (Long id) {
-        OlympiadAttemptEntity entity = getEntity (id);
+    public SheetAttemptEntity getAttempt (Long id) {
+        SheetAttemptEntity entity = getEntity (id);
         
         PeriodEntity period = entity.getOlympiad ().getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);
@@ -52,7 +52,7 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     }
     
     @ProtectedMethod @NotEffectiveMethod ({"use cache"})
-    public List <OlympiadAttemptEntity> getUserAttempts (WUser user, OlympiadEntity olympiad) {
+    public List <SheetAttemptEntity> getUserAttempts (WUser user, SheetEntity olympiad) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
@@ -60,17 +60,17 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     }
     
     @ProtectedMethod
-    public int getRemainingUserAttemptsNumber (WUser user, OlympiadEntity olympiad) {
+    public int getRemainingUserAttemptsNumber (WUser user, SheetEntity olympiad) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
-        final List <OlympiadAttemptEntity> attempts = olympiadAttemptsRepository
+        final List <SheetAttemptEntity> attempts = olympiadAttemptsRepository
             . findByUserAndOlympiad (user.getEntity (), olympiad);
-        attempts.sort (Comparator.comparing (OlympiadAttemptEntity::getIssued));
+        attempts.sort (Comparator.comparing (SheetAttemptEntity::getIssued));
         if (attempts.size () == 0) { return olympiad.getAttemptsLimit (); }
         
         int number = attempts.size ();
-        if (OlympiadAttemptStatus.CHECKED.equals (attempts.get (number - 1).getStatus ())) {
+        if (SheetAttemptStatus.CHECKED.equals (attempts.get (number - 1).getStatus ())) {
             return 0; // Because there is attempt that is already checked
         }
         
@@ -78,7 +78,7 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     }
     
     @ProtectedMethod @Transactional
-    public OlympiadAttemptEntity createAttempt (WUser user, OlympiadEntity olympiad, FileEntity archive) {
+    public SheetAttemptEntity createAttempt (WUser user, SheetEntity olympiad, FileEntity archive) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
@@ -87,8 +87,8 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
             throw new IllegalStateException (message);
         }
         
-        OlympiadAttemptEntity entity = new OlympiadAttemptEntity ();
-        entity.setStatus (OlympiadAttemptStatus.PENDING);
+        SheetAttemptEntity entity = new SheetAttemptEntity ();
+        entity.setStatus (SheetAttemptStatus.PENDING);
         entity.setIssued (LocalDateTime.now (clock));
         entity.setCommitter (user.getEntity ());
         entity.getAttachments ().add (archive);
@@ -102,18 +102,18 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     }
     
     @ProtectedMethod @NotEffectiveMethod ({"use cache"})
-    public List <OlympiadAttemptEntity> getAttemptsForCheck (OlympiadEntity olympiad) {
+    public List <SheetAttemptEntity> getAttemptsForCheck (SheetEntity olympiad) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);
         
-        final List <OlympiadAttemptEntity> attempts = olympiadAttemptsRepository
-            . findByOlympiadAndStatus (olympiad, OlympiadAttemptStatus.PENDING);
-        attempts.sort (comparing (OlympiadAttemptEntity::getIssued).reversed ());
+        final List <SheetAttemptEntity> attempts = olympiadAttemptsRepository
+            . findByOlympiadAndStatus (olympiad, SheetAttemptStatus.PENDING);
+        attempts.sort (comparing (SheetAttemptEntity::getIssued).reversed ());
         
         boolean isOlympiadOver = !LocalDateTime.now ().isBefore (olympiad.getFinished ());
-        final List <OlympiadAttemptEntity> result = new ArrayList <> ();
+        final List <SheetAttemptEntity> result = new ArrayList <> ();
         final Set <UserEntity> handledUsers = new HashSet <> ();
-        for (OlympiadAttemptEntity attempt : attempts) {
+        for (SheetAttemptEntity attempt : attempts) {
             UserEntity author = attempt.getUser ();
             if (handledUsers.contains (author)) {
                 continue;
@@ -130,7 +130,7 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     }
     
     @ProtectedMethod @Transactional
-    public void markPendingAttemptsAsChecked (OlympiadEntity olympiad, WUser committer) {
+    public void markPendingAttemptsAsChecked (SheetEntity olympiad, WUser committer) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);
         
@@ -138,7 +138,7 @@ public class OlympiadAttemptsService extends AbsCachedService <OlympiadAttemptEn
     }
     
     @ProtectedMethod @Transactional
-    public void markCheckedAttemptsAsPending (OlympiadEntity olympiad, WUser committer) {
+    public void markCheckedAttemptsAsPending (SheetEntity olympiad, WUser committer) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);
         

@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OlympiadEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -27,7 +27,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
+public class OlympiadsService extends AbsCachedService <SheetEntity> {
     
     private final OlympiadAttemptsService olympiadAttemptsService;
     private final OlympiadEntityRepository olympiadsRepository;
@@ -36,7 +36,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     private final Clock clock;
     
     @Override
-    protected OlympiadEntity loadEntity (Long id) {
+    protected SheetEntity loadEntity (Long id) {
         return olympiadsRepository.findById (id).orElse (null);
     }
 
@@ -44,8 +44,8 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     protected int getCacheSize () { return 32; }
     
     @ProtectedMethod
-    public OlympiadEntity getOlympiad (long id) throws EntityNotFoundException {
-        OlympiadEntity olympiad = getEntity (id);
+    public SheetEntity getOlympiad (long id) throws EntityNotFoundException {
+        SheetEntity olympiad = getEntity (id);
         if (olympiad == null) { return null; }
         
         PeriodEntity period = olympiad.getGroup ().getPeriod ();
@@ -54,7 +54,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     }
     
     @ProtectedMethod
-    public List <OlympiadEntity> getOlympiadsByGroup (GroupEntity group) {
+    public List <SheetEntity> getOlympiadsByGroup (GroupEntity group) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
         return olympiadsRepository.findIdsByGroup (group).stream ()
@@ -63,7 +63,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     }
     
     @ProtectedMethod
-    public OlympiadEntity createOlympiad (GroupEntity group, String name, String description, 
+    public SheetEntity createOlympiad (GroupEntity group, String name, String description, 
             LocalDateTime publish, LocalDateTime finish, Integer attempts, WUser creator) {
         accessGuard.method (MiscUtils.getMethod (), group.getPeriod ());
         
@@ -81,7 +81,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
             throw new IllegalArgumentException (message);
         }
         
-        OlympiadEntity entity = new OlympiadEntity ();
+        SheetEntity entity = new SheetEntity ();
         if (attempts != null) {
             entity.setAttemptsLimit (attempts);            
         }
@@ -99,7 +99,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
     }
     
     @ProtectedMethod @NotEffectiveMethod
-    public OlympiadEntity setResultsStatus (OlympiadEntity olympiad, boolean finallized, WUser committer) {
+    public SheetEntity setResultsStatus (SheetEntity olympiad, boolean finallized, WUser committer) {
         final PeriodEntity period = olympiad.getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period);
         
@@ -120,15 +120,15 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
         return olympiadsRepository.save (olympiad);
     }
     
-    private void finalizeOlympiadResults (OlympiadEntity olympiad, WUser committer) {
+    private void finalizeOlympiadResults (SheetEntity olympiad, WUser committer) {
         if (LocalDateTime.now (clock).isBefore (olympiad.getFinished ())) {
             String message = "Results can't be finalized before the end of olympiad";
             throw new IllegalStateException (message);
         }
         
-        List <OlympiadAttemptEntity> attempts = olympiadAttemptsService
+        List <SheetAttemptEntity> attempts = olympiadAttemptsService
            . getAttemptsForCheck (olympiad);
-        for (OlympiadAttemptEntity attempt : attempts) {
+        for (SheetAttemptEntity attempt : attempts) {
             if (!olympaidChecksService.isAttemptChecked (attempt)) {
                 String message = "At least one attempt is not checked (attempt: " 
                                + attempt.getId () + ")";
@@ -139,7 +139,7 @@ public class OlympiadsService extends AbsCachedService <OlympiadEntity> {
         olympiadAttemptsService.markPendingAttemptsAsChecked (olympiad, committer);
     }
     
-    private void invalidateOlympiadResults (OlympiadEntity olympiad, WUser committer) {
+    private void invalidateOlympiadResults (SheetEntity olympiad, WUser committer) {
         olympiadAttemptsService.markCheckedAttemptsAsPending (olympiad, committer);
     }
     

@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadCheckEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetCheckEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetProblemEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OlympiadCheckEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -28,7 +28,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 //@Slf4j
 @Service
 @RequiredArgsConstructor
-public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity> {
+public class OlympaidChecksService extends AbsCachedService <SheetCheckEntity> {
 
     private final OlympiadCheckEntityRepository olympiadChecksRepository;
     private final OlympiadProblemsService olympiadProblemsService;
@@ -37,7 +37,7 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
     private final Clock clock;
     
     @Override
-    protected OlympiadCheckEntity loadEntity (Long id) {
+    protected SheetCheckEntity loadEntity (Long id) {
         return null;
     }
 
@@ -45,7 +45,7 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
     protected int getCacheSize () { return 32; }
     
     @ProtectedMethod @NotEffectiveMethod
-    public boolean isAttemptChecked (OlympiadAttemptEntity attempt) {
+    public boolean isAttemptChecked (SheetAttemptEntity attempt) {
         final PeriodEntity period = attempt.getOlympiad ().getGroup ().getPeriod ();
         final WUser user = usersService.getUser (attempt.getUser ().getId ());
         accessGuard.method (MiscUtils.getMethod (), period, user);
@@ -53,10 +53,10 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
         Set <Long> checkedProblemsId = olympiadChecksRepository
           . findCheckedProblemsIds (attempt.getId ());
         
-        List <OlympiadProblemEntity> problems = olympiadProblemsService
+        List <SheetProblemEntity> problems = olympiadProblemsService
            . getProblemsByOlympiad (attempt.getOlympiad ());
         
-        for (OlympiadProblemEntity problem : problems) {
+        for (SheetProblemEntity problem : problems) {
             if (!checkedProblemsId.contains (problem.getId ())) {
                 return false; // problem not checked by anybody
             }
@@ -66,7 +66,7 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
     }
     
     @ProtectedMethod @NotEffectiveMethod
-    public Pair <Integer, Integer> getNumberOfCheckedProblemsAndScoreByUser (OlympiadAttemptEntity attempt, WUser user) {
+    public Pair <Integer, Integer> getNumberOfCheckedProblemsAndScoreByUser (SheetAttemptEntity attempt, WUser user) {
         final PeriodEntity period = attempt.getOlympiad ().getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
@@ -79,14 +79,14 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
     
     @Transactional
     @ProtectedMethod @NotEffectiveMethod 
-    public void saveAttemptResults (OlympiadAttemptEntity attempt, 
+    public void saveAttemptResults (SheetAttemptEntity attempt, 
             CheckedOlympiadProblems results, WUser committer) {
         final PeriodEntity period = attempt.getOlympiad ().getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period, committer);
         
-        List <OlympiadCheckEntity> checks = new ArrayList <> ();
+        List <SheetCheckEntity> checks = new ArrayList <> ();
         for (Trio <Long, Integer, String> check : results.getResults ()) {
-            OlympiadProblemEntity problem = olympiadProblemsService
+            SheetProblemEntity problem = olympiadProblemsService
                                           . getProblem (check.F);
             if (check.S > problem.getCost ()) {
                 String message = String.format ("Problem `%s` has cost %d (%d points given)", 
@@ -94,11 +94,11 @@ public class OlympaidChecksService extends AbsCachedService <OlympiadCheckEntity
                 throw new IllegalArgumentException (message);
             }
             
-            OlympiadCheckEntity entity = olympiadChecksRepository
+            SheetCheckEntity entity = olympiadChecksRepository
             . findByAttemptAndCommitterAndProblem_Id (attempt, 
                              committer.getEntity (), check.F);
             if (entity == null) {
-                entity = new OlympiadCheckEntity ();
+                entity = new SheetCheckEntity ();
                 entity.setAttempt (attempt);
                 entity.setProblem (problem);
             }

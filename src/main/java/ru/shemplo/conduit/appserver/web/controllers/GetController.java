@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataCollector;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
@@ -138,7 +138,7 @@ public class GetController {
     }
     
     @PostMapping (API_GET_OLYMPIADS) 
-    public ResponseBox <List <OlympiadEntity>> handleGetOlympiads (
+    public ResponseBox <List <SheetEntity>> handleGetOlympiads (
         @RequestParam ("group") Long groupID
     ) {
         final GroupEntity group = groupsService.getGroup (groupID);

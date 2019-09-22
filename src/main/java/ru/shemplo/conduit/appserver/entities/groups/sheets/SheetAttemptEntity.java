@@ -1,4 +1,4 @@
-package ru.shemplo.conduit.appserver.entities.groups.olympiads;
+package ru.shemplo.conduit.appserver.entities.groups.sheets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,17 +20,17 @@ import ru.shemplo.conduit.appserver.entities.UserEntity;
 @AllArgsConstructor
 @Table (name = "olympiad_attempts")
 @EqualsAndHashCode (callSuper = true)
-public class OlympiadAttemptEntity extends AbsAuditableEntity {
+public class SheetAttemptEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
-    private OlympiadEntity olympiad;
+    private SheetEntity olympiad;
     
     @ManyToOne (optional = false)
     private UserEntity user;
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
-    private OlympiadAttemptStatus status;
+    private SheetAttemptStatus status;
     
     private String reason;
     

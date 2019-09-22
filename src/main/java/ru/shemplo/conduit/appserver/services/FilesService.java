@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.FileEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadAttemptEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetAttemptEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.FileEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -47,7 +47,7 @@ public class FilesService extends AbsCachedService <FileEntity> {
     
     @ProtectedMethod
     public FileEntity saveOlympiadAttemptArchive (MultipartFile file,
-            OlympiadEntity olympiad, WUser user) throws IOException {
+            SheetEntity olympiad, WUser user) throws IOException {
         accessGuard.method (MiscUtils.getMethod (), user);
         if (!ATTEMPTS_DIR.isDirectory ()) {
             ATTEMPTS_DIR.mkdir ();
@@ -106,7 +106,7 @@ public class FilesService extends AbsCachedService <FileEntity> {
     }
     
     @ProtectedMethod
-    public List <ZipEntry> getEntriesInAttemptArchive (OlympiadAttemptEntity attempt, WUser user) {
+    public List <ZipEntry> getEntriesInAttemptArchive (SheetAttemptEntity attempt, WUser user) {
         final PeriodEntity period = attempt.getOlympiad ().getGroup ().getPeriod ();
         accessGuard.method (MiscUtils.getMethod (), period, user);
         

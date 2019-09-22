@@ -1,4 +1,4 @@
-package ru.shemplo.conduit.appserver.entities.groups.olympiads;
+package ru.shemplo.conduit.appserver.entities.groups.sheets;
 
 import javax.persistence.*;
 
@@ -14,13 +14,13 @@ import ru.shemplo.conduit.appserver.entities.AbsAuditableEntity;
 @Table (name = "olympiad_checks", uniqueConstraints = {
     @UniqueConstraint (columnNames = {"problem_id", "attempt_id", "committer_id"})
 })
-public class OlympiadCheckEntity extends AbsAuditableEntity {
+public class SheetCheckEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
-    private OlympiadProblemEntity problem;
+    private SheetProblemEntity problem;
     
     @ManyToOne (optional = false)
-    private OlympiadAttemptEntity attempt;
+    private SheetAttemptEntity attempt;
     
     @Column (nullable = false)
     private Integer points;

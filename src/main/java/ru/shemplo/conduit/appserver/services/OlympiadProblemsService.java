@@ -10,8 +10,8 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadProblemEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetProblemEntity;
 import ru.shemplo.conduit.appserver.entities.repositories.OlympiadProblemEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -29,13 +29,13 @@ public class OlympiadProblemsService {
     
     private static final int CACHE_SIZE = 128;
     
-    private final LRUCache <OlympiadProblemEntity> CACHE = new LRUCache <> (CACHE_SIZE);
+    private final LRUCache <SheetProblemEntity> CACHE = new LRUCache <> (CACHE_SIZE);
     
     @ProtectedMethod
-    public OlympiadProblemEntity getProblem (long id) throws EntityNotFoundException {
+    public SheetProblemEntity getProblem (long id) throws EntityNotFoundException {
         accessGuard.method (MiscUtils.getMethod ());
         
-        OlympiadProblemEntity period = CACHE.getOrPut (id, 
+        SheetProblemEntity period = CACHE.getOrPut (id, 
             () -> problemsRepository.findById (id).orElse (null)
         );
         
@@ -46,7 +46,7 @@ public class OlympiadProblemsService {
     }
     
     @ProtectedMethod
-    public List <OlympiadProblemEntity> getProblemsByOlympiad (OlympiadEntity olympiad) {
+    public List <SheetProblemEntity> getProblemsByOlympiad (SheetEntity olympiad) {
         accessGuard.method (MiscUtils.getMethod ());
         
         return problemsRepository.findIdsByOlympiad (olympiad).stream ()
@@ -55,12 +55,12 @@ public class OlympiadProblemsService {
     }
     
     @ProtectedMethod
-    public OlympiadProblemEntity createOlympiadProblem (OlympiadEntity olympiad, 
+    public SheetProblemEntity createOlympiadProblem (SheetEntity olympiad, 
             String title, String content, Integer cost, Integer difficulty, 
             WUser author) {
         accessGuard.method (MiscUtils.getMethod ());
         
-        final OlympiadProblemEntity entity = new OlympiadProblemEntity ();
+        final SheetProblemEntity entity = new SheetProblemEntity ();
         entity.setDifficulty (difficulty != null ? difficulty.doubleValue () : null);
         entity.setOlympiad (olympiad);
         entity.setContent (content);

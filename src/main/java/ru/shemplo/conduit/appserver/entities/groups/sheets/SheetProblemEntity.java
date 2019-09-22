@@ -1,4 +1,4 @@
-package ru.shemplo.conduit.appserver.entities.groups.olympiads;
+package ru.shemplo.conduit.appserver.entities.groups.sheets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ import ru.shemplo.conduit.appserver.entities.FileEntity;
 @Table (name = "olympiad_problems", uniqueConstraints = {
     @UniqueConstraint (columnNames = {"olympiad_id", "title"})
 })
-public class OlympiadProblemEntity extends AbsAuditableEntity {
+public class SheetProblemEntity extends AbsAuditableEntity {
     
     @ManyToOne (optional = false)
-    private OlympiadEntity olympiad;
+    private SheetEntity olympiad;
     
     @Column (nullable = false, columnDefinition = "text")
     private String title, content;

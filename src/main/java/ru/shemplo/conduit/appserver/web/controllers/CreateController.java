@@ -24,7 +24,7 @@ import ru.shemplo.conduit.appserver.entities.PeriodStatus;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.groups.GroupType;
-import ru.shemplo.conduit.appserver.entities.groups.olympiads.OlympiadEntity;
+import ru.shemplo.conduit.appserver.entities.groups.sheets.SheetEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -268,7 +268,7 @@ public class CreateController {
         @RequestParam (value = "difficulty", required = false) 
             Integer description
     ) {
-        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         olympiadProblemsService.createOlympiadProblem (olympiad, title, content, 
                                                        cost, description, user);
         
@@ -282,7 +282,7 @@ public class CreateController {
         @RequestParam ("comment")  String comment,
         @RequestParam ("file")     MultipartFile file
     ) throws IOException {
-        final OlympiadEntity olympiad = olympiadsService.getOlympiad (olympiadID);
+        final SheetEntity olympiad = olympiadsService.getOlympiad (olympiadID);
         if (olympiadAttemptsService.getRemainingUserAttemptsNumber (user, olympiad) == 0) {
             String message = "The number of available attempts is exceeded";
             throw new IllegalStateException (message);
