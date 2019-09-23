@@ -187,7 +187,6 @@ public class DTOGenerator implements Generator {
         }
     }
     
-    @SuppressWarnings ("preview")
     // getConvertedEnumParameterValue
     private String getCEPV (Class <Enum <?>> etype, Enum <?> elem, Pair <Parameter, String> paramAndType) {
         try {

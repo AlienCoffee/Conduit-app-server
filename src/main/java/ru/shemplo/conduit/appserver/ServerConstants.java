@@ -74,7 +74,6 @@ public class ServerConstants {
     public static final String API_CREATE_ = API_CREATE + $;
     
     public static final String API_CREATE_USER = API_UNCHECKED_ + "create" + $ + "user";
-    //public static final String API_VERIFY_USER = API_UNCHECKED_ + "verify" + $ + "user";
     public static final String API_CREATE_OPTION = API_CREATE_ + "option";
     public static final String API_CREATE_ROLE = API_CREATE_ + "role";
     public static final String API_CREATE_PERIOD = API_CREATE_ + "period";
@@ -83,9 +82,6 @@ public class ServerConstants {
     public static final String API_CREATE_GROUP_ASSIGNMENT = API_CREATE_ + "group-assignment";
     public static final String API_CREATE_GROUP_JOIN = API_CREATE_ + "group-join";
     public static final String API_CREATE_INFORMATION_POST = API_CREATE_ + "information-post";
-    public static final String API_CREATE_OLYMPIAD = API_CREATE_ + "olympiad";
-    public static final String API_CREATE_OLYMPIAD_PROBLEM = API_CREATE_OLYMPIAD + $ + "problem";
-    public static final String API_CREATE_OLYMPIAD_ATTEMPT = API_CREATE_OLYMPIAD + $ + "attempt";
     
     public static final String API_UPDATE = API_ + "update";
     public static final String API_UPDATE_ = API_UPDATE + $;
