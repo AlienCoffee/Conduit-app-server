@@ -131,6 +131,9 @@ public class SiteController {
     ) {
         ModelAndView mav = new ModelAndView ("period/period");
         
+        UserEntity ent = user != null ? user.getEntity () : null;
+        mav.addObject ("user", ent);
+        
         final PeriodEntity period  = periodsService.getPeriod (periodID);
         mav.addObject ("period", period);
         

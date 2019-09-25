@@ -114,6 +114,9 @@ public class HTMLGenerator implements Generator {
             if (value.startsWith ("%") && value.endsWith ("%")) {
                 value = value.substring (1, value.length () - 1);
                 pw.println (String.format ("    %s.innerHTML = %s;", objName, value));
+            } else if (value.trim ().length () > 0) {
+                pw.println (String.format ("    %s.innerHTML = \"%s\";", 
+                    objName, value));
             }
         }
         pw.println ();

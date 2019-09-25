@@ -26,7 +26,7 @@ public class SheetEntity extends AbsAuditableEntity {
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
-    private SheetCharacter character;
+    private SheetCharacter type;
     
     @Column (nullable = false)
     private LocalDateTime published;
