@@ -104,7 +104,10 @@ public class DTOGenerator implements Generator {
                 continue; // static fields should be declared as custom code
             }
             
-            String processedType = processType (field.getGenericType ()), name = field.getName ();
+            String processedType = processType (field.getGenericType ()), 
+                   name = field.isAnnotationPresent (DTORename.class) 
+                        ? field.getAnnotation (DTORename.class).value () 
+                        : field.getName ();
             pw.println (String.format ("    public %s : %s;", name, processedType));
             types.get (type).add (field);
         }
@@ -209,6 +212,9 @@ public class DTOGenerator implements Generator {
     // getConvertedEnumParameterDeclaration
     private String getCEPD (Pair <Parameter, String> paramAndType) {
         String name = paramAndType.F.getName ();
+        if (name.equals ("name")) { // b/c `name` is reserved as key field in TS Enum
+            name = "_" + name;
+        }
         
         if (Character.isLowerCase (paramAndType.S.charAt (0))) {
             return String.format ("readonly %s : %s", name, paramAndType.S);
