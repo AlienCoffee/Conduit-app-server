@@ -10,6 +10,7 @@ import lombok.ToString;
 public class WebFormTitle implements WebFormRow {
     
     private final String title;
+    private final String icon;
 
     @Override
     public String getRowType () { return "title"; }

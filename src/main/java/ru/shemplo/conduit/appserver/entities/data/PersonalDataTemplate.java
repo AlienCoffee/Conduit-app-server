@@ -17,28 +17,8 @@ import ru.shemplo.conduit.appserver.web.form.WebFormTitle;
 @RequiredArgsConstructor
 public enum PersonalDataTemplate {
     
-    /*
-    STUDENT (Arrays.asList (
-                FIRST_NAME, LAST_NAME, GENDER, BIRTHDAY, STUDY_FORM,
-                LIVING_REGION, LIVING_CITY, LIVING_ADDRESS,
-                MED_POLICY_NUMBER, ID_DOC_SERIES, ID_DOC_NUMBER,
-                FORM, STUDY_INSTITUTION, STUDY_INSTITUTION_CODE, STUDY_REGION, STUDY_CITY,
-                DIETARY_RESTRICTIONS, MEDICAL_RESTRICTIONS, CHRONIC_DISEASE,
-                INDIVIDUAL_FEATURES, CHARACTERISTICS, 
-                ACCOMODATION_WISHES, OTHER_WISHES
-            )),
-    
-    TEACHER (Arrays.asList (
-                FIRST_NAME, LAST_NAME, GENDER, BIRTHDAY,
-                LIVING_REGION, LIVING_CITY,
-                MED_POLICY_NUMBER, ID_DOC_SERIES, ID_DOC_NUMBER,
-                QUALIFICATION,
-                ACCOMODATION_WISHES, OTHER_WISHES
-            ));
-            */
-    
     STUDENT ("Школьник", true, Arrays.asList (
-            new WebFormTitle ("Данные об школьнике"),
+            new WebFormTitle ("Данные об школьнике", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия школьника", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя школьника", null, true),
             new WebFormField <> (SECOND_NAME, TEXT, "Отчество школьника", null, false),
@@ -48,7 +28,7 @@ public enum PersonalDataTemplate {
         )),
     
     TEACHER ("Преподаватель", true, Arrays.asList (
-            new WebFormTitle ("Персональные данные"),
+            new WebFormTitle ("Персональные данные", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
             new WebFormField <> (SECOND_NAME, TEXT, "Отчество", null, false),
@@ -57,7 +37,7 @@ public enum PersonalDataTemplate {
         )),
     
     PARENT_MOTHER ("Родитель (мать)", true, Arrays.asList (
-            new WebFormTitle ("Персональные данные"),
+            new WebFormTitle ("Персональные данные", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
             new WebFormField <> (SECOND_NAME, TEXT, "Отчество", null, false),
@@ -66,7 +46,7 @@ public enum PersonalDataTemplate {
         )),
     
     PARENT_FATHER ("Родитель (отец)", true, Arrays.asList (
-            new WebFormTitle ("Персональные данные"),
+            new WebFormTitle ("Персональные данные", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
             new WebFormField <> (SECOND_NAME, TEXT, "Отчество", null, false),

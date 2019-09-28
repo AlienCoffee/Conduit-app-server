@@ -19,7 +19,6 @@ import com.github.rjeschke.txtmark.Processor;
 
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.entities.*;
-import ru.shemplo.conduit.appserver.entities.data.PersonalDataCollector;
 import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.services.*;
@@ -27,7 +26,7 @@ import ru.shemplo.conduit.appserver.start.MethodsScanner;
 import ru.shemplo.conduit.appserver.web.ResponseBox;
 import ru.shemplo.conduit.appserver.web.dto.BlogPostDTO;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
-import ru.shemplo.conduit.appserver.web.form.WebFormRow;
+import ru.shemplo.conduit.appserver.web.dto.WebFormRowDTO;
 import ru.shemplo.snowball.stuctures.Pair;
 
 @RestController
@@ -90,8 +89,14 @@ public class GetController {
     }
     
     @GetMapping (API_GET_PERIOD_REGISTER_ROLES) 
-    public ResponseBox <Map <String, List <WebFormRow>>> handleGetPeriodRegisterRoles () {
-        return ResponseBox.ok (rolesService.getPeriodRegisterTemplates ());
+    public ResponseBox <Map <String, List <WebFormRowDTO>>> handleGetPeriodRegisterRoles () {
+        final Map <String, List <WebFormRowDTO>> map = rolesService.getPeriodRegisterTemplates ()
+            . entrySet ().stream ()
+            . map (Pair::fromMapEntry).map (pair -> {
+                return pair.applyS (rows -> rows.stream ().map (WebFormRowDTO::new)
+                                          . collect (Collectors.toList ()));
+            }).collect (Collectors.toMap (Pair::getF, Pair::getS));
+        return ResponseBox.ok (map);
     }
     
     @PostMapping (API_GET_PERIOD_REGISTERED) 
@@ -104,14 +109,14 @@ public class GetController {
     }
     
     @PostMapping (API_GET_PERSONAL_DATA) 
-    public ResponseBox <PersonalDataCollector> handleGetPersonalData (
+    public ResponseBox <Map <String, Object>> handleGetPersonalData (
         @RequestParam ("period") Long periodID,
         @RequestParam ("user")   Long userID
     ) {
         final PeriodEntity period = periodsService.getPeriod (periodID);
         final WUser user = usersService.getUser (userID);
         
-        return ResponseBox.ok (personalDataService.getPersonalData (user, period));
+        return ResponseBox.ok (personalDataService.getPersonalData (user, period).getValues ());
     }
     
     @PostMapping (API_GET_GROUP_TYPES) 

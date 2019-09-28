@@ -194,9 +194,11 @@ public class SiteController {
         @PathVariable ("id") Long periodID
     ) {
         final PeriodEntity period = periodsService.getPeriod (periodID);
-        ModelAndView mav = new ModelAndView ("period/registration");
+        ModelAndView mav = new ModelAndView ("period/reg");
         mav.addObject ("period", period);
-        mav.addObject ("user", user);
+        
+        UserEntity ent = user != null ? user.getEntity () : null;
+        mav.addObject ("user", ent);
         
         try {            
             final List <RegisteredPeriodRoleEntity> roles 

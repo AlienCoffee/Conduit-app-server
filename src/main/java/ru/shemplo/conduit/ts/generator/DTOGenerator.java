@@ -75,7 +75,7 @@ public class DTOGenerator implements Generator {
             
             if (annotation.superclass () != null && annotation.superclass ().length () > 0) {
                 pw.print (" extends "); pw.print (annotation.superclass ());
-            } else if (superType.getClass ().isAnnotationPresent (DTOType.class)) {
+            } else if (superType != null && superType.getClass ().isAnnotationPresent (DTOType.class)) {
                 pw.print (" extends "); pw.print (processType (superType));
             }
             
@@ -95,6 +95,8 @@ public class DTOGenerator implements Generator {
     private void printBody (Class <?> type, DTOType annotation, PrintWriter pw) {
         List <Field> fields = new ArrayList <> ();
         Algorithms.runBFS (type, t -> !Object.class.equals (t), t -> {
+            if (t == null) { return List.of (); }
+            
             fields.addAll (Arrays.asList (t.getDeclaredFields ()));
             return MiscUtils.cast (Arrays.asList (t.getSuperclass ()));
         });

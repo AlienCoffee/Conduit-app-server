@@ -64,11 +64,12 @@ public class HTMLGenerator implements Generator {
                                . collect (Collectors.joining ());
             final Document doc = pair.getS ();
             
-            String parameters = getParameters (doc).stream ().map (p -> p + " : string")
+            final List <String> parametersNames = getParameters (doc);
+            String parameters = parametersNames.stream ().map (p -> p + " : string")
                               . collect (Collectors.joining (", "));
             pw.println (String.format ("export function make%s (%s) : HTMLElement {", 
                     elementName, parameters));
-            String root = processElement (doc.body (), null, pw);
+            String root = processElement (doc.body (), null, parametersNames, pw);
             pw.println (String.format ("    return %s;", root));
             pw.println ("}");
             pw.println ();
@@ -83,11 +84,11 @@ public class HTMLGenerator implements Generator {
         return parameters;
     }
     
-    private String processElement (Element element, String parent, PrintWriter pw) {
+    private String processElement (Element element, String parent, List <String> parameters, PrintWriter pw) {
         if (element.tagName ().equals ("body")) {
             if (element.childNodeSize () > 0) {
                 final Element child = element.child   (0);
-                return processElement (child, parent, pw);
+                return processElement (child, parent, parameters, pw);
             }
         }
         
@@ -99,15 +100,20 @@ public class HTMLGenerator implements Generator {
         }
         
         for (Attribute attr : element.attributes ()) {
-            final String attrKey = attr.getKey (), attrValue = attr.getValue ();
+            /*
             if (attrValue.startsWith ("%") && attrValue.endsWith ("%")) {
                 String value = attrValue.substring (1, attrValue.length () - 1);
                 pw.println (String.format ("    %s.setAttribute (\"%s\", %s);", 
                     objName, attrKey, value));
             } else {                
-                pw.println (String.format ("    %s.setAttribute (\"%s\", \"%s\");", 
-                    objName, attrKey, attrValue));
             }
+            */
+            String attrKey = attr.getKey (), attrValue = attr.getValue ();
+            for (var param : parameters) {
+                attrValue = attrValue.replace ("%" + param + "%", "\"+" + param + "+\"");
+            }
+            pw.println (String.format ("    %s.setAttribute (\"%s\", \"%s\");", 
+                objName, attrKey, attrValue));
         }
         if (element.children ().size () == 0) {
             String value = element.text ();
@@ -122,7 +128,7 @@ public class HTMLGenerator implements Generator {
         pw.println ();
         
         for (Element child : element.children ()) {
-            processElement (child, objName, pw);
+            processElement (child, objName, parameters, pw);
         }
         
         
