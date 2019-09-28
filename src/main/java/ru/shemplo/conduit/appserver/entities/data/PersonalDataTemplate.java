@@ -12,22 +12,30 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.shemplo.conduit.appserver.web.form.WebFormField;
 import ru.shemplo.conduit.appserver.web.form.WebFormRow;
+import ru.shemplo.conduit.appserver.web.form.WebFormSelect;
 import ru.shemplo.conduit.appserver.web.form.WebFormTitle;
 
 @RequiredArgsConstructor
 public enum PersonalDataTemplate {
     
-    STUDENT ("Школьник", true, Arrays.asList (
-            new WebFormTitle ("Данные об школьнике", null),
-            new WebFormField <> (LAST_NAME, TEXT, "Фамилия школьника", null, true),
-            new WebFormField <> (FIRST_NAME, TEXT, "Имя школьника", null, true),
-            new WebFormField <> (SECOND_NAME, TEXT, "Отчество школьника", null, false),
-            new WebFormField <> (GENDER, TEXT, "Пол", "Одной буквой: М - мужской, Ж - женский", true),
+    STUDENT ("Student", true, Arrays.asList (
+            new WebFormTitle ("Personal data", "fas fa-address-card"),
+            new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
+            new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
+            new WebFormField <> (SECOND_NAME, TEXT, "Отчество", null, false),
             new WebFormField <> (BIRTHDAY, DATE, "Дата рождения", null, true),
-            new WebFormField <> (STUDY_FORM, NUMBER, "Класс обучения", "Класс, который школьник закончил", true)
+            new WebFormField <> (GENDER, TEXT, "Пол", "Одной буквой: М - мужской, Ж - женский", true),
+            new WebFormField <> (STUDY_FORM, NUMBER, "Класс обучения", "Класс, который школьник закончил", true),
+            new WebFormTitle ("ID document", "fas fa-id-card"),
+            new WebFormSelect ("Document type", "documentType", "Pasport", "Sertificate of Birth"),
+            new WebFormField <> (SECOND_NAME, TEXT, "Series", null, false),
+            new WebFormField <> (SECOND_NAME, TEXT, "Number", null, false),
+            new WebFormTitle ("Living place", "fas fa-home"),
+            new WebFormField <> (SECOND_NAME, TEXT, "Region", null, false),
+            new WebFormField <> (SECOND_NAME, TEXT, "City / Town", null, false)
         )),
     
-    TEACHER ("Преподаватель", true, Arrays.asList (
+    TEACHER ("Teacher", true, Arrays.asList (
             new WebFormTitle ("Персональные данные", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
@@ -36,7 +44,7 @@ public enum PersonalDataTemplate {
             new WebFormField <> (BIRTHDAY, DATE, "Дата рождения", null, true)
         )),
     
-    PARENT_MOTHER ("Родитель (мать)", true, Arrays.asList (
+    PARENT_MOTHER ("Parent (mother)", true, Arrays.asList (
             new WebFormTitle ("Персональные данные", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),
@@ -45,7 +53,7 @@ public enum PersonalDataTemplate {
             new WebFormField <> (BIRTHDAY, DATE, "Дата рождения", null, true)
         )),
     
-    PARENT_FATHER ("Родитель (отец)", true, Arrays.asList (
+    PARENT_FATHER ("Parent (father)", true, Arrays.asList (
             new WebFormTitle ("Персональные данные", null),
             new WebFormField <> (LAST_NAME, TEXT, "Фамилия", null, true),
             new WebFormField <> (FIRST_NAME, TEXT, "Имя", null, true),

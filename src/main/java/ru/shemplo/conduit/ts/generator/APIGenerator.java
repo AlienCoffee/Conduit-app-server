@@ -237,8 +237,8 @@ public class APIGenerator implements Generator {
             } else {
                 String initedValue = String.format ("new %s ()", processedType);
                 initializeVariable (varOName, initedValue, true, null, gens, offset + "    ", level + 1, pw);
+                initializeObject (varOName, varSName, vtype, offset + "    ", level + 1, pw);
             }
-            initializeObject (varOName, varSName, vtype, offset + "    ", level + 1, pw);
             pw.println (String.format ("                %s%s.push (%s);", offset, name, varOName));
             pw.println (String.format ("            %s}", offset));
         } else if (Map.class.isAssignableFrom (ctype)) {
@@ -260,7 +260,12 @@ public class APIGenerator implements Generator {
         } else if (ctype.isEnum ()) {
             pw.println ("// not implemented: enum");
         } else {
-            //pw.println ("// not implemented: object");
+            String keyName = "key" + counter.getAndIncrement ();
+            pw.println (String.format ("            %sObject.keys (%s).forEach (%s => {", 
+                offset, source, keyName));
+            pw.println (String.format ("                %s%s [%s] = %s [%s];", offset, 
+                name, keyName, source, keyName));
+            pw.println (String.format ("            %s});", offset));
         }
     }
     
