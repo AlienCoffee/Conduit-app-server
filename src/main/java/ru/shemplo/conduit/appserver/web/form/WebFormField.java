@@ -9,9 +9,9 @@ import ru.shemplo.conduit.ts.generator.DTOType;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public class WebFormField <T extends Named> implements WebFormRow {
+public class WebFormField <T extends Named> implements WebFormValue <T> {
     
-    private final T field;
+    private final T parameter;
     
     private final WebFormFieldType type;
     private final String title, comment;
@@ -24,9 +24,5 @@ public class WebFormField <T extends Named> implements WebFormRow {
     
     @Override
     public String getRowType () { return "field"; }
-    
-    public String getParameterName () {
-        return field.getName ();
-    }
     
 }

@@ -153,7 +153,7 @@ public class CreateController {
         @IndentifiedUser           WUser  user,
         @RequestParam ("template") String template,
         @RequestParam ("period")   Long periodID,
-        @RequestParam Map <String, String> data
+        @RequestParam ("data")     Map <String, String> data
     ) {
         final PersonalDataTemplate temp = PersonalDataTemplate.forName (template);
         final PeriodEntity period = periodsService.getPeriod (periodID);

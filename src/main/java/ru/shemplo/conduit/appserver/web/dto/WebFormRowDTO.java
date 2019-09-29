@@ -57,7 +57,7 @@ public class WebFormRowDTO {
                 comment = null;
                 icon = null;
                 
-                WebFormSelect select = MiscUtils.cast (row);
+                WebFormSelect <?> select = MiscUtils.cast (row);
                 options.addAll (select.getOptions ());
                 required = select.isRequired ();
                 id = select.getParameterName ();

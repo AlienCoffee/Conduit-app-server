@@ -4,10 +4,9 @@ import static ru.shemplo.conduit.appserver.entities.AssignmentStatus.*;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -25,7 +24,7 @@ import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
 import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.utils.Utils;
-import ru.shemplo.conduit.appserver.web.form.WebFormField;
+import ru.shemplo.conduit.appserver.web.form.WebFormValue;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.utils.MiscUtils;
 
@@ -63,45 +62,52 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         return getEntity (Utils.hash2 (user, period));
     }
     
-    @ProtectedMethod
-    @Transactional public void savePersonalData (WUser user, PeriodEntity period, 
-            PersonalDataTemplate template, Map <String, String> data, 
-            WUser committer) {
+    @Transactional 
+    @ProtectedMethod 
+    public void savePersonalData (WUser user, PeriodEntity period, PersonalDataTemplate template, 
+            Map <String, String> data, WUser committer) {
         accessGuard.method (MiscUtils.getMethod (), period, user);
         
-        final Set <String> present = new HashSet <> ();
+        final List <String> missed = new ArrayList <> ();
         List <PersonalDataEntity> rows = template.getRows ().stream ()
-           . filter  (row -> row instanceof WebFormField)
+           . filter  (row -> row instanceof WebFormValue)
            . map     (row -> {
-               @SuppressWarnings ("unchecked") WebFormField <PersonalDataField> 
-                   field = (WebFormField <PersonalDataField>) row;
+               WebFormValue <PersonalDataField> field = MiscUtils.cast (row);
                return field;
            })
-           . filter  (row -> data.containsKey (row.getParameterName ()))
-           . peek    (row -> {
-               if (row.isRequired ()) { present.add (row.getParameterName ()); }
+           . filter  (row -> {
+               var exist = data.containsKey (row.getParameterName ());
+               if (!exist && row.isRequired ()) {
+                   missed.add (row.getParameterName ());
+               }
+               return exist;
            })
-           . map     (row -> new PersonalDataEntity (user.getEntity (), period, row.getField (), null))
+           . map     (row -> new PersonalDataEntity (user.getEntity (), period, row.getParameter (), null))
            . map     (field -> dataRepository.findOne (Example.of (field)).orElse (field))
            . peek    (field -> field.setValue (data.get (field.getField ().getName ())))
            . peek    (field -> field.deserialize ()) // check that data is correct
            . collect (Collectors.toList ());
         
-        if (present.size () < template.getNumberOfRequired ()) {
-            String message = "Not enough required arguments";
+        if (missed.size () > 0) {
+            final String message = "Not enough required arguments: " 
+                + missed.stream ().collect (Collectors.joining (", "));
             throw new IllegalStateException (message);
         }
         
         rows.forEach (dataRepository::save);
-        CACHE.invalidate (Utils.hash2 (period, user));
+        CACHE.invalidate (Utils.hash2 (user, period));
         
-        if (!isUserRegisteredForPeriod (user, period)) {
+        if (!isUserRegisteredForPeriodWithTemplate (user, period, template)) {
             RegisteredPeriodRoleEntity role = new RegisteredPeriodRoleEntity (
                 user.getEntity (), period, template, APPLICATION
             );
             
             role.setCommitter (committer.getEntity ());
-            role.setIssued (LocalDateTime.now (clock));
+            role.setAuthor (committer.getEntity ());
+            
+            LocalDateTime now = LocalDateTime.now (clock);
+            role.setChanged (now);
+            role.setIssued (now);
                 
             registeredRoleRepository.save (role);
         }

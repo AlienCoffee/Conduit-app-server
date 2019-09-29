@@ -9,9 +9,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import ru.shemplo.conduit.appserver.start.DBValidator;
 import ru.shemplo.conduit.appserver.start.MethodsScanner;
+import ru.shemplo.conduit.appserver.utils.StringToMapConverter;
 
 @SpringBootApplication (exclude = {SecurityAutoConfiguration.class})
 public class RunAppServer {
@@ -27,6 +31,17 @@ public class RunAppServer {
     
     @Bean public static Clock getSystemClock () {
         return Clock.systemDefaultZone ();
+    }
+    
+    @Configuration
+    public static class ConvertesConfiguration implements WebMvcConfigurer {
+        
+        @Override
+        public void addFormatters (FormatterRegistry registry) {
+            WebMvcConfigurer.super.addFormatters (registry);
+            registry.addConverter (new StringToMapConverter ());
+        }
+        
     }
     
 }

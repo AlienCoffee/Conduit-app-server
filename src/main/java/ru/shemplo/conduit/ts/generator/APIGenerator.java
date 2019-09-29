@@ -58,12 +58,27 @@ public class APIGenerator implements Generator {
         pw.println ("import { sendRequest } from \"../network\";");
         pw.println ();
         
-        pw.println ("function convertObj2Map (obj : any) {");
+        pw.println ("function convertObj2Map (obj : any) : Map <any, any> {");
         pw.println ("    var map = new Map ();");
+        pw.println ("    if (!obj) { return map; }");
         pw.println ("    Object.keys (obj).forEach (key => {");
         pw.println ("        map.set (key, obj [key]);");
         pw.println ("    });");
         pw.println ("    return map;");
+        pw.println ("}");
+        pw.println ();
+        
+        pw.println ("function convertMap2Obj (map : Map <any, any>) : Object {");
+        pw.println ("    var obj = new Object ();");
+        pw.println ("    if (!map) { return obj; }");
+        pw.println ("    map.forEach ((value, key) => {");
+        pw.println ("        if (value instanceof Map) {");
+        pw.println ("            obj [key] = convertMap2Obj (value);");
+        pw.println ("        } else  {");
+        pw.println ("             obj [key] = value;");
+        pw.println ("        }");
+        pw.println ("    });");
+        pw.println ("    return obj;");
         pw.println ("}");
         pw.println ();
         
@@ -199,6 +214,8 @@ public class APIGenerator implements Generator {
             return String.format ("%s ? '' + %s : ''", name, name);
         } else if (mappedType.equals ("boolean")) {
             return String.format ("%s !== null ? '' + %s : ''", name, name);
+        } else if (mappedType.startsWith ("Map")) {
+            return String.format ("JSON.stringify (convertMap2Obj (%s)) as any", name);
         } else if (param.getParameterizedType () instanceof Class) {
             Class <?> ctype = MiscUtils.cast (param.getParameterizedType ());
             if (ctype.isEnum ()) {

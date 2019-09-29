@@ -144,11 +144,13 @@ public class SiteController {
                 = rolesService.getUserRolesForPeriod (user, period);
             mav.addObject ("role_applications", roles);
             
+            /*
             long amount = roles.stream ()
             . map    (RegisteredPeriodRoleEntity::getStatus)
             . filter (AssignmentStatus.ASSIGNED::equals)
             . count  ();
-            mav.addObject ("have_assigned_roles", amount > 0);
+            */
+            mav.addObject ("have_assigned_roles", roles.size () > 0);
         } catch (SecurityException se) {}
         
         try {            
@@ -205,11 +207,13 @@ public class SiteController {
                 = rolesService.getUserRolesForPeriod (user, period);
             mav.addObject ("role_applications", roles);
             
+            /*
             long amount = roles.stream ()
             . map    (RegisteredPeriodRoleEntity::getStatus)
             . filter (AssignmentStatus.ASSIGNED::equals)
             . count  ();
-            mav.addObject ("have_assigned_roles", amount > 0);
+            */
+            mav.addObject ("have_assigned_roles", roles.size () > 0);
         } catch (SecurityException se) {}
         
         final List <PersonalDataTemplate> templates = personalDataService
