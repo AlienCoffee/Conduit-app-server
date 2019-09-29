@@ -54,6 +54,7 @@ public class SiteController {
         return mav;
     }
     
+    /*
     @ProtectedMethod
     @GetMapping ("/admin")
     public ModelAndView handleAccountPage (
@@ -79,6 +80,7 @@ public class SiteController {
             return null;
         }
     }
+    */
     
     @GetMapping (PAGE_REGISTRATION)
     public ModelAndView handleRegistrationPage (Principal principal,
@@ -142,15 +144,14 @@ public class SiteController {
         try {            
             final List <RegisteredPeriodRoleEntity> roles 
                 = rolesService.getUserRolesForPeriod (user, period);
-            mav.addObject ("role_applications", roles);
+            mav.addObject ("applicated_roles", roles);
+            mav.addObject ("have_registered_roles", roles.size () > 0);
             
-            /*
-            long amount = roles.stream ()
-            . map    (RegisteredPeriodRoleEntity::getStatus)
-            . filter (AssignmentStatus.ASSIGNED::equals)
-            . count  ();
-            */
-            mav.addObject ("have_assigned_roles", roles.size () > 0);
+            final List <RegisteredPeriodRoleEntity> assignedRoles = roles.stream ()
+                . filter (role -> AssignmentStatus.ASSIGNED.equals (role.getStatus ()))
+                . collect (Collectors.toList ());
+            mav.addObject ("assigned_roles", roles);
+            mav.addObject ("have_assigned_roles", assignedRoles.size () > 0);
         } catch (SecurityException se) {}
         
         try {            
@@ -205,15 +206,14 @@ public class SiteController {
         try {            
             final List <RegisteredPeriodRoleEntity> roles 
                 = rolesService.getUserRolesForPeriod (user, period);
-            mav.addObject ("role_applications", roles);
+            mav.addObject ("applicated_roles", roles);
+            mav.addObject ("have_registered_roles", roles.size () > 0);
             
-            /*
-            long amount = roles.stream ()
-            . map    (RegisteredPeriodRoleEntity::getStatus)
-            . filter (AssignmentStatus.ASSIGNED::equals)
-            . count  ();
-            */
-            mav.addObject ("have_assigned_roles", roles.size () > 0);
+            final List <RegisteredPeriodRoleEntity> assignedRoles = roles.stream ()
+                . filter (role -> AssignmentStatus.ASSIGNED.equals (role.getStatus ()))
+                . collect (Collectors.toList ());
+            mav.addObject ("assigned_roles", roles);
+            mav.addObject ("have_assigned_roles", assignedRoles.size () > 0);
         } catch (SecurityException se) {}
         
         final List <PersonalDataTemplate> templates = personalDataService

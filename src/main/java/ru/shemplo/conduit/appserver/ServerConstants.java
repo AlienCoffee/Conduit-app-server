@@ -30,6 +30,8 @@ public class ServerConstants {
     public static final String PAGE_OLYMPIAD_ATTEMPTS = PAGE_OLYMPIAD + $ + "attempts";
     public static final String PAGE_ATTEMPT_CHECK = $ + "attempt" + $ + "{id}" + $ + "check";
     
+    public static final String PAGE_ADMIN = $ + "admin";
+    
     public static final String API = $ + "api";
     public static final String API_ = API + $;
     

@@ -28,7 +28,7 @@ public class WUser extends User implements Identifiable {
         stubUser = new WUser (entity);
     }
     
-    @Getter private final UserEntity entity;
+    @Getter protected final UserEntity entity;
     
     public WUser (UserEntity entity) {
         super (entity.getLogin (), entity.getPassword (), new ArrayList <> () /* stub array */ );
