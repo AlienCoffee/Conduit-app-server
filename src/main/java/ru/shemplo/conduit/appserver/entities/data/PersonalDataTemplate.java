@@ -27,12 +27,12 @@ public enum PersonalDataTemplate {
             new WebFormField <> (GENDER, TEXT, "Пол", "Одной буквой: М - мужской, Ж - женский", true),
             new WebFormField <> (STUDY_FORM, NUMBER, "Класс обучения", "Класс, который школьник закончил", true),
             new WebFormTitle ("ID document", "fas fa-id-card"),
-            new WebFormSelect ("Document type", "documentType", "Pasport", "Sertificate of Birth"),
-            new WebFormField <> (SECOND_NAME, TEXT, "Series", null, false),
-            new WebFormField <> (SECOND_NAME, TEXT, "Number", null, false),
+            new WebFormSelect ("Document type", ID_DOC_TYPE, true, "Pasport", "Sertificate of Birth"),
+            new WebFormField <> (ID_DOC_SERIES, TEXT, "Series", null, true),
+            new WebFormField <> (ID_DOC_NUMBER, TEXT, "Number", null, true),
             new WebFormTitle ("Living place", "fas fa-home"),
-            new WebFormField <> (SECOND_NAME, TEXT, "Region", null, false),
-            new WebFormField <> (SECOND_NAME, TEXT, "City / Town", null, false)
+            new WebFormField <> (LIVING_REGION, TEXT, "Region", null, true),
+            new WebFormField <> (LIVING_CITY, TEXT, "City / Town", null, true)
         )),
     
     TEACHER ("Teacher", true, Arrays.asList (

@@ -12,11 +12,13 @@ import java.util.stream.Stream;
 
 import org.springframework.web.bind.annotation.*;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.snowball.stuctures.Pair;
 import ru.shemplo.snowball.stuctures.Trio;
 import ru.shemplo.snowball.utils.ClasspathManager;
 import ru.shemplo.snowball.utils.MiscUtils;
 
+@Slf4j
 public class APIGenerator implements Generator {
     
     private final Set <Method> methods = new LinkedHashSet <> ();
@@ -256,6 +258,7 @@ public class APIGenerator implements Generator {
             pw.println (String.format ("                %s%s.set (%s, %s);", offset, name, varKName + "I", varVName + "I"));
             pw.println (String.format ("            %s});", offset));
         } else if (ctype.isArray ()) {
+            log.warn ("Initializing of array in API generator is not implemented (use List extend)");
             pw.println ("// not implemented: array");
         } else if (ctype.isEnum ()) {
             pw.println ("// not implemented: enum");

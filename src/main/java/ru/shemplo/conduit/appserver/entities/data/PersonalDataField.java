@@ -25,6 +25,7 @@ public enum PersonalDataField implements Named {
     STUDY_FORM             ("studyForm",            false, Object::toString, Integer::parseInt),
     FORM                   ("form",                 false, Object::toString, Integer::parseInt),
     QUALIFICATION          ("qualification",        true,  Object::toString, __ -> __),
+    ID_DOC_TYPE            ("idDocType",            true,  Object::toString, __ -> __),
     ID_DOC_SERIES          ("idDocSeries",          true,  Object::toString, __ -> __),
     ID_DOC_NUMBER          ("idDocNumber",          true,  Object::toString, __ -> __),
     ID_DOC_SOURCE          ("idDocSource",          true,  Object::toString, __ -> __),

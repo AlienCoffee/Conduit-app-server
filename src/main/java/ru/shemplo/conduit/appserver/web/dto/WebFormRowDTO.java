@@ -32,7 +32,7 @@ public class WebFormRowDTO {
         switch (rowType) {
             case "title": {
                 fieldType = WebFormFieldType.UNDEFINED;
-                required = true;
+                required = false;
                 comment = null;
                 id = null;
                 
@@ -54,12 +54,12 @@ public class WebFormRowDTO {
             
             case "select": {
                 fieldType = WebFormFieldType.UNDEFINED;
-                required = true;
                 comment = null;
                 icon = null;
                 
                 WebFormSelect select = MiscUtils.cast (row);
                 options.addAll (select.getOptions ());
+                required = select.isRequired ();
                 id = select.getParameterName ();
                 this.title = select.getName ();
             } break;
