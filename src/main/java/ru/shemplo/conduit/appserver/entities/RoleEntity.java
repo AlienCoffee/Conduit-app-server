@@ -8,8 +8,10 @@ import javax.persistence.*;
 import lombok.*;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
+import ru.shemplo.conduit.kt.generator.KTEntity;
 
 @Entity
+@KTEntity
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor

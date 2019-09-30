@@ -12,9 +12,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
 import ru.shemplo.conduit.appserver.start.DBTemplateConstant;
+import ru.shemplo.conduit.kt.generator.KTEntity;
 import ru.shemplo.conduit.ts.generator.DTOType;
 
 @Entity
+@KTEntity
 @Getter @Setter
 @NoArgsConstructor
 @DTOType (code = {

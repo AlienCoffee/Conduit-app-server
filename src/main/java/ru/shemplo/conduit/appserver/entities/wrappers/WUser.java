@@ -11,8 +11,10 @@ import lombok.Getter;
 import lombok.ToString;
 import ru.shemplo.conduit.appserver.entities.Identifiable;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
+import ru.shemplo.conduit.kt.generator.KTEntity;
 
 @ToString
+@KTEntity
 @EqualsAndHashCode (callSuper = false)
 public class WUser extends User implements Identifiable {
     

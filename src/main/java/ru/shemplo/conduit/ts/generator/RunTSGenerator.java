@@ -90,6 +90,8 @@ public class RunTSGenerator {
                 printGenerated (apig, path, "gen-apis.ts");
             } break;
         }
+        
+        System.out.println ("Generation finised");
     }
     
     private static void printGenerated (Generator generator, Path path, String filename) {

@@ -17,11 +17,11 @@ public class AdminController {
 	fun handleIndexPage (
         @IndentifiedUser user : WUser
 	) : ModelAndView {
-        val ent = user.getEntity ();
 		val view = ModelAndView ("admin/index");
+		val ent  = user.getEntity ();
 		view.addObject ("user", ent);
 
-		return view
+		return view;
 	}
 	
 }

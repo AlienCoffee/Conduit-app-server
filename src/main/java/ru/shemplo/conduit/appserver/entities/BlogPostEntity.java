@@ -9,9 +9,11 @@ import java.util.Set;
 import javax.persistence.*;
 
 import lombok.*;
+import ru.shemplo.conduit.kt.generator.KTEntity;
 
 @Entity
 @ToString
+@KTEntity
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
