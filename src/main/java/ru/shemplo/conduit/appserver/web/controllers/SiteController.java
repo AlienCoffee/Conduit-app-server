@@ -20,11 +20,13 @@ import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.UserEntity;
 import ru.shemplo.conduit.appserver.entities.data.PersonalDataTemplate;
 import ru.shemplo.conduit.appserver.entities.data.RegisteredPeriodRoleEntity;
-import ru.shemplo.conduit.appserver.entities.groups.*;
+import ru.shemplo.conduit.appserver.entities.groups.GroupEntity;
+import ru.shemplo.conduit.appserver.entities.groups.GroupJoinType;
+import ru.shemplo.conduit.appserver.entities.groups.GroupType;
+import ru.shemplo.conduit.appserver.entities.groups.PostEntity;
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
-import ru.shemplo.conduit.appserver.security.ProtectedMethod;
 import ru.shemplo.conduit.appserver.services.*;
 import ru.shemplo.conduit.appserver.web.dto.GroupMember;
 import ru.shemplo.conduit.appserver.web.dto.PageGroupRow;
@@ -51,6 +53,8 @@ public class SiteController {
         UserEntity ent = user != null ? user.getEntity () : null;
         ModelAndView mav = new ModelAndView ("index");
         mav.addObject ("user", ent);
+        
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -92,7 +96,9 @@ public class SiteController {
             return null;
         }
         
-        return new ModelAndView ("reg");
+        final var mav = new ModelAndView ("reg");
+        mav.addObject ("is_service_page", false);
+        return mav;
     }
     
     @GetMapping (PAGE_LOGIN)
@@ -105,7 +111,9 @@ public class SiteController {
             return null;
         }
         
-        return new ModelAndView ("login");
+        final var mav = new ModelAndView ("login");
+        mav.addObject ("is_service_page", false);
+        return mav;
     }
     
     @GetMapping (PAGE_PERIODS)
@@ -123,6 +131,8 @@ public class SiteController {
                                     . filter  (p -> !p.getName ().startsWith ("$"))
                                     . collect (Collectors.toList ());
         mav.addObject ("periods", periods);
+        
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -188,6 +198,7 @@ public class SiteController {
             mav.addObject ("have_access_to_groups", false);
         }
         
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -220,6 +231,7 @@ public class SiteController {
             . getUserRegisteredTemplates (user, period);
         mav.addObject ("templates", templates);
         
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -249,6 +261,7 @@ public class SiteController {
                                 .thenComparing (m -> m.getUser ().getLogin ()));
         mav.addObject ("members", members);
         
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -286,6 +299,7 @@ public class SiteController {
         mav.addObject ("attempts", attempts);
         */
         
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -318,6 +332,7 @@ public class SiteController {
         mav.addObject ("attempts", attemptsRows);
         */
         
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
@@ -360,6 +375,7 @@ public class SiteController {
         mav.addObject ("problems", problems);
         */
         
+        mav.addObject ("is_service_page", false);
         return mav;
     }
     
