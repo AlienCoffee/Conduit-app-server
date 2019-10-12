@@ -10,13 +10,14 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor
 @Table (name = "users_parameters", uniqueConstraints = {
-    @UniqueConstraint (columnNames = {"user", "parameter"})
+    @UniqueConstraint (columnNames = {"user_id", "parameter"})
 })
 public class UserParameter extends AbsEntity {
     
     @ManyToOne (optional = false)
     private UserEntity user;
     
+    @Column (nullable = false)
     @Enumerated (EnumType.STRING)
     private UserParameterName parameter;
     
