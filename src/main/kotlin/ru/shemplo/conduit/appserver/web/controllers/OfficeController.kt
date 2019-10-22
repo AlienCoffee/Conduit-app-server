@@ -32,6 +32,20 @@ public class CourtController {
 		mav.addObject ("user", ent);
 
 		mav.addObject ("is_service_page", true);
+		mav.addObject ("tab", "management");
+		return mav;
+	}
+	
+	@GetMapping (PAGE_OFFICE_PERIODS_APPLICATIONS)
+	fun handlePeriodsApplicationsPage (
+        @IndentifiedUser user : WUser
+	) : ModelAndView {
+		val mav = ModelAndView ("office/periods-applications");
+		val ent  = user.getEntity ();
+		mav.addObject ("user", ent);
+
+		mav.addObject ("is_service_page", true);
+		mav.addObject ("tab", "applications");
 		return mav;
 	}
 	

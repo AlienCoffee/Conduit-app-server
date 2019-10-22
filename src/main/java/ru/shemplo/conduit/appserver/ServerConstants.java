@@ -32,6 +32,7 @@ public class ServerConstants {
     
     public static final String PAGE_OFFICE = $ + "office";
     public static final String PAGE_OFFICE_PERIODS = $ + "office" + $ + "periods";
+    public static final String PAGE_OFFICE_PERIODS_APPLICATIONS = PAGE_OFFICE_PERIODS + "-applications";
     
     public static final String PAGE_ADMIN = $ + "admin";
     
