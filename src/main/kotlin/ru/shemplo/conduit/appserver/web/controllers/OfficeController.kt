@@ -7,9 +7,10 @@ import ru.shemplo.conduit.appserver.entities.wrappers.WUser
 import org.springframework.web.servlet.ModelAndView
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser
 import ru.shemplo.conduit.appserver.*
+import ru.shemplo.conduit.appserver.entities.PeriodStatus
 
 @Controller
-public class CourtController {
+public class OfficeController {
     
 	@GetMapping (PAGE_OFFICE)
 	fun handleIndexPage (
@@ -31,6 +32,9 @@ public class CourtController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("period_statuses", PeriodStatus.getValues ());
+		mav.addObject ("is_system_period_selected", true);
+		mav.addObject ("active_applications", 4);
 		mav.addObject ("is_service_page", true);
 		mav.addObject ("tab", "management");
 		return mav;
@@ -44,6 +48,8 @@ public class CourtController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("is_system_period_selected", true);
+		mav.addObject ("active_applications", 0);
 		mav.addObject ("is_service_page", true);
 		mav.addObject ("tab", "applications");
 		return mav;

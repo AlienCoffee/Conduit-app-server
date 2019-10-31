@@ -146,17 +146,25 @@ public class APIGenerator implements Generator {
     
     private Stream <Trio <Parameter, String, String>> getStreamOfParameters (Method method) {
         return Arrays.asList (method.getParameters ()).stream ()
-             .filter (param -> param.isAnnotationPresent (RequestParam.class))
+             .filter (param -> param.isAnnotationPresent (RequestParam.class)
+                            || param.isAnnotationPresent (RequestBody.class))
              . map   (param -> {
-                 final RequestParam paramAnnot = param.getAnnotation (RequestParam.class);
                  final Type type = param.getParameterizedType ();
-                 
-                 String name = paramAnnot.value  ().length () > 0 
-                             ? paramAnnot.value  () 
-                             : param.getName ();
-                 
                  String ptype = dtoGenerator.processType (type);
-                 return Trio.mt (param, name, ptype);
+                 
+                 if (param.isAnnotationPresent (RequestParam.class)) {
+                     final RequestParam paramAnnot = param.getAnnotation (RequestParam.class);
+                     
+                     String name = paramAnnot.value  ().length () > 0 
+                                 ? paramAnnot.value  () 
+                                 : param.getName ();
+                                 
+                     return Trio.mt (param, name, ptype);
+                 } else if (param.isAnnotationPresent (RequestBody.class)) {
+                     return Trio.mt (param, param.getName (), ptype);
+                 }
+                 
+                 throw new IllegalStateException ("impossible");
              });
     }
     
@@ -168,6 +176,9 @@ public class APIGenerator implements Generator {
             if (param.F.isAnnotationPresent (RequestParam.class) && required) {
                 RequestParam rp = param.F.getAnnotation (RequestParam.class);
                 required = rp.required ();
+            } else if (param.F.isAnnotationPresent (RequestBody.class)) {
+                RequestBody rb = param.F.getAnnotation (RequestBody.class);
+                required = rb.required ();
             }
             
             return Pair.mp (param, required);

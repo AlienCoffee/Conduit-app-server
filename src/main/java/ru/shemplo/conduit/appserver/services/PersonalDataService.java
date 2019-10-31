@@ -138,4 +138,11 @@ public class PersonalDataService extends AbsCachedService <PersonalDataCollector
         return registeredRoleRepository.findTempltesByPeriodAndUser (period, user.getEntity ());
     }
     
+    @ProtectedMethod
+    public List <RegisteredPeriodRoleEntity> getPendingRegistrations (WUser user, PeriodEntity period) {
+        accessGuard.method (MiscUtils.getMethod (), period, user);
+        // TODO: add filtering
+        return registeredRoleRepository.findByPeriod (period);
+    }
+    
 }

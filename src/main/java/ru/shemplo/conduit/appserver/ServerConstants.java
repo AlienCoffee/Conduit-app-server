@@ -109,4 +109,12 @@ public class ServerConstants {
     public static final String API_UPDATE_OLYMPIAD_RESULTS = API_UPDATE_ + "olympiad" + $ + "toggle-results";
     public static final String API_UPDATE_ATTEMPT_RESULTS = API_UPDATE_ + "attempt" + $ + "save-results";
     
+    public static final String API_OFFICE = API_ + "office";
+    public static final String API_OFFICE_ = API_OFFICE + $;
+    
+    public static final String API_OFFICE_UPDATE = API_OFFICE_ + "update";
+    public static final String API_OFFICE_UPDATE_ = API_OFFICE_UPDATE + $;
+    
+    public static final String API_OFFICE_UPDATE_PERIOD = API_OFFICE_UPDATE_ + "period";
+    
 }
