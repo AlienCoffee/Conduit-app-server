@@ -8,10 +8,16 @@ import org.springframework.web.servlet.ModelAndView
 import ru.shemplo.conduit.appserver.entities.wrappers.IndentifiedUser
 import ru.shemplo.conduit.appserver.*
 import ru.shemplo.conduit.appserver.entities.PeriodStatus
+import ru.shemplo.conduit.appserver.services.PeriodsService
+import lombok.RequiredArgsConstructor
+import org.springframework.beans.factory.annotation.Autowired
 
 @Controller
 public class OfficeController {
     
+	@Autowired
+	private var periodsService : PeriodsService? = null;
+	
 	@GetMapping (PAGE_OFFICE)
 	fun handleIndexPage (
         @IndentifiedUser user : WUser
@@ -20,6 +26,7 @@ public class OfficeController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("periods", periodsService?.getAllPeriods ());
 		mav.addObject ("is_service_page", true);
 		return mav;
 	}
@@ -33,6 +40,7 @@ public class OfficeController {
 		mav.addObject ("user", ent);
 
 		mav.addObject ("period_statuses", PeriodStatus.getValues ());
+		mav.addObject ("periods", periodsService?.getAllPeriods ());
 		mav.addObject ("is_system_period_selected", true);
 		mav.addObject ("active_applications", 4);
 		mav.addObject ("is_service_page", true);
@@ -48,6 +56,7 @@ public class OfficeController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("periods", periodsService?.getAllPeriods ());
 		mav.addObject ("is_system_period_selected", true);
 		mav.addObject ("active_applications", 0);
 		mav.addObject ("is_service_page", true);
