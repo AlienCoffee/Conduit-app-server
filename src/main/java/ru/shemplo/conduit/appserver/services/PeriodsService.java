@@ -25,6 +25,7 @@ import ru.shemplo.snowball.utils.MiscUtils;
 @RequiredArgsConstructor
 public class PeriodsService extends AbsCachedService <PeriodEntity> {
     
+    private final UserParametersService userParametersService;
     private final PeriodEntityRepository periodsRepository;
     @Autowired private AccessGuard accessGuard;
     private final Clock clock;
@@ -98,6 +99,12 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
         
         log.info (period.toTemplateString ());
         return periodsRepository.save (period);
+    }
+    
+    @ProtectedMethod
+    public PeriodEntity getCurrentOfficePeriod (WUser user) {
+        accessGuard.method (MiscUtils.getMethod (), user);
+        return null;
     }
     
 }

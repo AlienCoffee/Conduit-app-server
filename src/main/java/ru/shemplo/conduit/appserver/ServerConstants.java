@@ -116,5 +116,6 @@ public class ServerConstants {
     public static final String API_OFFICE_UPDATE_ = API_OFFICE_UPDATE + $;
     
     public static final String API_OFFICE_UPDATE_PERIOD = API_OFFICE_UPDATE_ + "period";
+    public static final String API_OFFICE_UPDATE_PERIOD_SELECTION = API_OFFICE_UPDATE_ + "period-selection";
     
 }

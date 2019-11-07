@@ -26,6 +26,7 @@ public class OfficeController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("current_period", periodsService?.getCurrentOfficePeriod (user));
 		mav.addObject ("periods", periodsService?.getAllPeriods ());
 		mav.addObject ("is_service_page", true);
 		return mav;
@@ -39,6 +40,7 @@ public class OfficeController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("current_period", periodsService?.getCurrentOfficePeriod (user));
 		mav.addObject ("period_statuses", PeriodStatus.getValues ());
 		mav.addObject ("periods", periodsService?.getAllPeriods ());
 		mav.addObject ("is_system_period_selected", true);
@@ -56,6 +58,7 @@ public class OfficeController {
 		val ent  = user.getEntity ();
 		mav.addObject ("user", ent);
 
+		mav.addObject ("current_period", periodsService?.getCurrentOfficePeriod (user));
 		mav.addObject ("periods", periodsService?.getAllPeriods ());
 		mav.addObject ("is_system_period_selected", true);
 		mav.addObject ("active_applications", 0);
