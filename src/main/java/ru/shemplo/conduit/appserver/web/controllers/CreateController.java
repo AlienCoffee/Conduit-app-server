@@ -139,7 +139,8 @@ public class CreateController {
         @RequestParam (value = "until", required = false)
             String until
     ) {
-        final LocalDateTime untilDT = until != null ? LocalDateTime.parse (until) : null;
+        final LocalDateTime untilDT = until != null && until.length () > 0 
+                                    ? LocalDateTime.parse (until) : null;
         final LocalDateTime sinceDT = LocalDateTime.parse (since);
         final PeriodStatus status = PeriodStatus.CREATED;
         periodsService.createPeriod (name, description, 

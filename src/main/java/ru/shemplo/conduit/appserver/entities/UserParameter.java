@@ -2,6 +2,7 @@ package ru.shemplo.conduit.appserver.entities;
 
 import javax.persistence.*;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table (name = "users_parameters", uniqueConstraints = {
     @UniqueConstraint (columnNames = {"user_id", "parameter"})
 })

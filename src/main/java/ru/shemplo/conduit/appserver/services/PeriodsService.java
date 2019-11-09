@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.shemplo.conduit.appserver.entities.PeriodEntity;
 import ru.shemplo.conduit.appserver.entities.PeriodStatus;
+import ru.shemplo.conduit.appserver.entities.UserParameterName;
 import ru.shemplo.conduit.appserver.entities.repositories.PeriodEntityRepository;
 import ru.shemplo.conduit.appserver.entities.wrappers.WUser;
 import ru.shemplo.conduit.appserver.security.AccessGuard;
@@ -70,12 +71,15 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
         accessGuard.method (MiscUtils.getMethod ());
         
         final PeriodEntity entity = new PeriodEntity ();
-        entity.setIssued (LocalDateTime.now (clock));
+        final var now = LocalDateTime.now (clock);
         entity.setCommitter (user.getEntity ());
+        entity.setAuthor (user.getEntity ());
         entity.setDescription (description);
         entity.setStatus (status);
         entity.setSince (since);
         entity.setUntil (until);
+        entity.setChanged (now);
+        entity.setIssued (now);
         entity.setName (name);
         
         log.info (entity.toTemplateString ());
@@ -104,7 +108,21 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
     @ProtectedMethod
     public PeriodEntity getCurrentOfficePeriod (WUser user) {
         accessGuard.method (MiscUtils.getMethod (), user);
-        return null;
+        final var periodParam = userParametersService.getParameterByName (
+            user, UserParameterName.OFFICE_PERIOD
+        );
+        
+        if (periodParam == null) {            
+            return PeriodEntity.getSystem ();
+        }
+        
+        try {            
+            Long periodId = Long.parseLong (periodParam.getValue ());
+            return getEntity (periodId);
+        } catch (NumberFormatException nfe) {
+            log.error (nfe + " " + nfe.getMessage ());
+            return PeriodEntity.getSystem ();
+        }
     }
     
 }
