@@ -35,6 +35,8 @@ public class PeriodEntity extends AbsAuditableEntity {
         if (system == null) { system = period; }
     }
     
+    public static PeriodEntity getSystemForKT () { return system; }
+    
     @DBTemplateAnchor
     @Column (nullable = false, unique = true)
     private String name;

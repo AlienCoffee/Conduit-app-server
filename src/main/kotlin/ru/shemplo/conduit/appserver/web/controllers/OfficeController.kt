@@ -11,6 +11,8 @@ import ru.shemplo.conduit.appserver.entities.PeriodStatus
 import ru.shemplo.conduit.appserver.services.PeriodsService
 import lombok.RequiredArgsConstructor
 import org.springframework.beans.factory.annotation.Autowired
+import ru.shemplo.conduit.appserver.entities.PeriodEntity
+import ru.shemplo.conduit.appserver.entities.PeriodEntity.*
 
 @Controller
 public class OfficeController {
@@ -23,13 +25,7 @@ public class OfficeController {
         @IndentifiedUser user : WUser
 	) : ModelAndView {
 		val mav = ModelAndView ("office/index");
-		val ent  = user.getEntity ();
-		mav.addObject ("user", ent);
-
-		mav.addObject ("current_period", periodsService?.getCurrentOfficePeriod (user));
-		mav.addObject ("periods", periodsService?.getAllPeriods ());
-		mav.addObject ("is_service_page", true);
-		return mav;
+		return setParameters (mav, user, null).first;
 	}
 	
 	@GetMapping (PAGE_OFFICE_PERIODS)
@@ -37,17 +33,10 @@ public class OfficeController {
         @IndentifiedUser user : WUser
 	) : ModelAndView {
 		val mav = ModelAndView ("office/periods");
-		val ent  = user.getEntity ();
-		mav.addObject ("user", ent);
-
-		mav.addObject ("current_period", periodsService?.getCurrentOfficePeriod (user));
-		mav.addObject ("period_statuses", PeriodStatus.getValues ());
-		mav.addObject ("periods", periodsService?.getAllPeriods ());
-		mav.addObject ("is_system_period_selected", true);
-		mav.addObject ("active_applications", 4);
-		mav.addObject ("is_service_page", true);
-		mav.addObject ("tab", "management");
-		return mav;
+		val (_mav_, isSystemPeriod) = setParameters (mav, user, "management");
+		
+		if (!isSystemPeriod) { return handlePeriodsApplicationsPage (user); }
+		return _mav_;
 	}
 	
 	@GetMapping (PAGE_OFFICE_PERIODS_APPLICATIONS)
@@ -55,16 +44,27 @@ public class OfficeController {
         @IndentifiedUser user : WUser
 	) : ModelAndView {
 		val mav = ModelAndView ("office/periods-applications");
-		val ent  = user.getEntity ();
-		mav.addObject ("user", ent);
-
-		mav.addObject ("current_period", periodsService?.getCurrentOfficePeriod (user));
+		val (_mav_, isSystemPeriod) = setParameters (mav, user, "applications");
+		
+		if (isSystemPeriod) { return handlePeriodsPage (user); }
+		return _mav_;
+	}
+	
+	private fun setParameters (mav : ModelAndView, user : WUser, tab : String?) : Pair <ModelAndView, Boolean> {
+		mav.addObject ("user", user.getEntity ());
+		
+		val currentPeriod = periodsService?.getCurrentOfficePeriod (user);
+		val isSystem = currentPeriod?.getId () == getSystemForKT ().getId ();
+		mav.addObject ("is_system_period_selected", isSystem);
+		mav.addObject ("current_period", currentPeriod);
+		
 		mav.addObject ("periods", periodsService?.getAllPeriods ());
-		mav.addObject ("is_system_period_selected", true);
 		mav.addObject ("active_applications", 0);
 		mav.addObject ("is_service_page", true);
-		mav.addObject ("tab", "applications");
-		return mav;
+		
+		if (tab != null) { mav.addObject ("tab", tab); }
+		
+		return Pair (mav, isSystem);
 	}
 	
 }
