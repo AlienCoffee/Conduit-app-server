@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -116,9 +117,10 @@ public class APIGenerator implements Generator {
         pw.println (" {");
         Trio <String, String, String> methodAndURLAndParams = prepareMethodAndURLAndParams (method);
         boolean isInline = Arrays.asList ("GET", "DELETE").indexOf (methodAndURLAndParams.F) != -1;
-        if (!isInline) {
+        Trio <Parameter, String, String> bodyParam = getStreamOfParameters (method).S;
+        if (!isInline && bodyParam == null) {
             pw.println ("        var formData = new FormData ();");
-            getStreamOfParameters (method).forEach (param -> {
+            getStreamOfParameters (method).F.forEach (param -> {
                 final String stub = prepareParameterStub (param.F, param.S, param.T);
                 pw.println (String.format ("        formData.append (\"%s\", %s);", param.S, stub));
             });
@@ -134,7 +136,7 @@ public class APIGenerator implements Generator {
             pw.print (methodAndURLAndParams.T);
         }
         pw.print   ("\", ");
-        pw.print   (isInline ? "null" : "formData");
+        pw.print   (isInline ? "null" : (bodyParam != null ? bodyParam.S : "formData"));
         pw.println (");");
         pw.println ("        if (answer && !answer.error) {");
         //processTypesAssignment (rType, "", "answer", 0, pw);
@@ -144,34 +146,66 @@ public class APIGenerator implements Generator {
         pw.println ("    }");
     }
     
-    private Stream <Trio <Parameter, String, String>> getStreamOfParameters (Method method) {
-        return Arrays.asList (method.getParameters ()).stream ()
-             .filter (param -> param.isAnnotationPresent (RequestParam.class)
-                            || param.isAnnotationPresent (RequestBody.class))
-             . map   (param -> {
-                 final Type type = param.getParameterizedType ();
-                 String ptype = dtoGenerator.processType (type);
-                 
-                 if (param.isAnnotationPresent (RequestParam.class)) {
-                     final RequestParam paramAnnot = param.getAnnotation (RequestParam.class);
-                     
-                     String name = paramAnnot.value  ().length () > 0 
-                                 ? paramAnnot.value  () 
-                                 : param.getName ();
-                                 
-                     return Trio.mt (param, name, ptype);
-                 } else if (param.isAnnotationPresent (RequestBody.class)) {
-                     return Trio.mt (param, param.getName (), ptype);
-                 }
-                 
-                 throw new IllegalStateException ("impossible");
-             });
+    private Pair <List <Trio <Parameter, String, String>>, Trio <Parameter, String, String>> 
+            getStreamOfParameters (Method method) {
+        final AtomicReference <Trio <Parameter, String, String>> 
+            bodyParam = new AtomicReference <> ();
+        
+        final var paramsList = Arrays.asList (method.getParameters ()).stream ()
+            . filter (param -> param.isAnnotationPresent (RequestParam.class)
+                            || param.isAnnotationPresent (RequestBody.class)
+                            /* || param.isAnnotationPresent (ModelAttribute.class) */ )
+            . map (param -> {
+                final Type type = param.getParameterizedType ();
+                String ptype = dtoGenerator.processType (type);
+                
+                if (param.isAnnotationPresent (RequestBody.class)) {
+                    if (bodyParam.get () == null) {
+                        String name = param.getName ();
+                        if (param.isAnnotationPresent (DTORename.class)) {
+                            final DTORename paramAnnot = param.getAnnotation (DTORename.class);
+                            name = paramAnnot.value ().length () > 0 
+                                 ? paramAnnot.value () : name;
+                        }
+                        
+                        bodyParam.set (Trio.mt (param, name, ptype));
+                    } else {
+                        String message = String.format (
+                            "Method can't have more than one @RequestBody parameter (%s.%s)",
+                            method.getDeclaringClass ().getSimpleName (), method.getName ()
+                        );
+                        throw new IllegalStateException (message);
+                    }
+                    
+                    return null;
+                } else if (param.isAnnotationPresent (RequestParam.class)) {
+                    final RequestParam paramAnnot = param.getAnnotation (RequestParam.class);
+                    
+                    String name = paramAnnot.value  ().length () > 0 
+                                ? paramAnnot.value  () 
+                                : param.getName ();
+                                
+                    return Trio.mt (param, name, ptype);
+                } /* else if (param.isAnnotationPresent (ModelAttribute.class)) {
+                    final ModelAttribute paramAnnot = param.getAnnotation (ModelAttribute.class);
+                    String name = paramAnnot.value  ().length () > 0 
+                                ? paramAnnot.value  () 
+                                : param.getName ();
+                    return Trio.mt (param, name, ptype);
+                } */
+                
+                throw new IllegalStateException ("impossible");
+            })
+            . filter (Objects::nonNull)
+            . collect (Collectors.toList ());
+        return Pair.mp (paramsList, bodyParam.get ());
     }
     
     private String prepareMethodArguments (Method method) {
         List <String> params = new ArrayList <> ();
         
-        getStreamOfParameters (method).map (param -> {
+        var paramss = getStreamOfParameters (method);
+        paramss.F.stream ().map (param -> {
             boolean required = true;
             if (param.F.isAnnotationPresent (RequestParam.class) && required) {
                 RequestParam rp = param.F.getAnnotation (RequestParam.class);
@@ -185,6 +219,10 @@ public class APIGenerator implements Generator {
         }).sorted ((a, b) -> (b.S ? 1 : 0) - (a.S ? 1 : 0)).forEach (pair -> {
             params.add (String.format ("%s%s : %s", pair.F.S, pair.S ? "" : "?", pair.F.T));
         });
+        
+        if (paramss.S != null) {
+            params.add (String.format ("%s : %s", paramss.S.S, paramss.S.T));
+        }
         
         return params.stream ().collect (Collectors.joining (", "));
     }
@@ -210,7 +248,7 @@ public class APIGenerator implements Generator {
     private String prepareParametersString (Method method) {
         StringJoiner sj = new StringJoiner ("&");
         
-        getStreamOfParameters (method).forEach (param -> {
+        getStreamOfParameters (method).F.forEach (param -> {
             final String stub = prepareParameterStub (param.F, param.S, param.T);
             sj.add (String.format ("%s=\"+(%s)+\"", param.S, stub));
         });

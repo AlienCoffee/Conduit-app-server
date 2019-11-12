@@ -1,5 +1,7 @@
 package ru.shemplo.conduit.appserver.services;
 
+import static ru.shemplo.conduit.appserver.entities.PeriodStatus.*;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -90,7 +92,7 @@ public class PeriodsService extends AbsCachedService <PeriodEntity> {
     public PeriodEntity changePeriodStatus (PeriodEntity period, 
             PeriodStatus status, WUser committer) {
         accessGuard.method (MiscUtils.getMethod (), period);
-        if (PeriodStatus.CREATED.equals (status)) {
+        if (CREATED.equals (status) && !CREATED.equals (period.getStatus ())) {
             String message = "Period status can't be switched to " 
                            + PeriodStatus.CREATED;
             throw new IllegalStateException (message);

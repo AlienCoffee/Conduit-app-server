@@ -33,6 +33,7 @@ public class OfficeController {
         @IndentifiedUser user : WUser
 	) : ModelAndView {
 		val mav = ModelAndView ("office/periods");
+		mav.addObject ("period_statuses", PeriodStatus.getValues ());
 		val (_mav_, isSystemPeriod) = setParameters (mav, user, "management");
 		
 		if (!isSystemPeriod) { return handlePeriodsApplicationsPage (user); }

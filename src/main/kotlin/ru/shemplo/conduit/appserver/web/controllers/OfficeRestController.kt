@@ -12,6 +12,9 @@ import ru.shemplo.conduit.appserver.entities.wrappers.WUser
 import ru.shemplo.conduit.appserver.services.UserParametersService
 import ru.shemplo.conduit.appserver.web.ResponseBox
 import ru.shemplo.conduit.appserver.entities.UserParameterName
+import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.ModelAttribute
+import ru.shemplo.conduit.ts.generator.DTORename
 
 @RestController
 public class OfficeRestController {
@@ -22,6 +25,7 @@ public class OfficeRestController {
 	@PostMapping (API_OFFICE_UPDATE_PERIOD)
 	fun handleUpdatePeriod (
         @IndentifiedUser user : WUser,
+		@DTORename ("period")
 		@RequestBody period : PeriodEntity
 	) : ResponseBox <Void> {
 		println (period);

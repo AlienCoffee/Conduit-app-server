@@ -10,9 +10,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.validation.ValidationException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,7 @@ public class CreateController {
     private final Lock REG_LOCK = new ReentrantLock (true);
     
     @PostMapping (API_CREATE_USER)
+    @ResponseStatus (HttpStatus.CREATED)
     public ResponseBox <Void> handleCreateUser (
         @RequestParam ("login")    String login,
         @RequestParam ("phone")    String phone,
@@ -109,6 +112,7 @@ public class CreateController {
     }
     
     @PostMapping (API_CREATE_OPTION)
+    @ResponseStatus (HttpStatus.CREATED)
     public ResponseBox <Void> handleCreateOption (
         @RequestParam ("name") String name
     ) {
@@ -117,6 +121,7 @@ public class CreateController {
     }
     
     @PostMapping (API_CREATE_ROLE)
+    @ResponseStatus (HttpStatus.CREATED)
     public ResponseBox <Void> handleCreateRole (
         @RequestParam (value = "template", required = false) 
             String templateName,
@@ -130,6 +135,7 @@ public class CreateController {
     }
     
     @PostMapping (API_CREATE_PERIOD) 
+    @ResponseStatus (HttpStatus.CREATED)
     public ResponseBox <Void> handleCreatePeriod (
         @IndentifiedUser         WUser  user,
         @RequestParam ("name")   String name,
@@ -149,6 +155,7 @@ public class CreateController {
         return ResponseBox.ok ();
     }
     
+    @ResponseStatus (HttpStatus.CREATED)
     @PostMapping (API_CREATE_PERIOD_REGISTRATION)
     public ResponseBox <Void> handleCreatePeriodRegistration (
         @IndentifiedUser           WUser  user,
@@ -170,6 +177,7 @@ public class CreateController {
     }
     
     @PostMapping (API_CREATE_GROUP)
+    @ResponseStatus (HttpStatus.CREATED)
     public ResponseBox <Void> handleCreateGroup (
         @IndentifiedUser         WUser  user,
         @RequestParam ("name")   String name,
@@ -207,6 +215,7 @@ public class CreateController {
     */
     
     @PostMapping (API_CREATE_GROUP_JOIN)
+    @ResponseStatus (HttpStatus.CREATED)
     public ResponseBox <Void> handleCreateGroupJoin (
         @IndentifiedUser        WUser user,
         @RequestParam ("group") Long groupID
@@ -217,6 +226,7 @@ public class CreateController {
         return ResponseBox.ok ();
     }
     
+    @ResponseStatus (HttpStatus.CREATED)
     @PostMapping (API_CREATE_INFORMATION_POST)
     public ResponseBox <Void> handleCreateInformationPost (
         @IndentifiedUser          WUser user,
