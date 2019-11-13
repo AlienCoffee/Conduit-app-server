@@ -1,13 +1,8 @@
 package ru.shemplo.conduit.appserver.entities;
 
-import static ru.shemplo.conduit.appserver.ServerConstants.*;
-
 import java.time.LocalDateTime;
 
 import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 import ru.shemplo.conduit.appserver.start.DBTemplateAnchor;
@@ -44,18 +39,19 @@ public class PeriodEntity extends AbsAuditableEntity {
     @Column (columnDefinition = "text")
     private String description;
     
-    @JsonIgnore
+    //@JsonIgnore
     @DBTemplateConstant
     @Column (nullable = false)
     private LocalDateTime since;
     
-    @JsonIgnore
+    //@JsonIgnore
     private LocalDateTime until;
     
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
     private PeriodStatus status;
     
+    /*
     @JsonProperty ("since")
     public String getJSONSince () {
         since.format (RU_DATETIME_FORMAT);
@@ -68,5 +64,6 @@ public class PeriodEntity extends AbsAuditableEntity {
         //return until.format (RU_DATETIME_FORMAT);
         return until.toString ();
     }
+    */
     
 }

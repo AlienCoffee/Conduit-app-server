@@ -4,6 +4,7 @@ package ru.shemplo.conduit.appserver;
 import ru.shemplo.conduit.appserver.entities.wrappers.*;
 import ru.shemplo.conduit.appserver.entities.data.*;
 import ru.shemplo.conduit.appserver.entities.*;
+import ru.shemplo.conduit.appserver.web.dto.*;
 import java.time.*;
 import java.util.*;
 
@@ -34,3 +35,8 @@ public fun UserEntity.getLogin () = i <String> (this, "getLogin");
 public fun UserEntity.getPassword () = i <String> (this, "getPassword");
 public fun UserEntity.getPhone () = i <String> (this, "getPhone");
 public fun WUser.getEntity () = i <UserEntity> (this, "getEntity");
+public fun PeriodDTO.getDescription () = i <String> (this, "getDescription");
+public fun PeriodDTO.getName () = i <String> (this, "getName");
+public fun PeriodDTO.getSince () = i <LocalDateTime> (this, "getSince");
+public fun PeriodDTO.getStatus () = i <PeriodStatus> (this, "getStatus");
+public fun PeriodDTO.getUntil () = i <LocalDateTime> (this, "getUntil");

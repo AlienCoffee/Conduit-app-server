@@ -15,6 +15,7 @@ import ru.shemplo.conduit.appserver.entities.UserParameterName
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.ModelAttribute
 import ru.shemplo.conduit.ts.generator.DTORename
+import ru.shemplo.conduit.appserver.web.dto.PeriodDTO
 
 @RestController
 public class OfficeRestController {
@@ -28,6 +29,7 @@ public class OfficeRestController {
 		@DTORename ("period")
 		@RequestBody period : PeriodEntity
 	) : ResponseBox <Void> {
+		println (user);
 		println (period);
 		return ResponseBox.ok ();
 	}
